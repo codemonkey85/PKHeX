@@ -15,10 +15,10 @@ namespace PKHeX.Core
         public static IEnumerable<IEncounterable> GetEncounters(PKM pkm, LegalInfo info)
         {
             info.PIDIV = MethodFinder.Analyze(pkm);
-            var deferredPIDIV = new List<IEncounterable>();
-            var deferredEType = new List<IEncounterable>();
+            List<IEncounterable>? deferredPIDIV = new List<IEncounterable>();
+            List<IEncounterable>? deferredEType = new List<IEncounterable>();
 
-            foreach (var z in GenerateRawEncounters4(pkm, info))
+            foreach (IEncounterable? z in GenerateRawEncounters4(pkm, info))
             {
                 if (!info.PIDIV.Type.IsCompatible4(z, pkm))
                     deferredPIDIV.Add(z);
@@ -28,33 +28,33 @@ namespace PKHeX.Core
                     yield return z;
             }
 
-            foreach (var z in deferredEType)
+            foreach (IEncounterable? z in deferredEType)
                 yield return z;
 
             if (deferredPIDIV.Count == 0)
                 yield break;
 
             info.PIDIVMatches = false;
-            foreach (var z in deferredPIDIV)
+            foreach (IEncounterable? z in deferredPIDIV)
                 yield return z;
         }
 
         private static IEnumerable<IEncounterable> GenerateRawEncounters4(PKM pkm, LegalInfo info)
         {
-            var chain = EncounterOrigin.GetOriginChain(pkm);
+            IReadOnlyList<EvoCriteria>? chain = EncounterOrigin.GetOriginChain(pkm);
             if (pkm.FatefulEncounter)
             {
                 int ctr = 0;
-                foreach (var z in GetValidGifts(pkm, chain))
+                foreach (MysteryGift? z in GetValidGifts(pkm, chain))
                 { yield return z; ++ctr; }
                 if (ctr != 0) yield break;
             }
             if (pkm.WasBredEgg)
             {
-                foreach (var z in GenerateEggs(pkm, 4))
+                foreach (EncounterEgg? z in GenerateEggs(pkm, 4))
                     yield return z;
             }
-            foreach (var z in GetValidEncounterTrades(pkm, chain))
+            foreach (EncounterTrade? z in GetValidEncounterTrades(pkm, chain))
                 yield return z;
 
             IEncounterable? deferred = null;
@@ -65,9 +65,9 @@ namespace PKHeX.Core
             bool safariSport = safari || sport;
             if (!safariSport)
             {
-                foreach (var z in GetValidStaticEncounter(pkm, chain))
+                foreach (EncounterStatic? z in GetValidStaticEncounter(pkm, chain))
                 {
-                    var match = z.GetMatchRating(pkm);
+                    EncounterMatchRating match = z.GetMatchRating(pkm);
                     if (match == PartialMatch)
                         partial ??= z;
                     else
@@ -75,17 +75,17 @@ namespace PKHeX.Core
                 }
             }
 
-            var slots = FrameFinder.GetFrames(info.PIDIV, pkm).ToList();
-            foreach (var z in GetValidWildEncounters34(pkm, chain))
+            List<Frame>? slots = FrameFinder.GetFrames(info.PIDIV, pkm).ToList();
+            foreach (EncounterSlot? z in GetValidWildEncounters34(pkm, chain))
             {
-                var match = z.GetMatchRating(pkm);
+                EncounterMatchRating match = z.GetMatchRating(pkm);
                 if (match == PartialMatch)
                 {
                     partial ??= z;
                     continue;
                 }
 
-                var frame = slots.Find(s => s.IsSlotCompatibile((EncounterSlot4)z, pkm));
+                Frame? frame = slots.Find(s => s.IsSlotCompatibile((EncounterSlot4)z, pkm));
                 if (frame == null)
                 {
                     deferred ??= z;
@@ -100,7 +100,7 @@ namespace PKHeX.Core
 
             if (partial is EncounterSlot4 y)
             {
-                var frame = slots.Find(s => s.IsSlotCompatibile(y, pkm));
+                Frame? frame = slots.Find(s => s.IsSlotCompatibile(y, pkm));
                 info.FrameMatches = frame != null;
                 yield return y;
             }
@@ -109,9 +109,9 @@ namespace PKHeX.Core
             if (!safariSport)
                 yield break;
 
-            foreach (var z in GetValidStaticEncounter(pkm, chain))
+            foreach (EncounterStatic? z in GetValidStaticEncounter(pkm, chain))
             {
-                var match = z.GetMatchRating(pkm);
+                EncounterMatchRating match = z.GetMatchRating(pkm);
                 if (match == PartialMatch)
                     partial ??= z;
                 else

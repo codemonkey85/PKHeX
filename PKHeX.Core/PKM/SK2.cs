@@ -131,13 +131,13 @@ namespace PKHeX.Core
 
         protected override byte[] GetNonNickname(int language)
         {
-            var name = SpeciesName.GetSpeciesNameGeneration(Species, language, Format);
+            string? name = SpeciesName.GetSpeciesNameGeneration(Species, language, Format);
             return SetString(name, StringLength);
         }
 
         public override void SetNotNicknamed(int language)
         {
-            var name = SpeciesName.GetSpeciesNameGeneration(Species, language, Format);
+            string? name = SpeciesName.GetSpeciesNameGeneration(Species, language, Format);
             Array.Clear(Data, 0x24, 0xC);
             Nickname = name;
         }

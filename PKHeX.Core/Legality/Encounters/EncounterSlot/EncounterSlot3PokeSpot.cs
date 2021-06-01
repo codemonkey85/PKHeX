@@ -20,7 +20,7 @@ namespace PKHeX.Core
 
         protected override void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             int gender = criteria.GetGender(-1, pi);
             int nature = (int)criteria.GetNature(Nature.Random);
             int ability = criteria.GetAbilityFromNumber(0);

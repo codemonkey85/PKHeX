@@ -78,7 +78,7 @@ namespace PKHeX.WinForms
 
         private void GetEntry()
         {
-            var dex = SAV.Dex;
+            Zukan4? dex = SAV.Dex;
 
             CHK_Caught.Checked = dex.GetCaught(species);
             CHK_Seen.Checked = dex.GetSeen(species);
@@ -95,7 +95,7 @@ namespace PKHeX.WinForms
 
         private void LoadLanguage()
         {
-            var dex = SAV.Dex;
+            Zukan4? dex = SAV.Dex;
             if (dex.HasLanguage(species))
             {
                 for (int i = 0; i < LangCount; i++)
@@ -114,14 +114,14 @@ namespace PKHeX.WinForms
             LB_Form.Items.Clear();
             LB_NForm.Items.Clear();
 
-            var forms = SAV.Dex.GetForms(species);
+            int[]? forms = SAV.Dex.GetForms(species);
             if (forms.Length == 0)
                 return;
 
             string[] formNames = GetFormNames4Dex(species);
 
-            var seen = forms.Where(z => z >= 0 && z < forms.Length).Distinct().Select((_, i) => formNames[forms[i]]).ToArray();
-            var not = formNames.Except(seen).ToArray();
+            string[]? seen = forms.Where(z => z >= 0 && z < forms.Length).Distinct().Select((_, i) => formNames[forms[i]]).ToArray();
+            string[]? not = formNames.Except(seen).ToArray();
 
             LB_Form.Items.AddRange(seen);
             LB_NForm.Items.AddRange(not);
@@ -129,14 +129,14 @@ namespace PKHeX.WinForms
 
         private void LoadGenders(bool seen)
         {
-            var dex = SAV.Dex;
-            var first = seen ? LB_Gender : LB_NGender;
-            var second = dex.GetSeenSingleGender(species) ? LB_NGender : first;
+            Zukan4? dex = SAV.Dex;
+            ListBox? first = seen ? LB_Gender : LB_NGender;
+            ListBox? second = dex.GetSeenSingleGender(species) ? LB_NGender : first;
 
             LB_Gender.Items.Clear();
             LB_NGender.Items.Clear();
-            var pi = SAV.Personal[species];
-            var gr = pi.Gender;
+            PersonalInfo? pi = SAV.Personal[species];
+            int gr = pi.Gender;
             switch (gr)
             {
                 case 255: // Genderless
@@ -149,7 +149,7 @@ namespace PKHeX.WinForms
                     first.Items.Add(FEMALE);
                     break;
                 default:
-                    var firstFem = dex.GetSeenGenderFirst(species) == 1;
+                    bool firstFem = dex.GetSeenGenderFirst(species) == 1;
                     first.Items.Add(firstFem ? FEMALE : MALE);
                     second.Items.Add(firstFem ? MALE : FEMALE);
                     break;
@@ -161,14 +161,14 @@ namespace PKHeX.WinForms
             if (species < 0)
                 return;
 
-            var dex = SAV.Dex;
+            Zukan4? dex = SAV.Dex;
             dex.SetCaught(species, CHK_Caught.Checked);
             dex.SetSeen(species, CHK_Seen.Checked);
             dex.SetSeenGenderNeither(species);
             if (LB_Gender.Items.Count != 0)
             {
-                var femaleFirst = LB_Gender.Items[0].ToString() == FEMALE;
-                var firstGender = femaleFirst ? 1 : 0;
+                bool femaleFirst = LB_Gender.Items[0].ToString() == FEMALE;
+                int firstGender = femaleFirst ? 1 : 0;
                 dex.SetSeenGenderNew(species, firstGender);
                 if (LB_Gender.Items.Count != 1)
                     dex.SetSeenGenderSecond(species, firstGender ^ 1);
@@ -180,7 +180,7 @@ namespace PKHeX.WinForms
                     dex.SetLanguageBitIndex(species, i, CL[i].Checked);
             }
 
-            var forms = SAV.Dex.GetForms(species);
+            int[]? forms = SAV.Dex.GetForms(species);
             if (forms.Length > 0)
             {
                 int[] arr = new int[LB_Form.Items.Count];
@@ -209,7 +209,7 @@ namespace PKHeX.WinForms
         private void B_GiveAll_Click(object sender, EventArgs e)
         {
             bool all = ModifierKeys != Keys.Control;
-            var args = all ? SetDexArgs.Complete : SetDexArgs.None;
+            SetDexArgs args = all ? SetDexArgs.Complete : SetDexArgs.None;
             SAV.Dex.ModifyAll(species, args, GetGen4LanguageBitIndex(SAV.Language));
             GetEntry();
         }
@@ -224,7 +224,7 @@ namespace PKHeX.WinForms
         {
             SetEntry();
 
-            var lang = GetGen4LanguageBitIndex(SAV.Language);
+            int lang = GetGen4LanguageBitIndex(SAV.Language);
             SetDexArgs args;
             if (sender == mnuComplete)
                 args = SetDexArgs.Complete;
@@ -277,16 +277,16 @@ namespace PKHeX.WinForms
         {
             if (editing)
                 return;
-            var lb = sender == B_GLeft ? LB_NGender : LB_Gender;
+            ListBox? lb = sender == B_GLeft ? LB_NGender : LB_Gender;
             if (lb == null || lb.SelectedIndex < 0)
             {
                 WinFormsUtil.Alert("No Gender selected.");
                 return;
             }
 
-            var item = lb.SelectedItem;
+            object? item = lb.SelectedItem;
             lb.Items.RemoveAt(lb.SelectedIndex);
-            var dest = lb == LB_Gender ? LB_NGender : LB_Gender;
+            ListBox? dest = lb == LB_Gender ? LB_NGender : LB_Gender;
             dest.Items.Add(item);
             dest.SelectedIndex = dest.Items.Count - 1;
         }
@@ -295,7 +295,7 @@ namespace PKHeX.WinForms
         {
             if (editing)
                 return;
-            var lb = LB_Gender;
+            ListBox? lb = LB_Gender;
             if (lb == null || lb.SelectedIndex < 0)
             {
                 WinFormsUtil.Alert("No Gender selected.");
@@ -314,7 +314,7 @@ namespace PKHeX.WinForms
             if (newIndex >= lb.Items.Count)
                 return;
 
-            var item = lb.SelectedItem;
+            object? item = lb.SelectedItem;
             lb.Items.Remove(item);
             lb.Items.Insert(newIndex, item);
             lb.SelectedIndex = newIndex;
@@ -324,16 +324,16 @@ namespace PKHeX.WinForms
         {
             if (editing)
                 return;
-            var lb = sender == B_FLeft ? LB_NForm : LB_Form;
+            ListBox? lb = sender == B_FLeft ? LB_NForm : LB_Form;
             if (lb == null || lb.SelectedIndex < 0)
             {
                 WinFormsUtil.Alert("No Form selected.");
                 return;
             }
 
-            var item = lb.SelectedItem;
+            object? item = lb.SelectedItem;
             lb.Items.RemoveAt(lb.SelectedIndex);
-            var dest = lb == LB_Form ? LB_NForm : LB_Form;
+            ListBox? dest = lb == LB_Form ? LB_NForm : LB_Form;
             dest.Items.Add(item);
             dest.SelectedIndex = dest.Items.Count - 1;
         }
@@ -342,7 +342,7 @@ namespace PKHeX.WinForms
         {
             if (editing)
                 return;
-            var lb = LB_Form;
+            ListBox? lb = LB_Form;
             if (lb == null || lb.SelectedIndex < 0)
             {
                 WinFormsUtil.Alert("No Form selected.");
@@ -361,7 +361,7 @@ namespace PKHeX.WinForms
             if (newIndex >= lb.Items.Count)
                 return;
 
-            var item = lb.SelectedItem;
+            object? item = lb.SelectedItem;
             lb.Items.Remove(item);
             lb.Items.Insert(newIndex, item);
             lb.SelectedIndex = newIndex;

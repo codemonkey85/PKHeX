@@ -49,16 +49,16 @@ namespace PKHeX.WinForms
 
         private void ResizeWindow()
         {
-            var img = PB_QR.Image;
+            Image? img = PB_QR.Image;
             splitContainer1.Height = splitContainer1.Panel1.Height + img.Height;
             splitContainer1.Width = img.Width;
         }
 
         private Image ReloadQRData(PK7 pk7)
         {
-            var box = (int)NUD_Box.Value - 1;
-            var slot = (int)NUD_Slot.Value - 1;
-            var copies = (int)NUD_Copies.Value;
+            int box = (int)NUD_Box.Value - 1;
+            int slot = (int)NUD_Slot.Value - 1;
+            int copies = (int)NUD_Copies.Value;
             extraText = $" (Box {box + 1}, Slot {slot + 1}, {copies} cop{(copies > 1 ? "ies" : "y")})";
             return QREncode.GenerateQRCode7(pk7, box, slot, copies);
         }
@@ -68,7 +68,7 @@ namespace PKHeX.WinForms
             SuspendLayout();
             ResumeLayout();
             Font font = !Main.Unicode ? Font : FontUtil.GetPKXFont(8.25f);
-            var img = QRImageUtil.GetQRImageExtended(font, qr, icon, Math.Max(qr.Width, 370), qr.Height + 50, Lines, extraText);
+            Bitmap? img = QRImageUtil.GetQRImageExtended(font, qr, icon, Math.Max(qr.Width, 370), qr.Height + 50, Lines, extraText);
             PB_QR.Image = img;
         }
 

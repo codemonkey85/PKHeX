@@ -29,12 +29,12 @@ namespace PKHeX.Core
             if (!pkm.Valid || pkm.Locked)
             {
                 Iterated++;
-                var reason = pkm.Locked ? "Locked." : "Not Valid.";
+                string? reason = pkm.Locked ? "Locked." : "Not Valid.";
                 Debug.WriteLine($"{MsgBEModifyFailBlocked} {reason}");
                 return false;
             }
 
-            var result = BatchEditing.TryModifyPKM(pkm, filters, modifications);
+            ModifyResult result = BatchEditing.TryModifyPKM(pkm, filters, modifications);
             if (result != ModifyResult.Invalid)
                 Iterated++;
             if (result == ModifyResult.Error)
@@ -67,11 +67,11 @@ namespace PKHeX.Core
 
         public static BatchEditor Execute(IList<string> lines, IEnumerable<PKM> data)
         {
-            var editor = new BatchEditor();
-            var sets = StringInstructionSet.GetBatchSets(lines).ToArray();
-            foreach (var pk in data)
+            BatchEditor? editor = new BatchEditor();
+            StringInstructionSet[]? sets = StringInstructionSet.GetBatchSets(lines).ToArray();
+            foreach (PKM? pk in data)
             {
-                foreach (var set in sets)
+                foreach (StringInstructionSet? set in sets)
                     editor.Process(pk, set.Filters, set.Instructions);
             }
 

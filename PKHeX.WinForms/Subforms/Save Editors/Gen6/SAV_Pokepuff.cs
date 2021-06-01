@@ -15,7 +15,7 @@ namespace PKHeX.WinForms
             WinFormsUtil.TranslateInterface(this, Main.CurrentLanguage);
             SAV = (ISaveBlock6Main)sav;
 
-            var puffs = SAV.Puff.GetPuffs();
+            byte[]? puffs = SAV.Puff.GetPuffs();
             Setup(puffs.Length);
             LoadPuffs(puffs);
 
@@ -102,10 +102,10 @@ namespace PKHeX.WinForms
 
         private byte[] GetPuffs()
         {
-            var puffs = new List<byte>();
+            List<byte>? puffs = new List<byte>();
             for (int i = 0; i < dgv.Rows.Count; i++)
             {
-                var puff = dgv.Rows[i].Cells[1].Value?.ToString();
+                string? puff = dgv.Rows[i].Cells[1].Value?.ToString();
                 int index = (byte)Array.IndexOf(pfa, puff);
                 puffs.Add((byte)index);
             }
@@ -114,7 +114,7 @@ namespace PKHeX.WinForms
 
         private void B_Save_Click(object sender, EventArgs e)
         {
-            var puffs = GetPuffs();
+            byte[]? puffs = GetPuffs();
             SAV.Puff.SetPuffs(puffs);
             SAV.Puff.PuffCount = puffs.Length;
             Close();

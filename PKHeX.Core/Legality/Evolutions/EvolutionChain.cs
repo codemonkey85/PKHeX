@@ -12,7 +12,7 @@ namespace PKHeX.Core
 
         internal static IReadOnlyList<EvoCriteria>[] GetEvolutionChainsAllGens(PKM pkm, IEncounterable Encounter)
         {
-            var CompleteEvoChain = GetEvolutionChain(pkm, Encounter, pkm.Species, pkm.CurrentLevel);
+            List<EvoCriteria>? CompleteEvoChain = GetEvolutionChain(pkm, Encounter, pkm.Species, pkm.CurrentLevel);
             if (Encounter is EncounterInvalid || pkm.IsEgg || CompleteEvoChain.Count == 0)
                 return GetChainSingle(pkm, CompleteEvoChain);
 
@@ -21,7 +21,7 @@ namespace PKHeX.Core
 
         private static List<EvoCriteria>[] GetChainBase(int maxgen)
         {
-            var GensEvoChains = new List<EvoCriteria>[maxgen + 1];
+            List<EvoCriteria>[]? GensEvoChains = new List<EvoCriteria>[maxgen + 1];
             for (int i = 0; i <= maxgen; i++)
                 GensEvoChains[i] = NONE; // default no-evolutions
             return GensEvoChains;
@@ -29,7 +29,7 @@ namespace PKHeX.Core
 
         private static List<EvoCriteria>[] GetChainSingle(PKM pkm, List<EvoCriteria> CompleteEvoChain)
         {
-            var chain = GetChainBase(Math.Max(2, pkm.Format));
+            List<EvoCriteria>[]? chain = GetChainBase(Math.Max(2, pkm.Format));
             chain[pkm.Format] = CompleteEvoChain;
             return chain;
         }
@@ -37,10 +37,10 @@ namespace PKHeX.Core
         private static List<EvoCriteria>[] GetChainAll(PKM pkm, IEncounterable enc, IReadOnlyList<EvoCriteria> CompleteEvoChain)
         {
             int maxgen = pkm is PK1 {Gen1_NotTradeback: false} ? 2 : pkm.Format;
-            var GensEvoChains = GetChainBase(maxgen);
+            List<EvoCriteria>[]? GensEvoChains = GetChainBase(maxgen);
 
-            var queue = new Queue<EvoCriteria>(CompleteEvoChain);
-            var mostEvolved = queue.Dequeue();
+            Queue<EvoCriteria>? queue = new Queue<EvoCriteria>(CompleteEvoChain);
+            EvoCriteria? mostEvolved = queue.Dequeue();
 
             int lvl = pkm.CurrentLevel;
             int maxLevel = lvl;
@@ -163,7 +163,7 @@ namespace PKHeX.Core
 
         private static List<EvoCriteria> GetEvolutionChain(PKM pkm, IEncounterable Encounter, int maxspec, int maxlevel)
         {
-            var chain = GetValidPreEvolutions(pkm, minLevel: Encounter.LevelMin);
+            List<EvoCriteria>? chain = GetValidPreEvolutions(pkm, minLevel: Encounter.LevelMin);
             if (Encounter.Species == maxspec)
             {
                 if (chain.Count != 1)
@@ -203,7 +203,7 @@ namespace PKHeX.Core
             chain.RemoveAll(e => e.MinLevel > maxlevel);
 
             // Reduce the evolution chain levels to max level to limit any later analysis/results.
-            foreach (var d in chain)
+            foreach (EvoCriteria? d in chain)
                 d.Level = Math.Min(d.Level, maxlevel);
 
             return chain;
@@ -212,11 +212,11 @@ namespace PKHeX.Core
         private static void CheckLastEncounterRemoval(IEncounterable enc, IReadOnlyList<EvoCriteria> chain)
         {
             // Last entry from chain is removed, turn next entry into the encountered Pokémon
-            var last = chain[^1];
+            EvoCriteria? last = chain[^1];
             last.MinLevel = enc.LevelMin;
             last.RequiresLvlUp = false;
 
-            var first = chain[0];
+            EvoCriteria? first = chain[0];
             if (first.RequiresLvlUp)
                 return;
 
@@ -243,7 +243,7 @@ namespace PKHeX.Core
                 maxspeciesorigin = MaxSpeciesID_2;
 
             int tree = Math.Max(2, pkm.Format);
-            var et = EvolutionTree.GetEvolutionTree(pkm, tree);
+            EvolutionTree? et = EvolutionTree.GetEvolutionTree(pkm, tree);
             return et.GetValidPreEvolutions(pkm, maxLevel: maxLevel, maxSpeciesOrigin: maxspeciesorigin, skipChecks: skipChecks, minLevel: minLevel);
         }
 
@@ -255,7 +255,7 @@ namespace PKHeX.Core
             if (pkm.Format <= 2)
                 return 2;
 
-            var origin = pkm.Generation;
+            int origin = pkm.Generation;
             if (!pkm.HasOriginalMetLocation && generation != origin)
                 return pkm.Met_Level;
 

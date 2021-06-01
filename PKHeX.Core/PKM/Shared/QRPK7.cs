@@ -67,7 +67,7 @@ namespace PKHeX.Core
         /// </summary>
         public PKM ConvertToPKM(ITrainerInfo sav, EncounterCriteria criteria)
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 EncryptionConstant = EncryptionConstant,
                 PID = PID,

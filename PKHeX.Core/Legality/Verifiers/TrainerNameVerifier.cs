@@ -18,7 +18,7 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             switch (data.EncounterMatch)
             {
                 case EncounterTrade:
@@ -27,7 +27,7 @@ namespace PKHeX.Core
                     return; // already verified
             }
 
-            var ot = pkm.OT_Name;
+            string? ot = pkm.OT_Name;
             if (ot.Length == 0)
                 data.AddLine(GetInvalid(LOTShort));
 
@@ -91,7 +91,7 @@ namespace PKHeX.Core
                 bool eggEdge = pkm.IsEgg ? pkm.IsTradedEgg || pkm.Format == 3 : pkm.WasTradedEgg;
                 if (!eggEdge)
                     return false;
-                var len = Legal.GetMaxLengthOT(e.Generation, LanguageID.English); // max case
+                int len = Legal.GetMaxLengthOT(e.Generation, LanguageID.English); // max case
                 return ot.Length <= len;
             }
 
@@ -102,7 +102,7 @@ namespace PKHeX.Core
 
         public void VerifyOTG1(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             string tr = pkm.OT_Name;
 
             if (tr.Length == 0)

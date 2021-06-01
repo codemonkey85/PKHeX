@@ -222,7 +222,7 @@ namespace PKHeX.Core
                 throw new ArgumentException(nameof(index));
             for (int i = index; i < MAX_BAG - 1; i++)
             {
-                var next = GetBag(i + 1);
+                byte next = GetBag(i + 1);
                 SetBag(i, next);
             }
             SetBag(MAX_BAG - 1, 0);

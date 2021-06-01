@@ -31,7 +31,7 @@ namespace PKHeX.WinForms
 
             MouseWheel += (s, e) => CurrentGroup = e.Delta > 1 ? MoveLeft() : MoveRight();
 
-            var names = groups.Select(z => $"{z.GroupName}").ToArray();
+            string[]? names = groups.Select(z => $"{z.GroupName}").ToArray();
             CB_BoxSelect.Items.AddRange(names);
             CB_BoxSelect.SelectedIndex = GetFirstTeamWithContent(groups);
 
@@ -45,10 +45,10 @@ namespace PKHeX.WinForms
 
         private void HoverSlot(object sender, EventArgs e)
         {
-            var group = Groups[CurrentGroup];
-            var pb = (PictureBox) sender;
-            var index = Box.Entries.IndexOf(pb);
-            var slot = group.Slots[index];
+            SlotGroup? group = Groups[CurrentGroup];
+            PictureBox? pb = (PictureBox) sender;
+            int index = Box.Entries.IndexOf(pb);
+            PKM? slot = group.Slots[index];
             Preview.Show(pb, slot);
         }
 
@@ -76,8 +76,8 @@ namespace PKHeX.WinForms
         {
             int deltaW = Width - Box.Width;
             int deltaH = Height - Box.Height;
-            var height = count / 5;
-            var width = count / height;
+            int height = count / 5;
+            int width = count / height;
             bool changed = Box.InitializeGrid(width, height, SpriteUtil.Spriter);
             if (!changed)
                 return;
@@ -109,10 +109,10 @@ namespace PKHeX.WinForms
             if (index == CurrentGroup)
                 return;
 
-            var group = Groups[index];
+            SlotGroup? group = Groups[index];
             Regenerate(group.Slots.Length);
 
-            var sav = SAV;
+            SaveFile? sav = SAV;
             for (int i = 0; i < group.Slots.Length; i++)
                 Box.Entries[i].Image = group.Slots[i].Sprite(sav, -1, -1, true);
 
@@ -141,12 +141,12 @@ namespace PKHeX.WinForms
 
         private void ClickView(object sender, EventArgs e)
         {
-            var pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             if (pb == null)
                 return;
             int index = Box.Entries.IndexOf(pb);
 
-            var group = Groups[CurrentGroup];
+            SlotGroup? group = Groups[CurrentGroup];
             View.PopulateFields(group.Slots[index], false);
 
             if (slotSelected != index && (uint) slotSelected < Box.Entries.Count)

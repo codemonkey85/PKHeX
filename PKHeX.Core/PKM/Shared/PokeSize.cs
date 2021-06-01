@@ -40,7 +40,7 @@
         /// </summary>
         public static int GetRandomScalar()
         {
-            var rnd = Util.Rand;
+            System.Random? rnd = Util.Rand;
             return rnd.Next(0x81) + rnd.Next(0x80);
         }
     }

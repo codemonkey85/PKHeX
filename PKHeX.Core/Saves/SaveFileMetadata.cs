@@ -76,7 +76,7 @@ namespace PKHeX.Core
         /// <param name="path">Full Path of the file</param>
         public void SetExtraInfo(string path)
         {
-            var sav = SAV;
+            SaveFile? sav = SAV;
             if (!sav.State.Exportable || string.IsNullOrWhiteSpace(path)) // Blank save file
             {
                 sav.Metadata.SetAsBlank();
@@ -95,8 +95,8 @@ namespace PKHeX.Core
 
         private static string GetFileName(string path, string bak)
         {
-            var bakName = Util.CleanFileName(bak);
-            var fn = Path.GetFileName(path);
+            string? bakName = Util.CleanFileName(bak);
+            string? fn = Path.GetFileName(path);
             return fn.EndsWith(bakName) ? fn[..^bakName.Length] : fn;
         }
 
@@ -111,8 +111,8 @@ namespace PKHeX.Core
         /// </summary>
         public string GetSuggestedExtension()
         {
-            var sav = SAV;
-            var fn = sav.Metadata.FileName;
+            SaveFile? sav = SAV;
+            string? fn = sav.Metadata.FileName;
             if (fn != null)
                 return Path.GetExtension(fn);
 
@@ -127,7 +127,7 @@ namespace PKHeX.Core
         /// <param name="ext">Selected export extension</param>
         public ExportFlags GetSuggestedFlags(string? ext = null)
         {
-            var flags = ExportFlags.None;
+            ExportFlags flags = ExportFlags.None;
             if (ext == ".dsv")
                 flags |= ExportFlags.IncludeFooter;
             if (ext == ".gci" || SAV is IGCSaveFile {IsMemoryCardSave: false})

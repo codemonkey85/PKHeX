@@ -29,13 +29,13 @@ namespace PKHeX.Core
             if (pkm is not G4PKM pk4)
                 return true;
 
-            var locs = GetRoamLocations(Species, pk4.EncounterType);
+            int[]? locs = GetRoamLocations(Species, pk4.EncounterType);
             return locs.Contains(pk4.Met_Location);
         }
 
         protected override bool IsMatchEggLocation(PKM pkm)
         {
-            var eggloc = pkm.Egg_Location;
+            int eggloc = pkm.Egg_Location;
             if (!EggEncounter)
                 return eggloc == 0;
 
@@ -44,7 +44,7 @@ namespace PKHeX.Core
             {
                 if (eggloc == Locations.LinkTrade4)
                     return true;
-                var cmp = Locations.IsPtHGSSLocationEgg(EggLocation) ? Locations.Faraway4 : EggLocation;
+                int cmp = Locations.IsPtHGSSLocationEgg(EggLocation) ? Locations.Faraway4 : EggLocation;
                 return eggloc == cmp;
             }
 
@@ -94,8 +94,8 @@ namespace PKHeX.Core
 
         protected override void SetMetData(PKM pk, int level, DateTime today)
         {
-            var pk4 = (PK4)pk;
-            var type = pk4.EncounterType = TypeEncounter.GetIndex();
+            PK4? pk4 = (PK4)pk;
+            int type = pk4.EncounterType = TypeEncounter.GetIndex();
             pk.Met_Location = Roaming ? GetRoamLocations(Species, type)[0] : Location;
             pk.Met_Level = level;
             pk.MetDate = today;

@@ -26,7 +26,7 @@ namespace PKHeX.Core
 
         private static Poffin4[] ReadPoffins(SAV4Sinnoh sav, int offset)
         {
-            var Poffins = new Poffin4[Count];
+            Poffin4[]? Poffins = new Poffin4[Count];
             for (int i = 0; i < Poffins.Length; i++)
                 Poffins[i] = new Poffin4(sav.General, offset + (i * Poffin4.SIZE));
             return Poffins;
@@ -41,13 +41,13 @@ namespace PKHeX.Core
 
         public void FillCase()
         {
-            foreach (var p in Poffins)
+            foreach (Poffin4? p in Poffins)
                 p.SetAll();
         }
 
         public void DeleteAll()
         {
-            foreach (var p in Poffins)
+            foreach (Poffin4? p in Poffins)
                 p.Delete();
         }
     }

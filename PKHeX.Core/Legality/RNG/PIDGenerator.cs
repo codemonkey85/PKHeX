@@ -9,30 +9,30 @@ namespace PKHeX.Core
     {
         private static void SetValuesFromSeedLCRNG(PKM pk, PIDType type, uint seed)
         {
-            var rng = RNG.LCRNG;
-            var A = rng.Next(seed);
-            var B = rng.Next(A);
-            var skipBetweenPID = type is PIDType.Method_3 or PIDType.Method_3_Unown;
+            RNG? rng = RNG.LCRNG;
+            uint A = rng.Next(seed);
+            uint B = rng.Next(A);
+            bool skipBetweenPID = type is PIDType.Method_3 or PIDType.Method_3_Unown;
             if (skipBetweenPID) // VBlank skip between PID rand() [RARE]
                 B = rng.Next(B);
 
-            var swappedPIDHalves = type is >= PIDType.Method_1_Unown and <= PIDType.Method_4_Unown;
+            bool swappedPIDHalves = type is >= PIDType.Method_1_Unown and <= PIDType.Method_4_Unown;
             if (swappedPIDHalves) // switched order of PID halves, "BA.."
                 pk.PID = (A & 0xFFFF0000) | B >> 16;
             else
                 pk.PID = (B & 0xFFFF0000) | A >> 16;
 
-            var C = rng.Next(B);
-            var skipIV1Frame = type is PIDType.Method_2 or PIDType.Method_2_Unown;
+            uint C = rng.Next(B);
+            bool skipIV1Frame = type is PIDType.Method_2 or PIDType.Method_2_Unown;
             if (skipIV1Frame) // VBlank skip after PID
                 C = rng.Next(C);
 
-            var D = rng.Next(C);
-            var skipIV2Frame = type is PIDType.Method_4 or PIDType.Method_4_Unown;
+            uint D = rng.Next(C);
+            bool skipIV2Frame = type is PIDType.Method_4 or PIDType.Method_4_Unown;
             if (skipIV2Frame) // VBlank skip between IVs
                 D = rng.Next(D);
 
-            var IVs = MethodFinder.GetIVsInt32(C >> 16, D >> 16);
+            int[]? IVs = MethodFinder.GetIVsInt32(C >> 16, D >> 16);
             if (type == PIDType.Method_1_Roamer)
             {
                 // Only store lowest 8 bits of IV data; zero out the other bits.
@@ -45,13 +45,13 @@ namespace PKHeX.Core
 
         private static void SetValuesFromSeedBACD(PKM pk, PIDType type, uint seed)
         {
-            var rng = RNG.LCRNG;
+            RNG? rng = RNG.LCRNG;
             bool shiny = type is PIDType.BACD_R_S or PIDType.BACD_U_S;
             uint X = shiny ? rng.Next(seed) : seed;
-            var A = rng.Next(X);
-            var B = rng.Next(A);
-            var C = rng.Next(B);
-            var D = rng.Next(C);
+            uint A = rng.Next(X);
+            uint B = rng.Next(A);
+            uint C = rng.Next(B);
+            uint D = rng.Next(C);
 
             if (shiny)
             {
@@ -80,7 +80,7 @@ namespace PKHeX.Core
 
         private static void SetValuesFromSeedXDRNG(PKM pk, uint seed)
         {
-            var rng = RNG.XDRNG;
+            RNG? rng = RNG.XDRNG;
             switch (pk.Species)
             {
                 case (int)Species.Umbreon or (int)Species.Eevee: // Colo Umbreon, XD Eevee
@@ -94,11 +94,11 @@ namespace PKHeX.Core
                     seed = rng.Advance(seed, 9); // PID calls consumed, skip over Umbreon
                     break;
             }
-            var A = rng.Next(seed); // IV1
-            var B = rng.Next(A); // IV2
-            var C = rng.Next(B); // Ability?
-            var D = rng.Next(C); // PID
-            var E = rng.Next(D); // PID
+            uint A = rng.Next(seed); // IV1
+            uint B = rng.Next(A); // IV2
+            uint C = rng.Next(B); // Ability?
+            uint D = rng.Next(C); // PID
+            uint E = rng.Next(D); // PID
 
             pk.PID = (D & 0xFFFF0000) | E >> 16;
             pk.IVs = MethodFinder.GetIVsInt32(A >> 16, B >> 16);
@@ -106,21 +106,21 @@ namespace PKHeX.Core
 
         private static void SetValuesFromSeedChannel(PKM pk, uint seed)
         {
-            var rng = RNG.XDRNG;
-            var O = rng.Next(seed); // SID
-            var A = rng.Next(O); // PID
-            var B = rng.Next(A); // PID
-            var C = rng.Next(B); // Held Item
-            var D = rng.Next(C); // Version
-            var E = rng.Next(D); // OT Gender
+            RNG? rng = RNG.XDRNG;
+            uint O = rng.Next(seed); // SID
+            uint A = rng.Next(O); // PID
+            uint B = rng.Next(A); // PID
+            uint C = rng.Next(B); // Held Item
+            uint D = rng.Next(C); // Version
+            uint E = rng.Next(D); // OT Gender
 
             const int TID = 40122;
-            var SID = (int)(O >> 16);
-            var pid1 = A >> 16;
-            var pid2 = B >> 16;
+            int SID = (int)(O >> 16);
+            uint pid1 = A >> 16;
+            uint pid2 = B >> 16;
             pk.TID = TID;
             pk.SID = SID;
-            var pid = pid1 << 16 | pid2;
+            uint pid = pid1 << 16 | pid2;
             if ((pid2 > 7 ? 0 : 1) != (pid1 ^ SID ^ TID))
                 pid ^= 0x80000000;
             pk.PID = pid;
@@ -132,7 +132,7 @@ namespace PKHeX.Core
 
         public static void SetValuesFromSeed(PKM pk, PIDType type, uint seed)
         {
-            var method = GetGeneratorMethod(type);
+            Action<PKM, uint>? method = GetGeneratorMethod(type);
             method(pk, seed);
         }
 
@@ -202,13 +202,13 @@ namespace PKHeX.Core
         {
             while (true)
             {
-                var seed = Util.Rand32();
+                uint seed = Util.Rand32();
                 if (!MethodFinder.IsPokeSpotActivation(slot, seed, out _))
                     continue;
 
-                var rng = RNG.XDRNG;
-                var D = rng.Next(seed); // PID
-                var E = rng.Next(D); // PID
+                RNG? rng = RNG.XDRNG;
+                uint D = rng.Next(seed); // PID
+                uint E = rng.Next(D); // PID
 
                 pk.PID = (D & 0xFFFF0000) | E >> 16;
                 if (!IsValidCriteria4(pk, nature, ability, gender))
@@ -242,7 +242,7 @@ namespace PKHeX.Core
             // If Gender is modified, modify the ability if appropriate
 
             // either m/f
-            var pidGender = (pid & 0xFF) < gr ? 1 : 0;
+            int pidGender = (pid & 0xFF) < gr ? 1 : 0;
             if (gender == pidGender)
                 return pid;
 
@@ -263,8 +263,8 @@ namespace PKHeX.Core
 
         public static void SetValuesFromSeedMG5Shiny(PKM pk, uint seed)
         {
-            var gv = seed >> 24;
-            var av = seed & 1; // arbitrary choice
+            uint gv = seed >> 24;
+            uint av = seed & 1; // arbitrary choice
             pk.PID = GetMG5ShinyPID(gv, av, pk.TID, pk.SID);
             SetRandomIVs(pk);
         }
@@ -319,8 +319,8 @@ namespace PKHeX.Core
         {
             pk.RefreshAbility(ability);
             pk.Gender = gender;
-            var type = GetPIDType(pk, specific);
-            var method = GetGeneratorMethod(type);
+            PIDType type = GetPIDType(pk, specific);
+            Action<PKM, uint>? method = GetGeneratorMethod(type);
 
             while (true)
             {
@@ -359,7 +359,7 @@ namespace PKHeX.Core
 
         private static void SetRandomWildPID5(PKM pk, int nature, int ability, int gender, PIDType specific = PIDType.None)
         {
-            var tidbit = (pk.TID ^ pk.SID) & 1;
+            int tidbit = (pk.TID ^ pk.SID) & 1;
             pk.RefreshAbility(ability);
             pk.Gender = gender;
             pk.Nature = nature;
@@ -377,7 +377,7 @@ namespace PKHeX.Core
                 }
                 else
                 {
-                    var bitxor = (seed >> 31) ^ (seed & 1);
+                    uint bitxor = (seed >> 31) ^ (seed & 1);
                     if (bitxor != tidbit)
                         seed ^= 1;
                 }

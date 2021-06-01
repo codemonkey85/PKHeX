@@ -18,7 +18,7 @@ namespace PKHeX.WinForms
             InitializeComponent();
             WinFormsUtil.TranslateInterface(this, Main.CurrentLanguage);
             SAV = (ISaveBlock6Main)(Origin = sav).Clone();
-            foreach (var cb in TAB_Items.Controls.OfType<ComboBox>())
+            foreach (ComboBox? cb in TAB_Items.Controls.OfType<ComboBox>())
             {
                 cb.InitializeBinding();
                 cb.DataSource = new BindingSource(GameInfo.ItemDataSource.Where(item => item.Value <= sav.MaxItemID).ToArray(), null);
@@ -41,7 +41,7 @@ namespace PKHeX.WinForms
 
         private void B_Import_Click(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog {Filter = PL6.Filter};
+            using OpenFileDialog? ofd = new OpenFileDialog {Filter = PL6.Filter};
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
@@ -57,7 +57,7 @@ namespace PKHeX.WinForms
 
         private void B_Export_Click(object sender, EventArgs e)
         {
-            using var sfd = new SaveFileDialog {Filter = PL6.Filter};
+            using SaveFileDialog? sfd = new SaveFileDialog {Filter = PL6.Filter};
             if (sfd.ShowDialog() != DialogResult.OK)
                 return;
 

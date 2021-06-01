@@ -84,9 +84,9 @@ namespace PKHeX.Core
 
         protected override void SetPKM(PKM pkm, bool isParty = false)
         {
-            var pk = (PB7)pkm;
+            PB7? pk = (PB7)pkm;
             // Apply to this Save File
-            var Date = DateTime.Now;
+            DateTime Date = DateTime.Now;
             pk.Trade(this, Date.Day, Date.Month, Date.Year);
             pk.RefreshChecksum();
         }
@@ -106,7 +106,7 @@ namespace PKHeX.Core
 
         public override StorageSlotFlag GetSlotFlags(int index)
         {
-            var val = StorageSlotFlag.None;
+            StorageSlotFlag val = StorageSlotFlag.None;
             if (Blocks.Storage.PokeListInfo[6] == index)
                 val |= StorageSlotFlag.Starter;
             int position = Array.IndexOf(Blocks.Storage.PokeListInfo, index);

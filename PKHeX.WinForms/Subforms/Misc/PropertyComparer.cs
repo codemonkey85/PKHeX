@@ -17,7 +17,7 @@ namespace PKHeX.WinForms
         {
             propertyDescriptor = property;
             Type comparerForPropertyType = typeof(Comparer<>).MakeGenericType(property.PropertyType);
-            var ci = comparerForPropertyType.InvokeMember("Default", BindingFlags.Static | BindingFlags.GetProperty | BindingFlags.Public, null, null, null);
+            object? ci = comparerForPropertyType.InvokeMember("Default", BindingFlags.Static | BindingFlags.GetProperty | BindingFlags.Public, null, null, null);
             comparer = ci == null ? new Comparer(CultureInfo.InvariantCulture) : (IComparer) ci;
             SetListSortDirection(direction);
         }

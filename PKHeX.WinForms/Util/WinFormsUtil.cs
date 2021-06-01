@@ -78,7 +78,7 @@ namespace PKHeX.WinForms
 
         public static bool OpenWindowExists<T>(this Form parent) where T : Form
         {
-            var form = FirstFormOfType<T>();
+            T? form = FirstFormOfType<T>();
             if (form == null)
                 return false;
 
@@ -182,7 +182,7 @@ namespace PKHeX.WinForms
         public static void DoubleBuffered(this DataGridView dgv, bool setting)
         {
             Type dgvType = dgv.GetType();
-            var pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
+            PropertyInfo? pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
             if (pi == null)
                 throw new Exception(nameof(dgv));
             pi.SetValue(dgv, setting, null);
@@ -213,11 +213,11 @@ namespace PKHeX.WinForms
         /// <returns>All children and subchildren contained by <see cref="control"/>.</returns>
         public static IEnumerable<Control> GetAllControlsOfType<T>(Control control) where T : Control
         {
-            foreach (var c in control.Controls.Cast<Control>())
+            foreach (Control? c in control.Controls.Cast<Control>())
             {
                 if (c is T match)
                     yield return match;
-                foreach (var sub in GetAllControlsOfType<T>(c))
+                foreach (Control? sub in GetAllControlsOfType<T>(c))
                     yield return sub;
             }
         }
@@ -229,8 +229,8 @@ namespace PKHeX.WinForms
         public static void AddSaveFileExtensions(IEnumerable<string> exts)
         {
             // Only add new (unique) extensions
-            var dest = CustomSaveExtensions;
-            foreach (var ext in exts)
+            List<string>? dest = CustomSaveExtensions;
+            foreach (string? ext in exts)
             {
                 if (!dest.Contains(ext))
                     dest.Add(ext);
@@ -264,7 +264,7 @@ namespace PKHeX.WinForms
         public static bool OpenSAVPKMDialog(IEnumerable<string> extensions, out string? path)
         {
             string supported = string.Join(";", extensions.Select(s => $"*.{s}").Concat(new[] { "*.pkm" }));
-            using var ofd = new OpenFileDialog
+            using OpenFileDialog? ofd = new OpenFileDialog
             {
                 Filter = "All Files|*.*" +
                          $"|Supported Files (*.*)|main;*.bin;{supported};*.bak" + ExtraSaveExtensions +
@@ -275,7 +275,7 @@ namespace PKHeX.WinForms
             };
 
             // Detect main
-            var msg = string.Empty;
+            string? msg = string.Empty;
             SaveFile? sav = null;
             if (DetectSaveFileOnFileOpen)
                 sav = SaveFinder.FindMostRecentSaveFile(Environment.GetLogicalDrives(), ref msg);
@@ -304,11 +304,11 @@ namespace PKHeX.WinForms
         {
             string pkx = pk.Extension;
             bool allowEncrypted = pk.Format >= 3 && pkx[0] == 'p';
-            var genericFilter = $"Decrypted PKM File|*.{pkx}" +
+            string? genericFilter = $"Decrypted PKM File|*.{pkx}" +
                          (allowEncrypted ? $"|Encrypted PKM File|*.e{pkx[1..]}" : string.Empty) +
                          "|Binary File|*.bin" +
                          "|All Files|*.*";
-            using var sfd = new SaveFileDialog
+            using SaveFileDialog? sfd = new SaveFileDialog
             {
                 Filter = genericFilter,
                 DefaultExt = pkx,
@@ -325,7 +325,7 @@ namespace PKHeX.WinForms
         {
             SaveBackup(path);
             string ext = Path.GetExtension(path);
-            var data = $".{pkx}" == ext ? pk.DecryptedPartyData : pk.EncryptedPartyData;
+            byte[]? data = $".{pkx}" == ext ? pk.DecryptedPartyData : pk.EncryptedPartyData;
             File.WriteAllBytes(path, data);
         }
 
@@ -348,7 +348,7 @@ namespace PKHeX.WinForms
         /// <returns>Result of whether or not the file was saved.</returns>
         public static bool ExportSAVDialog(SaveFile sav, int currentBox = 0)
         {
-            using var sfd = new SaveFileDialog
+            using SaveFileDialog? sfd = new SaveFileDialog
             {
                 Filter = sav.Metadata.Filter,
                 FileName = sav.Metadata.FileName,
@@ -365,7 +365,7 @@ namespace PKHeX.WinForms
             if (sav.HasBox)
                 sav.CurrentBox = currentBox;
 
-            var path = sfd.FileName;
+            string? path = sfd.FileName;
             if (path == null)
                 throw new NullReferenceException(nameof(sfd.FileName));
 
@@ -375,8 +375,8 @@ namespace PKHeX.WinForms
 
         private static void ExportSAV(SaveFile sav, string path)
         {
-            var ext = Path.GetExtension(path).ToLower();
-            var flags = sav.Metadata.GetSuggestedFlags(ext);
+            string? ext = Path.GetExtension(path).ToLower();
+            ExportFlags flags = sav.Metadata.GetSuggestedFlags(ext);
 
             try
             {
@@ -408,7 +408,7 @@ namespace PKHeX.WinForms
         /// <returns>Result of whether or not the file was saved.</returns>
         public static bool ExportMGDialog(DataMysteryGift gift, GameVersion origin)
         {
-            using var sfd = new SaveFileDialog
+            using SaveFileDialog? sfd = new SaveFileDialog
             {
                 Filter = GetMysterGiftFilter(gift.Generation, origin),
                 FileName = Util.CleanFileName(gift.FileName)

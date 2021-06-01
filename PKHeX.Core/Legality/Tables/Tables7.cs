@@ -149,7 +149,7 @@ namespace PKHeX.Core
 
         private static Dictionary<int, int> GetDictionary(IReadOnlyList<ushort> key, IReadOnlyList<ushort> held)
         {
-            var result = new Dictionary<int, int>(held.Count);
+            Dictionary<int, int>? result = new Dictionary<int, int>(held.Count);
             for (int i = 0; i < key.Count; i++)
                 result.Add(key[i], held[i]);
             return result;

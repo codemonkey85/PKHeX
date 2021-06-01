@@ -20,7 +20,7 @@ namespace PKHeX.Core
 
         private static bool GetIndex(string l, out int index, out EventVarType type)
         {
-            var typeChar = l[0];
+            char typeChar = l[0];
             if (!TypeDict.TryGetValue(typeChar, out type))
             {
                 Debug.WriteLine($"Rejected line due to bad type: {typeChar}");
@@ -28,7 +28,7 @@ namespace PKHeX.Core
                 return false;
             }
 
-            var indexString = l[1..];
+            string? indexString = l[1..];
             if (int.TryParse(indexString, out index))
                 return true;
 
@@ -44,24 +44,24 @@ namespace PKHeX.Core
         /// <returns>Converted lines grouped together by <see cref="EventVarType"/></returns>
         public static List<EventVarGroup> GetVars(IEnumerable<string> lines, Func<int, EventVarType, string[], EventVar> constructor)
         {
-            var list = new List<EventVarGroup>();
-            foreach (var l in lines)
+            List<EventVarGroup>? list = new List<EventVarGroup>();
+            foreach (string? l in lines)
             {
-                var split = l.Split('\t');
+                string[]? split = l.Split('\t');
                 if (split.Length < 2 || split[0].Length < 2)
                     continue;
 
-                if (!GetIndex(split[0], out var index, out var type))
+                if (!GetIndex(split[0], out int index, out EventVarType type))
                     continue;
 
-                var group = list.Find(z => z.Type == type);
+                EventVarGroup? group = list.Find(z => z.Type == type);
                 if (group == null)
                 {
                     group = new EventVarGroup(type);
                     list.Add(group);
                 }
 
-                var entry = constructor(index, type, split);
+                EventVar? entry = constructor(index, type, split);
                 group.Vars.Add(entry);
             }
             return list;
@@ -80,12 +80,12 @@ namespace PKHeX.Core
             int max = before.MaxFlag;
             for (int i = 0; i < max; i++)
             {
-                var b = before.GetFlag(i);
-                var a = after.GetFlag(i);
+                bool b = before.GetFlag(i);
+                bool a = after.GetFlag(i);
                 if (b == a)
                     continue;
 
-                var arr = a ? on : off;
+                List<int>? arr = a ? on : off;
                 arr.Add(i);
             }
         }
@@ -103,8 +103,8 @@ namespace PKHeX.Core
             int max = before.MaxWork;
             for (int i = 0; i < max; i++)
             {
-                var b = before.GetWork(i);
-                var a = after.GetWork(i);
+                T? b = before.GetWork(i);
+                T? a = after.GetWork(i);
                 if (b is null || b.Equals(a))
                     continue;
 

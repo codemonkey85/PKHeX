@@ -22,7 +22,7 @@ namespace PKHeX.WinForms
 
         private void GetContextMenu()
         {
-            var mnuHide = new ToolStripMenuItem { Name = "mnuHide", Text = MsgReportColumnHide, };
+            ToolStripMenuItem? mnuHide = new ToolStripMenuItem { Name = "mnuHide", Text = MsgReportColumnHide, };
             mnuHide.Click += (sender, e) =>
             {
                 int c = dgData.SelectedCells.Count;
@@ -32,7 +32,7 @@ namespace PKHeX.WinForms
                 for (int i = 0; i < c; i++)
                     dgData.Columns[dgData.SelectedCells[i].ColumnIndex].Visible = false;
             };
-            var mnuRestore = new ToolStripMenuItem { Name = "mnuRestore", Text = MsgReportColumnRestore, };
+            ToolStripMenuItem? mnuRestore = new ToolStripMenuItem { Name = "mnuRestore", Text = MsgReportColumnRestore, };
             mnuRestore.Click += (sender, e) =>
             {
                 int c = dgData.ColumnCount;
@@ -55,8 +55,8 @@ namespace PKHeX.WinForms
         {
             SuspendLayout();
             BoxBar.Step = 1;
-            var PL = new PokemonList<PKMSummaryImage>();
-            var strings = GameInfo.Strings;
+            PokemonList<PKMSummaryImage>? PL = new PokemonList<PKMSummaryImage>();
+            GameStrings? strings = GameInfo.Strings;
             foreach (PKM pkm in Data.Where(pkm => pkm.ChecksumValid && pkm.Species != 0))
             {
                 pkm.Stat_Level = Experience.GetLevel(pkm.EXP, pkm.PersonalInfo.EXPGrowth); // recalc Level
@@ -100,7 +100,7 @@ namespace PKHeX.WinForms
         {
             if (WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgReportExportCSV) != DialogResult.Yes)
                 return;
-            using var savecsv = new SaveFileDialog
+            using SaveFileDialog? savecsv = new SaveFileDialog
             {
                 Filter = "Spreadsheet|*.csv",
                 FileName = "Box Data Dump.csv"
@@ -111,13 +111,13 @@ namespace PKHeX.WinForms
 
         private async Task Export_CSV(string path)
         {
-            using var fs = new FileStream(path, FileMode.Create);
-            using var s = new StreamWriter(fs);
+            using FileStream? fs = new FileStream(path, FileMode.Create);
+            using StreamWriter? s = new StreamWriter(fs);
 
-            var headers = dgData.Columns.Cast<DataGridViewColumn>();
+            IEnumerable<DataGridViewColumn>? headers = dgData.Columns.Cast<DataGridViewColumn>();
             await s.WriteLineAsync(string.Join(",", headers.Skip(1).Select(column => $"\"{column.HeaderText}\""))).ConfigureAwait(false);
 
-            foreach (var cells in from DataGridViewRow row in dgData.Rows select row.Cells.Cast<DataGridViewCell>())
+            foreach (IEnumerable<DataGridViewCell>? cells in from DataGridViewRow row in dgData.Rows select row.Cells.Cast<DataGridViewCell>())
                 await s.WriteLineAsync(string.Join(",", cells.Skip(1).Select(cell => $"\"{cell.Value}\""))).ConfigureAwait(false);
         }
 
@@ -127,12 +127,12 @@ namespace PKHeX.WinForms
             if (!cp)
                 return base.ProcessCmdKey(ref msg, keyData);
 
-            var content = dgData.GetClipboardContent();
+            DataObject? content = dgData.GetClipboardContent();
             if (content == null)
                 return base.ProcessCmdKey(ref msg, keyData);
 
             string data = content.GetText();
-            var dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgReportExportTable);
+            DialogResult dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgReportExportTable);
             if (dr != DialogResult.Yes)
             {
                 WinFormsUtil.SetClipboardText(data);

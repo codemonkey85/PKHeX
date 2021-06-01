@@ -23,7 +23,7 @@ namespace PKHeX.Core
 
         static Encounters8()
         {
-            foreach (var t in TradeGift_R1)
+            foreach (EncounterTrade8? t in TradeGift_R1)
                 t.TrainerNames = TradeOT_R1;
 
             MarkEncounterTradeStrings(TradeGift_SWSH, TradeSWSH);

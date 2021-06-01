@@ -55,7 +55,7 @@ namespace PKHeX.Core
 
         private bool GetRegionFlag(int region, int index)
         {
-            var ofs = Offset + 4 + (region * SIZE_REGION) + (index >> 3);
+            int ofs = Offset + 4 + (region * SIZE_REGION) + (index >> 3);
             return FlagUtil.GetFlag(Data, ofs, index);
         }
 
@@ -66,7 +66,7 @@ namespace PKHeX.Core
 
         private void SetRegionFlag(int region, int index, bool value)
         {
-            var ofs = Offset + 4 + (region * SIZE_REGION) + (index >> 3);
+            int ofs = Offset + 4 + (region * SIZE_REGION) + (index >> 3);
             FlagUtil.SetFlag(Data, ofs, index, value);
         }
 
@@ -220,7 +220,7 @@ namespace PKHeX.Core
                 return false; // already in list
 
             // insert at first empty
-            var index = Array.IndexOf(forms, -1);
+            int index = Array.IndexOf(forms, -1);
             if (index < 0)
                 return false; // no free slots?
 
@@ -230,7 +230,7 @@ namespace PKHeX.Core
 
         public int GetUnownFormIndex(int form)
         {
-            var ofs = Offset + OFS_FORM1 + 4;
+            int ofs = Offset + OFS_FORM1 + 4;
             for (int i = 0; i < 0x1C; i++)
             {
                 byte val = Data[ofs + i];
@@ -244,7 +244,7 @@ namespace PKHeX.Core
 
         public int GetUnownFormIndexNext(int form)
         {
-            var ofs = Offset + OFS_FORM1 + 4;
+            int ofs = Offset + OFS_FORM1 + 4;
             for (int i = 0; i < 0x1C; i++)
             {
                 byte val = Data[ofs + i];
@@ -259,7 +259,7 @@ namespace PKHeX.Core
 
         public void ClearUnownForms()
         {
-            var ofs = Offset + OFS_FORM1 + 4;
+            int ofs = Offset + OFS_FORM1 + 4;
             for (int i = 0; i < 0x1C; i++)
                 Data[ofs + i] = 0xFF;
         }
@@ -268,11 +268,11 @@ namespace PKHeX.Core
 
         public void AddUnownForm(int form)
         {
-            var index = GetUnownFormIndexNext(form);
+            int index = GetUnownFormIndexNext(form);
             if (index == -1)
                 return;
 
-            var ofs = Offset + OFS_FORM1 + 4;
+            int ofs = Offset + OFS_FORM1 + 4;
             Data[ofs + index] = (byte)form;
         }
 
@@ -282,9 +282,9 @@ namespace PKHeX.Core
             if (species is 0 or > Legal.MaxSpeciesID_4)
                 return;
 
-            var gender = pkm.Gender;
-            var form = pkm.Form;
-            var language = pkm.Language;
+            int gender = pkm.Gender;
+            int form = pkm.Form;
+            int language = pkm.Language;
             SetDex(species, gender, form, language);
         }
 
@@ -324,7 +324,7 @@ namespace PKHeX.Core
                 return;
             }
 
-            var forms = GetForms(species);
+            int[]? forms = GetForms(species);
             if (forms.Length == 0)
                 return;
 
@@ -355,7 +355,7 @@ namespace PKHeX.Core
             int FormOffset1 = Offset + OFS_FORM1;
             int PokeDexLanguageFlags = FormOffset1 + (HGSS ? 0x3C : 0x20);
 
-            var ofs = PokeDexLanguageFlags + (DP ? dpl : species);
+            int ofs = PokeDexLanguageFlags + (DP ? dpl : species);
             return FlagUtil.GetFlag(Data, ofs, lang & 7);
         }
 
@@ -367,7 +367,7 @@ namespace PKHeX.Core
             int FormOffset1 = Offset + OFS_FORM1;
             int PokeDexLanguageFlags = FormOffset1 + (HGSS ? 0x3C : 0x20);
 
-            var ofs = PokeDexLanguageFlags + (DP ? dpl : species);
+            int ofs = PokeDexLanguageFlags + (DP ? dpl : species);
             FlagUtil.SetFlag(Data, ofs, lang & 7, value);
         }
 
@@ -450,18 +450,18 @@ namespace PKHeX.Core
 
         private void CompleteForms(int species)
         {
-            var forms = GetFormNames4Dex(species);
+            string[]? forms = GetFormNames4Dex(species);
             if (forms.Length <= 1)
                 return;
 
-            var values = forms.Select((_, i) => i).ToArray();
+            int[]? values = forms.Select((_, i) => i).ToArray();
             SetForms(species, values);
         }
 
         private void CompleteSeen(int species)
         {
             SetSeen(species);
-            var pi = PersonalTable.HGSS[species];
+            PersonalInfo? pi = PersonalTable.HGSS[species];
             if (pi.IsDualGender)
             {
                 SetSeenGenderFirst(species, 0);

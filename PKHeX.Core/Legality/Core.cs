@@ -55,7 +55,7 @@ namespace PKHeX.Core
         {
             if (format != 7)
                 return GetPPTable(format);
-            var lgpe = pkm.Version is (int) GameVersion.GO or (int) GameVersion.GP or (int) GameVersion.GE;
+            bool lgpe = pkm.Version is (int) GameVersion.GO or (int) GameVersion.GP or (int) GameVersion.GE;
             return lgpe ? MovePP_GG : MovePP_SM;
         }
 

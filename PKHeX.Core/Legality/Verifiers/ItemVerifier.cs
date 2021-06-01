@@ -11,7 +11,7 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (!ItemRestrictions.IsHeldItemAllowed(pkm))
                 data.AddLine(GetInvalid(LItemUnreleased));
 
@@ -24,8 +24,8 @@ namespace PKHeX.Core
 
         private void VerifyEReaderBerry(LegalityAnalysis data)
         {
-            var status = EReaderBerrySettings.GetStatus();
-            var chk = GetEReaderCheckResult(status);
+            EReaderBerryMatch status = EReaderBerrySettings.GetStatus();
+            CheckResult? chk = GetEReaderCheckResult(status);
             if (chk != null)
                 data.AddLine(chk);
         }

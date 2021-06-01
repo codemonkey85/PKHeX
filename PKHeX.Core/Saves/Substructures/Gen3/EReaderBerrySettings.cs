@@ -27,7 +27,7 @@ namespace PKHeX.Core
             if (IsEnigma) // no e-Reader Berry data provided, can't hold berry.
                 return NoData;
 
-            var name = Name;
+            string? name = Name;
             if (EReaderBerriesNames_USA.Contains(name))
             {
                 return Language switch

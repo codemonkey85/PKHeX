@@ -18,7 +18,7 @@ namespace PKHeX.WinForms
         {
             for (int i = 0; i < poss.Length; i++)
             {
-                var pb = GetBallView(poss[i], legal, names);
+                PictureBox? pb = GetBallView(poss[i], legal, names);
                 flp.Controls.Add(pb);
                 const int width = 5; // balls wide
                 if (i % width == width - 1)
@@ -28,17 +28,17 @@ namespace PKHeX.WinForms
 
         public void LoadBalls(PKM pkm)
         {
-            var legal = BallApplicator.GetLegalBalls(pkm).ToArray();
-            var poss = ((Ball[])Enum.GetValues(typeof(Ball))).Skip(1)
+            Ball[]? legal = BallApplicator.GetLegalBalls(pkm).ToArray();
+            Ball[]? poss = ((Ball[])Enum.GetValues(typeof(Ball))).Skip(1)
                 .TakeWhile(z => (int)z <= pkm.MaxBallID).ToArray();
-            var names = GameInfo.BallDataSource;
+            IReadOnlyList<ComboItem>? names = GameInfo.BallDataSource;
             LoadBalls(poss, legal, names);
         }
 
         private PictureBox GetBallView(Ball b, ICollection<Ball> legal, IReadOnlyList<ComboItem> names)
         {
-            var img = SpriteUtil.GetBallSprite((int)b);
-            var pb = new PictureBox
+            System.Drawing.Image? img = SpriteUtil.GetBallSprite((int)b);
+            PictureBox? pb = new PictureBox
             {
                 Size = img.Size,
                 Image = img,

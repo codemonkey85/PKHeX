@@ -10,9 +10,9 @@ namespace PKHeX.Core
 
         public static List<string> GetPSSParse(SAV6 SAV)
         {
-            var result = new List<string> {Header};
+            List<string>? result = new List<string> {Header};
             int offset = SAV.PSS;
-            var data = SAV.Data;
+            byte[]? data = SAV.Data;
             for (int g = 0; g < 3; g++)
             {
                 result.Add("----");
@@ -63,7 +63,7 @@ namespace PKHeX.Core
             int favpkm = BitConverter.ToUInt16(Data, ofs + 0x9C) & 0x7FF;
 
             string gamename = GetGameName(game);
-            var (country, region) = GeoLocation.GetCountryRegionText(countryID, regionID, GameInfo.CurrentLanguage);
+            (string country, string region) = GeoLocation.GetCountryRegionText(countryID, regionID, GameInfo.CurrentLanguage);
             result.Add($"OT: {otname}");
             result.Add($"Message: {message}");
             result.Add($"Game: {gamename}");
@@ -78,7 +78,7 @@ namespace PKHeX.Core
             const string unk = "UNKNOWN GAME";
             if (game < 0)
                 return unk;
-            var list = GameInfo.Strings.gamelist;
+            string[]? list = GameInfo.Strings.gamelist;
             if (game >= list.Length)
                 return unk;
             return list[game];

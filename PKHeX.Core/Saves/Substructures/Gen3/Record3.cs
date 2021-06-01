@@ -12,8 +12,8 @@ namespace PKHeX.Core
 
         private int GetRecordOffset(int record)
         {
-            var baseOffset = GetOffset(SAV.Version);
-            var offset = baseOffset + (4 * record);
+            int baseOffset = GetOffset(SAV.Version);
+            int offset = baseOffset + (4 * record);
             return offset;
         }
 
@@ -40,15 +40,15 @@ namespace PKHeX.Core
 
         public static IList<ComboItem> GetItems(SAV3 sav)
         {
-            var ver = sav.Version;
-            var names = GetEnumNames(ver);
-            var values = GetEnumValues(ver);
+            GameVersion ver = sav.Version;
+            string[]? names = GetEnumNames(ver);
+            int[]? values = GetEnumValues(ver);
 
-            var result = new ComboItem[values.Length];
+            ComboItem[]? result = new ComboItem[values.Length];
             for (int i = 0; i < result.Length; i++)
             {
-                var replaced = names[i].Replace('_', ' ');
-                var titled = Util.ToTitleCase(replaced);
+                string? replaced = names[i].Replace('_', ' ');
+                string? titled = Util.ToTitleCase(replaced);
                 result[i] = new ComboItem(titled, values[i]);
             }
             return result;

@@ -27,14 +27,14 @@ namespace PKHeX.Core
         private static Dictionary<char, char> GetRemapper(bool simplified)
         {
             const string raw = Gen7_ZHRaw;
-            var result = new Dictionary<char, char>(788);
+            Dictionary<char, char>? result = new Dictionary<char, char>(788);
             for (int i = 0; i < raw.Length; i++)
             {
-                var isCHS = GetisG7CHSChar(i);
+                bool isCHS = GetisG7CHSChar(i);
                 if (isCHS != simplified)
                     continue;
 
-                var c = raw[i];
+                char c = raw[i];
                 result.Add(c, (char)(Gen7_ZH_Ofs + i));
             }
             return result;
@@ -50,12 +50,12 @@ namespace PKHeX.Core
         internal static void ConvertString2BinG7_zh(StringBuilder sb, int language)
         {
             bool traditional = IsTraditional(language, sb);
-            var table = traditional ? G7_CHT : G7_CHS;
+            Dictionary<char, char>? table = traditional ? G7_CHT : G7_CHS;
 
             for (int i = 0; i < sb.Length; i++)
             {
-                var chr = sb[i];
-                if (table.TryGetValue(chr, out var remap))
+                char chr = sb[i];
+                if (table.TryGetValue(chr, out char remap))
                     sb[i] = remap;
             }
         }
@@ -63,9 +63,9 @@ namespace PKHeX.Core
         private static bool IsTraditional(int lang, StringBuilder input)
         {
             // A string cannot contain a mix of CHS and CHT characters.
-            for (var i = 0; i < input.Length; i++)
+            for (int i = 0; i < input.Length; i++)
             {
-                var chr = input[i];
+                char chr = input[i];
                 if (G7_CHT.ContainsKey(chr) && !G7_CHS.ContainsKey(chr))
                     return true;
             }
@@ -74,9 +74,9 @@ namespace PKHeX.Core
                 return false;
 
             // CHS and CHT have the same display name
-            for (var i = 0; i < input.Length; i++)
+            for (int i = 0; i < input.Length; i++)
             {
-                var chr = input[i];
+                char chr = input[i];
                 if (G7_CHT.ContainsKey(chr) != G7_CHS.ContainsKey(chr))
                     return true;
             }
@@ -94,7 +94,7 @@ namespace PKHeX.Core
             for (int i = 0; i < input.Length; i++)
             {
                 char val = input[i];
-                var unmap = (uint)val - Gen7_ZH_Ofs;
+                uint unmap = (uint)val - Gen7_ZH_Ofs;
                 if (unmap < Gen7_ZHLength)
                     input[i] = Gen7_ZHRaw[(int)unmap];
             }

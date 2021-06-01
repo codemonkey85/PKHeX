@@ -13,10 +13,10 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.Format < 4)
                 return; // no forms exist
-            var result = VerifyForm(data);
+            CheckResult? result = VerifyForm(data);
             data.AddLine(result);
 
             if (pkm is IFormArgument f)
@@ -27,17 +27,17 @@ namespace PKHeX.Core
 
         private CheckResult VerifyForm(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var PersonalInfo = data.PersonalInfo;
+            PKM? pkm = data.pkm;
+            PersonalInfo? PersonalInfo = data.PersonalInfo;
 
             int count = PersonalInfo.FormCount;
-            var form = pkm.Form;
+            int form = pkm.Form;
             if (count <= 1 && form == 0)
                 return VALID; // no forms to check
 
-            var species = pkm.Species;
-            var enc = data.EncounterMatch;
-            var Info = data.Info;
+            int species = pkm.Species;
+            IEncounterable? enc = data.EncounterMatch;
+            LegalInfo? Info = data.Info;
 
             if (!PersonalInfo.IsFormWithinRange(form) && !FormInfo.IsValidOutOfBoundsForm(species, form, Info.Generation))
                 return GetInvalid(string.Format(LFormInvalidRange, count - 1, form));
@@ -62,7 +62,7 @@ namespace PKHeX.Core
                     if (!validCap)
                     {
                         bool gift = enc is MysteryGift g && g.Form != form;
-                        var msg = gift ? LFormPikachuEventInvalid : LFormInvalidGame;
+                        string? msg = gift ? LFormPikachuEventInvalid : LFormInvalidGame;
                         return GetInvalid(msg);
                     }
                     break;
@@ -159,7 +159,7 @@ namespace PKHeX.Core
                     break;
             }
 
-            var format = pkm.Format;
+            int format = pkm.Format;
             if (FormInfo.IsBattleOnlyForm(species, form, format))
                 return GetInvalid(LFormBattle);
 
@@ -174,7 +174,7 @@ namespace PKHeX.Core
             }
             if (format >= 8 && Info.Generation < 8)
             {
-                var orig = enc.Species;
+                int orig = enc.Species;
                 if (Legal.GalarOriginForms.Contains(species) || Legal.GalarVariantFormEvolutions.Contains(orig))
                 {
                     if (species == (int)Meowth && enc.Form != 2)
@@ -227,11 +227,11 @@ namespace PKHeX.Core
 
         private CheckResult VerifyFormArgument(LegalityAnalysis data, IFormArgument f)
         {
-            var pkm = data.pkm;
-            var enc = data.EncounterMatch;
-            var arg = f.FormArgument;
+            PKM? pkm = data.pkm;
+            IEncounterable? enc = data.EncounterMatch;
+            uint arg = f.FormArgument;
 
-            var unusedMask = pkm.Format == 6 ? 0xFFFF_FF00 : 0xFF00_0000;
+            uint unusedMask = pkm.Format == 6 ? 0xFFFF_FF00 : 0xFF00_0000;
             if ((arg & unusedMask) != 0)
                 return GetInvalid(LFormArgumentHigh);
 
@@ -306,9 +306,9 @@ namespace PKHeX.Core
 
         private static bool IsFormArgumentDayCounterValid(IFormArgument f, uint maxSeed, bool canRefresh = false)
         {
-            var remain = f.FormArgumentRemain;
-            var elapsed = f.FormArgumentElapsed;
-            var maxElapsed = f.FormArgumentMaximum;
+            byte remain = f.FormArgumentRemain;
+            byte elapsed = f.FormArgumentElapsed;
+            byte maxElapsed = f.FormArgumentMaximum;
             if (canRefresh)
             {
                 if (maxElapsed < elapsed)

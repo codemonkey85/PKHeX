@@ -84,9 +84,9 @@ namespace PKHeX.Core
 
         public IEnumerable<FlagPairG1Detail> GetFlagPairs()
         {
-            var pz = ReflectUtil.GetPropertiesStartWithPrefix(GetType(), FlagPropertyPrefix);
+            IEnumerable<string>? pz = ReflectUtil.GetPropertiesStartWithPrefix(GetType(), FlagPropertyPrefix);
 
-            foreach (var pair in pz)
+            foreach (string? pair in pz)
             {
                 if (ReflectUtil.GetValue(this, pair) is not FlagPairG1 p)
                     continue;

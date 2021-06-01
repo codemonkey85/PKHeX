@@ -35,23 +35,23 @@ namespace PKHeX.WinForms
             // Preset Filters to only show PKM available for loaded save
             CB_FormatComparator.SelectedIndex = 3; // <=
 
-            var grid = DatabasePokeGrid;
-            var smallWidth = grid.Width;
-            var smallHeight = grid.Height;
+            PokeGrid? grid = DatabasePokeGrid;
+            int smallWidth = grid.Width;
+            int smallHeight = grid.Height;
             grid.InitializeGrid(6, 11, SpriteUtil.Spriter);
             grid.SetBackground(Resources.box_wp_clean);
-            var newWidth = grid.Width;
-            var newHeight = grid.Height;
-            var wdelta = newWidth - smallWidth;
+            int newWidth = grid.Width;
+            int newHeight = grid.Height;
+            int wdelta = newWidth - smallWidth;
             if (wdelta != 0)
                 Width += wdelta;
-            var hdelta = newHeight - smallHeight;
+            int hdelta = newHeight - smallHeight;
             if (hdelta != 0)
                 Height += hdelta;
             PKXBOXES = grid.Entries.ToArray();
 
             // Enable Scrolling when hovered over
-            foreach (var slot in PKXBOXES)
+            foreach (PictureBox? slot in PKXBOXES)
             {
                 // Enable Click
                 slot.MouseClick += (sender, e) =>
@@ -79,7 +79,7 @@ namespace PKHeX.WinForms
             // Load Data
             B_Search.Enabled = false;
             L_Count.Text = "Loading...";
-            var task = new Task(LoadDatabase);
+            Task? task = new Task(LoadDatabase);
             task.ContinueWith(z =>
             {
                 if (!z.IsFaulted)
@@ -116,7 +116,7 @@ namespace PKHeX.WinForms
         // Important Events
         private void ClickView(object sender, EventArgs e)
         {
-            var pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             int index = Array.IndexOf(PKXBOXES, pb);
             if (!GetShiftedIndex(ref index))
             {
@@ -133,7 +133,7 @@ namespace PKHeX.WinForms
 
         private void ClickDelete(object sender, EventArgs e)
         {
-            var pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             int index = Array.IndexOf(PKXBOXES, pb);
             if (!GetShiftedIndex(ref index))
             {
@@ -141,8 +141,8 @@ namespace PKHeX.WinForms
                 return;
             }
 
-            var pk = Results[index];
-            var path = pk.Identifier;
+            PKM? pk = Results[index];
+            string? path = pk.Identifier;
 
 #if LOADALL
             if (path.StartsWith(EXTERNAL_SAV))
@@ -162,8 +162,8 @@ namespace PKHeX.WinForms
                 // Data from Box: Delete from save file
                 int box = pk.Box-1;
                 int slot = pk.Slot-1;
-                var change = new SlotInfoBox(box, slot);
-                var pkSAV = change.Read(SAV);
+                SlotInfoBox? change = new SlotInfoBox(box, slot);
+                PKM? pkSAV = change.Read(SAV);
 
                 if (!pkSAV.DecryptedBoxData.SequenceEqual(pk.DecryptedBoxData)) // data still exists in SAV, unmodified
                 {
@@ -239,29 +239,29 @@ namespace PKHeX.WinForms
             CB_GameOrigin.InitializeBinding();
             CB_HPType.InitializeBinding();
 
-            var Any = new ComboItem(MsgAny, -1);
+            ComboItem? Any = new ComboItem(MsgAny, -1);
 
-            var DS_Species = new List<ComboItem>(GameInfo.SpeciesDataSource);
+            List<ComboItem>? DS_Species = new List<ComboItem>(GameInfo.SpeciesDataSource);
             DS_Species.RemoveAt(0); DS_Species.Insert(0, Any); CB_Species.DataSource = DS_Species;
 
-            var DS_Item = new List<ComboItem>(GameInfo.ItemDataSource);
+            List<ComboItem>? DS_Item = new List<ComboItem>(GameInfo.ItemDataSource);
             DS_Item.Insert(0, Any); CB_HeldItem.DataSource = DS_Item;
 
-            var DS_Nature = new List<ComboItem>(GameInfo.NatureDataSource);
+            List<ComboItem>? DS_Nature = new List<ComboItem>(GameInfo.NatureDataSource);
             DS_Nature.Insert(0, Any); CB_Nature.DataSource = DS_Nature;
 
-            var DS_Ability = new List<ComboItem>(GameInfo.AbilityDataSource);
+            List<ComboItem>? DS_Ability = new List<ComboItem>(GameInfo.AbilityDataSource);
             DS_Ability.Insert(0, Any); CB_Ability.DataSource = DS_Ability;
 
-            var DS_Version = new List<ComboItem>(GameInfo.VersionDataSource);
+            List<ComboItem>? DS_Version = new List<ComboItem>(GameInfo.VersionDataSource);
             DS_Version.Insert(0, Any); CB_GameOrigin.DataSource = DS_Version;
 
             string[] hptypes = new string[GameInfo.Strings.types.Length - 2]; Array.Copy(GameInfo.Strings.types, 1, hptypes, 0, hptypes.Length);
-            var DS_Type = Util.GetCBList(hptypes);
+            List<ComboItem>? DS_Type = Util.GetCBList(hptypes);
             DS_Type.Insert(0, Any); CB_HPType.DataSource = DS_Type;
 
             // Set the Move ComboBoxes too..
-            var DS_Move = new List<ComboItem>(GameInfo.MoveDataSource);
+            List<ComboItem>? DS_Move = new List<ComboItem>(GameInfo.MoveDataSource);
             DS_Move.RemoveAt(0); DS_Move.Insert(0, Any);
             {
                 foreach (ComboBox cb in new[] { CB_Move1, CB_Move2, CB_Move3, CB_Move4 })
@@ -318,13 +318,13 @@ namespace PKHeX.WinForms
 
         private void LoadDatabase()
         {
-            var otherPaths = new List<string>{Main.BackupPath};
+            List<string>? otherPaths = new List<string>{Main.BackupPath};
             otherPaths.AddRange(Main.Settings.Backup.OtherBackupPaths.Where(Directory.Exists));
 
             RawDB = LoadPKMSaves(DatabasePath, SAV, otherPaths);
 
             // Load stats for pkm who do not have any
-            foreach (var pk in RawDB.Where(z => z.Stat_Level == 0))
+            foreach (PKM? pk in RawDB.Where(z => z.Stat_Level == 0))
             {
                 pk.Stat_Level = pk.CurrentLevel;
                 pk.SetStats(pk.GetStats(pk.PersonalInfo));
@@ -342,26 +342,26 @@ namespace PKHeX.WinForms
 
         private static List<PKM> LoadPKMSaves(string pkmdb, SaveFile SAV, IEnumerable<string> otherPaths)
         {
-            var dbTemp = new ConcurrentBag<PKM>();
-            var extensions = new HashSet<string>(PKM.Extensions.Select(z => $".{z}"));
+            ConcurrentBag<PKM>? dbTemp = new ConcurrentBag<PKM>();
+            HashSet<string>? extensions = new HashSet<string>(PKM.Extensions.Select(z => $".{z}"));
 
-            var files = Directory.EnumerateFiles(pkmdb, "*", SearchOption.AllDirectories);
+            IEnumerable<string>? files = Directory.EnumerateFiles(pkmdb, "*", SearchOption.AllDirectories);
             Parallel.ForEach(files, file => TryAddPKMsFromFolder(dbTemp, file, SAV, extensions));
 
-            foreach (var folder in otherPaths)
+            foreach (string? folder in otherPaths)
             {
                 if (!SaveUtil.GetSavesFromFolder(folder, true, out IEnumerable<string> result))
                     continue;
 
-                var prefix = Path.GetDirectoryName(folder) + Path.DirectorySeparatorChar;
+                string? prefix = Path.GetDirectoryName(folder) + Path.DirectorySeparatorChar;
                 Parallel.ForEach(result, file => TryAddPKMsFromSaveFilePath(dbTemp, file, prefix));
             }
 
             // Fetch from save file
-            var savpkm = SAV.BoxData.Where(pk => pk.Species != 0);
+            IEnumerable<PKM>? savpkm = SAV.BoxData.Where(pk => pk.Species != 0);
 
-            var bakpkm = dbTemp.Where(pk => pk.Species != 0).OrderBy(pk => pk.Identifier);
-            var db = bakpkm.Concat(savpkm).Where(pk => pk.ChecksumValid && pk.Sanity == 0);
+            IOrderedEnumerable<PKM>? bakpkm = dbTemp.Where(pk => pk.Species != 0).OrderBy(pk => pk.Identifier);
+            IEnumerable<PKM>? db = bakpkm.Concat(savpkm).Where(pk => pk.ChecksumValid && pk.Sanity == 0);
 
             // when PK7->PK8 conversion is possible (and sprites in new size are available, remove this filter)
             db = SAV is SAV8SWSH ? db.Where(z => z is PK8 || ((PersonalInfoSWSH)PersonalTable.SWSH.GetFormEntry(z.Species, z.Form)).IsPresentInGame) : db.Where(z => z is not PK8);
@@ -372,13 +372,13 @@ namespace PKHeX.WinForms
 
         private static void TryAddPKMsFromFolder(ConcurrentBag<PKM> dbTemp, string file, ITrainerInfo dest, ICollection<string> validExtensions)
         {
-            var fi = new FileInfo(file);
+            FileInfo? fi = new FileInfo(file);
             if (!validExtensions.Contains(fi.Extension) || !PKX.IsPKM(fi.Length))
                 return;
 
-            var data = File.ReadAllBytes(file);
-            var prefer = PKX.GetPKMFormatFromExtension(fi.Extension, dest.Generation);
-            var pk = PKMConverter.GetPKMfromBytes(data, prefer);
+            byte[]? data = File.ReadAllBytes(file);
+            int prefer = PKX.GetPKMFormatFromExtension(fi.Extension, dest.Generation);
+            PKM? pk = PKMConverter.GetPKMfromBytes(data, prefer);
             if (pk?.Species is not > 0)
                 return;
             pk.Identifier = file;
@@ -387,17 +387,17 @@ namespace PKHeX.WinForms
 
         private static void TryAddPKMsFromSaveFilePath(ConcurrentBag<PKM> dbTemp, string file, string externalFilePrefix)
         {
-            var sav = SaveUtil.GetVariantSAV(file);
+            SaveFile? sav = SaveUtil.GetVariantSAV(file);
             if (sav == null)
             {
                 Console.WriteLine("Unable to load SaveFile: " + file);
                 return;
             }
 
-            var path = externalFilePrefix + Path.GetFileName(file);
+            string? path = externalFilePrefix + Path.GetFileName(file);
             if (sav.HasBox)
             {
-                foreach (var pk in sav.BoxData)
+                foreach (PKM? pk in sav.BoxData)
                 {
                     if (pk.Species == 0)
                         continue;
@@ -409,7 +409,7 @@ namespace PKHeX.WinForms
 
             if (sav.HasParty)
             {
-                foreach (var pk in sav.PartyData)
+                foreach (PKM? pk in sav.PartyData)
                 {
                     if (pk.Species == 0)
                         continue;
@@ -419,10 +419,10 @@ namespace PKHeX.WinForms
                 }
             }
 
-            var extra = sav.GetExtraSlots(true);
-            foreach (var x in extra)
+            List<SlotInfoMisc>? extra = sav.GetExtraSlots(true);
+            foreach (SlotInfoMisc? x in extra)
             {
-                var pk = x.Read(sav);
+                PKM? pk = x.Read(sav);
                 if (pk.Species == 0)
                     continue;
 
@@ -446,7 +446,7 @@ namespace PKHeX.WinForms
             if (DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgDBExportResultsPrompt))
                 return;
 
-            using var fbd = new FolderBrowserDialog();
+            using FolderBrowserDialog? fbd = new FolderBrowserDialog();
             if (DialogResult.OK != fbd.ShowDialog())
                 return;
 
@@ -459,11 +459,11 @@ namespace PKHeX.WinForms
 
         private void Menu_Import_Click(object sender, EventArgs e)
         {
-            if (!BoxView.GetBulkImportSettings(out var clearAll, out var overwrite, out var noSetb))
+            if (!BoxView.GetBulkImportSettings(out bool clearAll, out bool overwrite, out PKMImportSetting noSetb))
                 return;
 
             int box = BoxView.Box.CurrentBox;
-            int ctr = SAV.LoadBoxes(Results, out var result, box, clearAll, overwrite, noSetb);
+            int ctr = SAV.LoadBoxes(Results, out string? result, box, clearAll, overwrite, noSetb);
             if (ctr <= 0)
                 return;
 
@@ -475,7 +475,7 @@ namespace PKHeX.WinForms
         // View Updates
         private IEnumerable<PKM> SearchDatabase()
         {
-            var settings = GetSearchSettings();
+            SearchSettings? settings = GetSearchSettings();
 
             IEnumerable<PKM> res = RawDB;
 
@@ -496,7 +496,7 @@ namespace PKHeX.WinForms
 
         private SearchSettings GetSearchSettings()
         {
-            var settings = new SearchSettings
+            SearchSettings? settings = new SearchSettings
             {
                 Format = MAXFORMAT - CB_Format.SelectedIndex + 1, // 0->(n-1) => 1->n
                 SearchFormat = (SearchComparison)CB_FormatComparator.SelectedIndex,
@@ -512,7 +512,7 @@ namespace PKHeX.WinForms
 
                 BatchInstructions = RTB_Instructions.Lines,
 
-                Level = int.TryParse(TB_Level.Text, out var lvl) ? (int?)lvl : null,
+                Level = int.TryParse(TB_Level.Text, out int lvl) ? (int?)lvl : null,
                 SearchLevel = (SearchComparison)CB_Level.SelectedIndex,
                 EVType = CB_EVTrain.SelectedIndex,
                 IVType = CB_IV.SelectedIndex,
@@ -551,13 +551,13 @@ namespace PKHeX.WinForms
         private async void B_Search_Click(object sender, EventArgs e)
         {
             B_Search.Enabled = false;
-            var search = SearchDatabase();
+            IEnumerable<PKM>? search = SearchDatabase();
 
             bool legalSearch = Menu_SearchLegal.Checked ^ Menu_SearchIllegal.Checked;
             bool wordFilter = ParseSettings.CheckWordFilter;
             if (wordFilter && legalSearch && WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgDBSearchLegalityWordfilter) == DialogResult.No)
                 ParseSettings.CheckWordFilter = false;
-            var results = await Task.Run(() => search.ToList()).ConfigureAwait(true);
+            List<PKM>? results = await Task.Run(() => search.ToList()).ConfigureAwait(true);
             ParseSettings.CheckWordFilter = wordFilter;
 
             if (results.Count == 0)
@@ -670,21 +670,21 @@ namespace PKHeX.WinForms
 
         private void Menu_DeleteClones_Click(object sender, EventArgs e)
         {
-            var dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo,
+            DialogResult dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo,
                 MsgDBDeleteCloneWarning + Environment.NewLine +
                 MsgDBDeleteCloneAdvice, MsgContinue);
 
             if (dr != DialogResult.Yes)
                 return;
 
-            var deleted = 0;
-            var db = RawDB.Where(pk => pk.Identifier?.StartsWith(DatabasePath + Path.DirectorySeparatorChar, StringComparison.Ordinal) == true)
+            int deleted = 0;
+            IOrderedEnumerable<PKM>? db = RawDB.Where(pk => pk.Identifier?.StartsWith(DatabasePath + Path.DirectorySeparatorChar, StringComparison.Ordinal) == true)
                 .OrderByDescending(file => File.GetLastWriteTimeUtc(file.Identifier!));
 
-            var clones = SearchUtil.GetExtraClones(db);
-            foreach (var pk in clones)
+            IEnumerable<PKM>? clones = SearchUtil.GetExtraClones(db);
+            foreach (PKM? pk in clones)
             {
-                var path = pk.Identifier;
+                string? path = pk.Identifier;
                 if (path == null || !File.Exists(path))
                     continue;
 
@@ -705,7 +705,7 @@ namespace PKHeX.WinForms
 
         private void ShowHoverTextForSlot(object sender, EventArgs e)
         {
-            var pb = (PictureBox)sender;
+            PictureBox? pb = (PictureBox)sender;
             int index = Array.IndexOf(PKXBOXES, pb);
             if (!GetShiftedIndex(ref index))
                 return;

@@ -19,6 +19,6 @@ namespace PKHeX.Core
             Fallback = fallback;
         }
 
-        public override string Description => Localizer.TryGetValue(Key, out var result) ? result : Fallback;
+        public override string Description => Localizer.TryGetValue(Key, out string? result) ? result : Fallback;
     }
 }

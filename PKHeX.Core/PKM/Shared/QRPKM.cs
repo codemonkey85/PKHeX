@@ -12,9 +12,9 @@ namespace PKHeX.Core
         /// <returns>Lines representing a Header, Moves, and IVs/EVs</returns>
         public static string[] GetQRLines(this PKM pkm)
         {
-            var s = GameInfo.Strings;
+            GameStrings? s = GameInfo.Strings;
 
-            var header = GetHeader(pkm, s);
+            IEnumerable<string>? header = GetHeader(pkm, s);
             string moves = string.Join(" / ", pkm.Moves.Select(move => move < s.movelist.Length ? s.movelist[move] : "ERROR"));
             string IVs = $"IVs: {pkm.IV_HP:00}/{pkm.IV_ATK:00}/{pkm.IV_DEF:00}/{pkm.IV_SPA:00}/{pkm.IV_SPD:00}/{pkm.IV_SPE:00}";
             string EVs = $"EVs: {pkm.EV_HP:00}/{pkm.EV_ATK:00}/{pkm.EV_DEF:00}/{pkm.EV_SPA:00}/{pkm.EV_SPD:00}/{pkm.EV_SPE:00}";
@@ -32,7 +32,7 @@ namespace PKHeX.Core
             string filename = pkm.Nickname;
             if ((uint) pkm.Species < s.Species.Count)
             {
-                var name = s.Species[pkm.Species];
+                string? name = s.Species[pkm.Species];
                 if (pkm.Nickname != name)
                     filename += $" ({name})";
             }
@@ -41,14 +41,14 @@ namespace PKHeX.Core
             if (pkm.Format >= 3 && (uint)pkm.Ability < s.Ability.Count)
                 yield return $"[{s.Ability[pkm.Ability]}]";
 
-            var level = pkm.Stat_Level;
+            int level = pkm.Stat_Level;
             if (level == 0)
                 level = pkm.CurrentLevel;
             yield return $"lv{level}";
 
             if (pkm.HeldItem > 0)
             {
-                var items = s.GetItemStrings(pkm.Format);
+                string[]? items = s.GetItemStrings(pkm.Format);
                 if ((uint)pkm.HeldItem < items.Length)
                     yield return $" @ {items[pkm.HeldItem]}";
             }

@@ -22,8 +22,8 @@ namespace PKHeX.Core
 
         private List<ComboItem> GetItems(int format)
         {
-            var permit = Memories.GetMemoryItemParams(format);
-            var asInt = permit.Select(z => (int) z).ToArray();
+            IEnumerable<ushort>? permit = Memories.GetMemoryItemParams(format);
+            int[]? asInt = permit.Select(z => (int) z).ToArray();
             return Util.GetCBList(s.itemlist, asInt);
         }
 
@@ -50,7 +50,7 @@ namespace PKHeX.Core
                 allowed[i] = i + 1;
             }
             Array.Resize(ref allowed, allowed.Length - 1);
-            var memory_list1 = Util.GetCBList(new[] { mems[0] });
+            List<ComboItem>? memory_list1 = Util.GetCBList(new[] { mems[0] });
             Util.AddCBWithOffset(memory_list1, mems, 0, allowed);
             return memory_list1;
         }

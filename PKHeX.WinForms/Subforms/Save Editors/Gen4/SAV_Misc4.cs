@@ -129,9 +129,9 @@ namespace PKHeX.WinForms
             CLB_FlyDest.Items.Clear();
             for (int i = 0; i < FlyDestD.Length; i++)
             {
-                var dest = FlyDestD[i];
-                var name = metLocationList.First(v => v.Value == dest).Text;
-                var state = FlyDestC[i] < 32
+                int dest = FlyDestD[i];
+                string? name = metLocationList.First(v => v.Value == dest).Text;
+                bool state = FlyDestC[i] < 32
                     ? (valFly & 1u << FlyDestC[i]) != 0
                     : (SAV.General[ofsFly + (FlyDestC[i] >> 3)] & 1 << (FlyDestC[i] & 7)) != 0;
                 CLB_FlyDest.Items.Add(name, state);
@@ -174,7 +174,7 @@ namespace PKHeX.WinForms
                 }
                 else
                 {
-                    var o = ofsFly + (FlyDestC[i] >> 3);
+                    int o = ofsFly + (FlyDestC[i] >> 3);
                     SAV.General[o] = (byte)((SAV.General[o] & ~(1 << (FlyDestC[i] & 7))) | (CLB_FlyDest.GetItemChecked(i) ? 1 << (FlyDestC[i] & 7) : 0));
                 }
             }
@@ -215,8 +215,8 @@ namespace PKHeX.WinForms
             CLB_Poketch.Items.Clear();
             for (int i = 0; i < PoketchTitle.Length; i++)
             {
-                var title = $"{i:00} - {PoketchTitle[i]}";
-                var val = s.GetPoketchAppUnlocked((PoketchApp)i);
+                string? title = $"{i:00} - {PoketchTitle[i]}";
+                bool val = s.GetPoketchAppUnlocked((PoketchApp)i);
                 CLB_Poketch.Items.Add(title, val);
             }
 
@@ -237,7 +237,7 @@ namespace PKHeX.WinForms
             s.CurrentPoketchApp = (sbyte)CB_CurrentApp.SelectedIndex;
             for (int i = 0; i < CLB_Poketch.Items.Count; i++)
             {
-                var b = CLB_Poketch.GetItemChecked(i);
+                bool b = CLB_Poketch.GetItemChecked(i);
                 s.SetPoketchAppUnlocked((PoketchApp)i, b);
             }
             s.SetPoketchDotArtistData(DotArtistByte);
@@ -251,9 +251,9 @@ namespace PKHeX.WinForms
             {
                 for (int ix = 0; ix < 24; ix++)
                 {
-                    var ib = ix + (24 * iy);
-                    var ict = ColorTable[inp[ib >> 2] >> (ib % 4 << 1) & 3];
-                    var iz = (12 * ix) + (0x480 * iy);
+                    int ib = ix + (24 * iy);
+                    byte ict = ColorTable[inp[ib >> 2] >> (ib % 4 << 1) & 3];
+                    int iz = (12 * ix) + (0x480 * iy);
                     for (int izy = 0; izy < 4; izy++)
                     {
                         for (int izx = 0; izx < 4; izx++)
@@ -292,7 +292,7 @@ namespace PKHeX.WinForms
             {
                 for (int ix = 0; ix < 24; ix++)
                 {
-                    var ig = (byte)(0xFF * bmp.GetPixel(ix, iy).GetBrightness());
+                    byte ig = (byte)(0xFF * bmp.GetPixel(ix, iy).GetBrightness());
                     BrightMap[ix + (24 * iy)] = ig;
                     BrightCount[ig]++;
                 }
@@ -316,7 +316,7 @@ namespace PKHeX.WinForms
                         iBrightCount[i] = LCT[j++];
                 }
 
-                var errtot = 0;
+                int errtot = 0;
                 for (int i = 0; i < 480; i++)
                     errtot += Math.Abs(BrightMap[i] - ColorTable[iBrightCount[BrightMap[i]]]);
                 if (errmin > errtot)
@@ -473,7 +473,7 @@ namespace PKHeX.WinForms
                 bool f = false;
                 for (int i = 0; i < 2; i++, ofsHallStat += 0x14)
                 {
-                    var h = BitConverter.ToInt32(SAV.General, ofsHallStat);
+                    int h = BitConverter.ToInt32(SAV.General, ofsHallStat);
                     if (h == -1) continue;
                     for (int j = 0; j < 0x20; j++)
                     {
@@ -509,7 +509,7 @@ namespace PKHeX.WinForms
             // Fill List
             CB_Species.InitializeBinding();
 
-            var speciesList = GameInfo.SpeciesDataSource.ToList();
+            List<ComboItem>? speciesList = GameInfo.SpeciesDataSource.ToList();
             speciesList.RemoveAt(0);
             speciesList.RemoveAll(z => z.Value > SAV.MaxSpeciesID);
             CB_Species.DataSource = new BindingSource(speciesList, null);
@@ -742,7 +742,7 @@ namespace PKHeX.WinForms
             int s = 0;
             for (int i = 0; i < HallNUDA.Length; i++)
             {
-                var d = c ? Math.Min(10, SAV.General[ofscur + 6 + (i >> 1 << 1)] >> ((i & 1) << 2) & 0x0F) : 0;
+                int d = c ? Math.Min(10, SAV.General[ofscur + 6 + (i >> 1 << 1)] >> ((i & 1) << 2) & 0x0F) : 0;
                 HallNUDA[i].Value = d;
                 HallNUDA[i].Enabled = c;
                 s += d;

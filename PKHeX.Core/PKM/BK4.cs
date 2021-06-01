@@ -28,10 +28,10 @@ namespace PKHeX.Core
 
         public static BK4 ReadUnshuffle(byte[] data)
         {
-            var PID = BigEndian.ToUInt32(data, 0);
+            uint PID = BigEndian.ToUInt32(data, 0);
             uint sv = ((PID & 0x3E000) >> 0xD) % 24;
-            var Data = PokeCrypto.ShuffleArray(data, sv, PokeCrypto.SIZE_4BLOCK);
-            var result = new BK4(Data);
+            byte[]? Data = PokeCrypto.ShuffleArray(data, sv, PokeCrypto.SIZE_4BLOCK);
+            BK4? result = new BK4(Data);
             result.RefreshChecksum();
             return result;
         }

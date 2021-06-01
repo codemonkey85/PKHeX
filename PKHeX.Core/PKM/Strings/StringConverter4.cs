@@ -20,13 +20,13 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetString4(byte[] data, int offset, int count)
         {
-            var s = new StringBuilder(count / 2);
+            StringBuilder? s = new StringBuilder(count / 2);
             for (int i = 0; i < count; i += 2)
             {
-                var val = BitConverter.ToUInt16(data, offset + i);
+                ushort val = BitConverter.ToUInt16(data, offset + i);
                 if (val == Terminator)
                     break;
-                var chr = ConvertValue2CharG4(val);
+                ushort chr = ConvertValue2CharG4(val);
                 if (chr == TerminatorChar)
                     break;
                 s.Append((char)chr);
@@ -43,23 +43,23 @@ namespace PKHeX.Core
         /// <returns>Encoded data.</returns>
         public static byte[] SetString4(string value, int maxLength, int padTo = 0, ushort padWith = 0)
         {
-            var sb = new StringBuilder(value);
-            var delta = sb.Length - maxLength;
+            StringBuilder? sb = new StringBuilder(value);
+            int delta = sb.Length - maxLength;
             if (delta > 0)
                 sb.Remove(maxLength, delta);
 
             // Replace Special Characters and add Terminator
             StringConverter.UnSanitizeString(sb, 4);
             sb.Append(TerminatorChar);
-            var d2 = padTo - sb.Length;
+            int d2 = padTo - sb.Length;
             if (d2 > 0)
                 sb.Append((char)padWith, d2);
 
-            var data = new byte[sb.Length * 2];
+            byte[]? data = new byte[sb.Length * 2];
             for (int i = 0; i < sb.Length; i++)
             {
-                var chr = sb[i];
-                var val = ConvertChar2ValueG4(chr);
+                char chr = sb[i];
+                ushort val = ConvertChar2ValueG4(chr);
                 BitConverter.GetBytes(val).CopyTo(data, i * 2);
             }
             return data;
@@ -74,13 +74,13 @@ namespace PKHeX.Core
         /// <returns>Converted string.</returns>
         public static string GetBEString4(byte[] data, int offset, int count)
         {
-            var sb = new StringBuilder(count / 2);
+            StringBuilder? sb = new StringBuilder(count / 2);
             for (int i = 0; i < count; i += 2)
             {
-                var val = BigEndian.ToUInt16(data, offset + i);
+                ushort val = BigEndian.ToUInt16(data, offset + i);
                 if (val == Terminator)
                     break;
-                var chr = ConvertValue2CharG4(val);
+                ushort chr = ConvertValue2CharG4(val);
                 if (chr == TerminatorChar)
                     break;
                 sb.Append((char)chr);
@@ -99,23 +99,23 @@ namespace PKHeX.Core
         /// <returns>Byte array containing encoded character data</returns>
         public static byte[] SetBEString4(string value, int maxLength, int padTo = 0, ushort padWith = 0)
         {
-            var sb = new StringBuilder(value);
-            var delta = sb.Length - maxLength;
+            StringBuilder? sb = new StringBuilder(value);
+            int delta = sb.Length - maxLength;
             if (delta > 0)
                 sb.Remove(maxLength, delta);
 
             // Replace Special Characters and add Terminator
             StringConverter.UnSanitizeString(sb, 4);
             sb.Append(TerminatorChar);
-            var d2 = padTo - sb.Length;
+            int d2 = padTo - sb.Length;
             if (d2 > 0)
                 sb.Append((char)padWith, d2);
 
-            var data = new byte[sb.Length * 2];
+            byte[]? data = new byte[sb.Length * 2];
             for (int i = 0; i < sb.Length; i++)
             {
-                var chr = sb[i];
-                var val = ConvertChar2ValueG4(chr);
+                char chr = sb[i];
+                ushort val = ConvertChar2ValueG4(chr);
                 BigEndian.GetBytes(val).CopyTo(data, i * 2);
             }
             return data;
@@ -153,21 +153,21 @@ namespace PKHeX.Core
         /// <returns>Byte array containing encoded character data</returns>
         public static byte[] SetBEString4Unicode(string value, int maxLength, int padTo = 0, ushort padWith = 0)
         {
-            var sb = new StringBuilder(value);
-            var delta = sb.Length - maxLength;
+            StringBuilder? sb = new StringBuilder(value);
+            int delta = sb.Length - maxLength;
             if (delta > 0)
                 sb.Remove(maxLength, delta);
 
             sb.Append((char)0);
-            var d2 = padTo - sb.Length;
+            int d2 = padTo - sb.Length;
             if (d2 > 0)
                 sb.Append((char)padWith, d2);
 
-            var data = new byte[sb.Length * 2];
+            byte[]? data = new byte[sb.Length * 2];
             for (int i = 0; i < sb.Length; i++)
             {
-                var ofs = i * 2;
-                var c = (ushort)sb[i];
+                int ofs = i * 2;
+                ushort c = (ushort)sb[i];
                 data[ofs + 1] = (byte)c;
                 data[ofs] = (byte)(c >> 8);
             }
@@ -206,7 +206,7 @@ namespace PKHeX.Core
         {
             for (int i = 0; i < input.Length; i++)
             {
-                if (FrDiacritic.TryGetValue(input[i], out var value))
+                if (FrDiacritic.TryGetValue(input[i], out char value))
                     input[i] = value;
             }
         }

@@ -34,29 +34,29 @@ namespace PKHeX.WinForms.Controls
 
         private void ClickView(object sender, EventArgs e)
         {
-            var info = GetSenderInfo(ref sender);
+            SlotViewInfo<PictureBox>? info = GetSenderInfo(ref sender);
             if ((sender as PictureBox)?.Image == null)
             { System.Media.SystemSounds.Asterisk.Play(); return; }
 
             Manager.Hover.Stop();
-            var pkm = Editor.Slots.Get(info.Slot);
+            PKM? pkm = Editor.Slots.Get(info.Slot);
             Editor.PKMEditor.PopulateFields(pkm, false, true);
         }
 
         private void ClickSet(object sender, EventArgs e)
         {
-            var editor = Editor.PKMEditor;
+            IPKMView? editor = Editor.PKMEditor;
             if (!editor.EditsComplete)
                 return;
             PKM pk = editor.PreparePKM();
 
-            var info = GetSenderInfo(ref sender);
-            var sav = info.View.SAV;
+            SlotViewInfo<PictureBox>? info = GetSenderInfo(ref sender);
+            SaveFile? sav = info.View.SAV;
 
             if (!CheckDest(info, sav, pk))
                 return;
 
-            var errata = sav.IsPKMCompatible(pk);
+            System.Collections.Generic.IReadOnlyList<string>? errata = sav.IsPKMCompatible(pk);
             if (errata.Count > 0 && DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, string.Join(Environment.NewLine, errata), MsgContinue))
                 return;
 
@@ -67,12 +67,12 @@ namespace PKHeX.WinForms.Controls
 
         private void ClickDelete(object sender, EventArgs e)
         {
-            var info = GetSenderInfo(ref sender);
+            SlotViewInfo<PictureBox>? info = GetSenderInfo(ref sender);
             if ((sender as PictureBox)?.Image == null)
             { System.Media.SystemSounds.Asterisk.Play(); return; }
 
-            var sav = info.View.SAV;
-            var pk = sav.BlankPKM;
+            SaveFile? sav = info.View.SAV;
+            PKM? pk = sav.BlankPKM;
             if (!CheckDest(info, sav, pk))
                 return;
 
@@ -83,7 +83,7 @@ namespace PKHeX.WinForms.Controls
 
         private static bool CheckDest(SlotViewInfo<PictureBox> info, SaveFile sav, PKM pk)
         {
-            var msg = info.Slot.CanWriteTo(sav, pk);
+            WriteBlockedMessage msg = info.Slot.CanWriteTo(sav, pk);
             if (msg == WriteBlockedMessage.None)
                 return true;
 
@@ -105,18 +105,18 @@ namespace PKHeX.WinForms.Controls
 
         private void ClickShowLegality(object sender, EventArgs e)
         {
-            var info = GetSenderInfo(ref sender);
-            var sav = info.View.SAV;
-            var pk = info.Slot.Read(sav);
+            SlotViewInfo<PictureBox>? info = GetSenderInfo(ref sender);
+            SaveFile? sav = info.View.SAV;
+            PKM? pk = info.Slot.Read(sav);
             RequestEditorLegality?.Invoke(sender, e, pk);
         }
 
         private void MenuOpening(object sender, CancelEventArgs e)
         {
-            var items = ((ContextMenuStrip)sender).Items;
+            ToolStripItemCollection? items = ((ContextMenuStrip)sender).Items;
 
             object ctrl = ((ContextMenuStrip)sender).SourceControl;
-            var info = GetSenderInfo(ref ctrl);
+            SlotViewInfo<PictureBox>? info = GetSenderInfo(ref ctrl);
             bool SlotFull = (ctrl as PictureBox)?.Image != null;
             bool Editable = info.Slot.CanWriteTo(info.View.SAV);
             bool legality = ModifierKeys == Keys.Control;
@@ -131,13 +131,13 @@ namespace PKHeX.WinForms.Controls
 
         private static SlotViewInfo<PictureBox> GetSenderInfo(ref object sender)
         {
-            var pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             if (pb == null)
                 throw new InvalidCastException("Unable to find PictureBox");
-            var view = WinFormsUtil.FindFirstControlOfType<ISlotViewer<PictureBox>>(pb);
+            ISlotViewer<PictureBox>? view = WinFormsUtil.FindFirstControlOfType<ISlotViewer<PictureBox>>(pb);
             if (view == null)
                 throw new InvalidCastException("Unable to find View Parent");
-            var loc = view.GetSlotData(pb);
+            ISlotInfo? loc = view.GetSlotData(pb);
             sender = pb;
             return new SlotViewInfo<PictureBox>(loc, view);
         }

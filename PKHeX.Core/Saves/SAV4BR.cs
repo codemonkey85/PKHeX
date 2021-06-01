@@ -31,8 +31,8 @@ namespace PKHeX.Core
             Data = DecryptPBRSaveData(data);
 
             // Detect active save
-            var first  = BigEndian.ToUInt32(Data, 0x00004C);
-            var second = BigEndian.ToUInt32(Data, 0x1C004C);
+            uint first  = BigEndian.ToUInt32(Data, 0x00004C);
+            uint second = BigEndian.ToUInt32(Data, 0x1C004C);
             SaveCount = Math.Max(second, first);
             if (second > first)
             {
@@ -43,10 +43,10 @@ namespace PKHeX.Core
                 tempData.CopyTo(Data, 0x1C0000);
             }
 
-            var names = (string[]) SaveNames;
+            string[]? names = (string[]) SaveNames;
             for (int i = 0; i < SAVE_COUNT; i++)
             {
-                var name = GetOTName(i);
+                string? name = GetOTName(i);
                 if (string.IsNullOrWhiteSpace(name))
                     name = $"Empty {i + 1}";
                 else if (_currentSlot == -1)
@@ -84,7 +84,7 @@ namespace PKHeX.Core
             set
             {
                 _currentSlot = value;
-                var ofs = SIZE_SLOT * _currentSlot;
+                int ofs = SIZE_SLOT * _currentSlot;
                 Box = ofs + 0x978;
                 Party = ofs + 0x13A54; // first team slot after boxes
                 BoxName = ofs + 0x58674;
@@ -156,13 +156,13 @@ namespace PKHeX.Core
 
         private string GetOTName(int slot)
         {
-            var ofs = 0x390 + (0x6FF00 * slot);
+            int ofs = 0x390 + (0x6FF00 * slot);
             return GetString(Data, ofs, 16);
         }
 
         private void SetOTName(int slot, string name)
         {
-            var ofs = 0x390 + (0x6FF00 * slot);
+            int ofs = 0x390 + (0x6FF00 * slot);
             SetData(SetString(name, 7, 8), ofs);
         }
 
@@ -202,7 +202,7 @@ namespace PKHeX.Core
                 return $"BOX {box + 1}";
 
             int ofs = BoxName + (box * BoxNameLength);
-            var str = GetString(ofs, BoxNameLength);
+            string? str = GetString(ofs, BoxNameLength);
             if (string.IsNullOrWhiteSpace(str))
                 return $"BOX {box + 1}";
             return str;
@@ -214,11 +214,11 @@ namespace PKHeX.Core
                 return;
 
             int ofs = BoxName + (box * BoxNameLength);
-            var str = GetString(ofs, BoxNameLength);
+            string? str = GetString(ofs, BoxNameLength);
             if (string.IsNullOrWhiteSpace(str))
                 return;
 
-            var data = SetString(value, BoxNameLength / 2, BoxNameLength / 2);
+            byte[]? data = SetString(value, BoxNameLength / 2, BoxNameLength / 2);
             SetData(data, ofs);
         }
 
@@ -235,7 +235,7 @@ namespace PKHeX.Core
 
         protected override void SetPKM(PKM pkm, bool isParty = false)
         {
-            var pk4 = (BK4)pkm;
+            BK4? pk4 = (BK4)pkm;
             // Apply to this Save File
             DateTime Date = DateTime.Now;
             if (pk4.Trade(OT, TID, SID, Gender, Date.Day, Date.Month, Date.Year))
@@ -252,7 +252,7 @@ namespace PKHeX.Core
             byte[] output = new byte[input.Length];
             for (int i = 0; i < SaveUtil.SIZE_G4BR; i += 0x1C0000)
             {
-                var keys = GetKeys(input, i);
+                ushort[]? keys = GetKeys(input, i);
                 Array.Copy(input, i, output, i, 8);
                 GeniusCrypto.Decrypt(input, i + 8, i + 0x1C0000, keys, output);
             }
@@ -264,7 +264,7 @@ namespace PKHeX.Core
             byte[] output = new byte[input.Length];
             for (int i = 0; i < SaveUtil.SIZE_G4BR; i += 0x1C0000)
             {
-                var keys = GetKeys(input, i);
+                ushort[]? keys = GetKeys(input, i);
                 Array.Copy(input, i, output, i, 8);
                 GeniusCrypto.Encrypt(input, i + 8, i + 0x1C0000, keys, output);
             }

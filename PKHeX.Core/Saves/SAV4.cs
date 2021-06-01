@@ -46,8 +46,8 @@ namespace PKHeX.Core
             GeneralBlockPosition = GetActiveBlock(data, 0, gSize);
             StorageBlockPosition = GetActiveBlock(data, sStart, sSize);
 
-            var gbo = (GeneralBlockPosition == 0 ? 0 : PartitionSize);
-            var sbo = (StorageBlockPosition == 0 ? 0 : PartitionSize) + sStart;
+            int gbo = (GeneralBlockPosition == 0 ? 0 : PartitionSize);
+            int sbo = (StorageBlockPosition == 0 ? 0 : PartitionSize) + sStart;
             General = GetData(gbo, gSize);
             Storage = GetData(sbo, sSize);
         }
@@ -55,7 +55,7 @@ namespace PKHeX.Core
         // Configuration
         protected override SaveFile CloneInternal()
         {
-            var sav = CloneInternal4();
+            SAV4? sav = CloneInternal4();
             SetData(sav.General, General, 0);
             SetData(sav.Storage, Storage, 0);
             return sav;
@@ -66,7 +66,7 @@ namespace PKHeX.Core
         public override void CopyChangesFrom(SaveFile sav)
         {
             SetData(sav.Data, 0);
-            var s4 = (SAV4)sav;
+            SAV4? s4 = (SAV4)sav;
             SetData(General, s4.General, 0);
             SetData(Storage, s4.Storage, 0);
         }
@@ -130,7 +130,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var list = new List<string>();
+                List<string>? list = new List<string>();
                 if (!GetBlockChecksumValid(General))
                     list.Add("Small block checksum is invalid");
                 if (!GetBlockChecksumValid(Storage))
@@ -250,7 +250,7 @@ namespace PKHeX.Core
 
         protected override void SetPKM(PKM pkm, bool isParty = false)
         {
-            var pk4 = (PK4)pkm;
+            PK4? pk4 = (PK4)pkm;
             // Apply to this Save File
             DateTime Date = DateTime.Now;
             if (pk4.Trade(OT, TID, SID, Gender, Date.Day, Date.Month, Date.Year))
@@ -334,7 +334,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var album = new MysteryGiftAlbum(MysteryGiftCards, MysteryGiftReceivedFlags);
+                MysteryGiftAlbum? album = new MysteryGiftAlbum(MysteryGiftCards, MysteryGiftReceivedFlags);
                 album.Flags[2047] = false;
                 return album;
             }
@@ -346,7 +346,7 @@ namespace PKHeX.Core
                 value.Flags[2047] = available;
 
                 // Check encryption for each gift (decrypted wc4 sneaking in)
-                foreach (var g in value.Gifts)
+                foreach (DataMysteryGift? g in value.Gifts)
                 {
                     if (g is PGT pgt)
                     {
@@ -354,7 +354,7 @@ namespace PKHeX.Core
                     }
                     else if (g is PCD pcd)
                     {
-                        var dg = pcd.Gift;
+                        PGT? dg = pcd.Gift;
                         if (dg.VerifyPKEncryption())
                             pcd.Gift = dg; // set encrypted gift back to PCD.
                     }
@@ -403,7 +403,7 @@ namespace PKHeX.Core
             }
             set
             {
-                var Matches = MatchMysteryGifts(value); // automatically applied
+                byte[]? Matches = MatchMysteryGifts(value); // automatically applied
                 if (Matches.Length == 0)
                     return;
 
@@ -521,8 +521,8 @@ namespace PKHeX.Core
 
         public void SetAllSeals(byte count, bool unreleased = false)
         {
-            var sealIndexCount = (int)(unreleased ? Seal4.MAX : Seal4.MAXLEGAL);
-            var val = Math.Min(count, SealMaxCount);
+            int sealIndexCount = (int)(unreleased ? Seal4.MAX : Seal4.MAXLEGAL);
+            byte val = Math.Min(count, SealMaxCount);
             for (int i = 0; i < sealIndexCount; i++)
                 General[Seal + i] = val;
         }

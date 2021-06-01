@@ -58,7 +58,7 @@ namespace PKHeX.Core
             int end = start + SIZE_MAIN;
             for (int ofs = start; ofs < end; ofs += SIZE_SECTOR)
             {
-                var id = BitConverter.ToInt16(data, ofs + 0xFF4);
+                short id = BitConverter.ToInt16(data, ofs + 0xFF4);
                 switch (id)
                 {
                     case >=5: Buffer.BlockCopy(data, ofs, Storage, (id - 5) * SIZE_SECTOR_USED, SIZE_SECTOR_USED); break;
@@ -74,7 +74,7 @@ namespace PKHeX.Core
             int end = start + SIZE_MAIN;
             for (int ofs = start; ofs < end; ofs += SIZE_SECTOR)
             {
-                var id = BitConverter.ToInt16(data, ofs + 0xFF4);
+                short id = BitConverter.ToInt16(data, ofs + 0xFF4);
                 switch (id)
                 {
                     case >=5: Buffer.BlockCopy(Storage, (id - 5) * SIZE_SECTOR_USED, data, ofs, SIZE_SECTOR_USED); break;
@@ -99,7 +99,7 @@ namespace PKHeX.Core
             sector0 = 0;
             for (int ofs = 0; ofs < end; ofs += SIZE_SECTOR)
             {
-                var id = BitConverter.ToInt16(data, ofs + 0xFF4);
+                short id = BitConverter.ToInt16(data, ofs + 0xFF4);
                 bitTrack |= (1 << id);
                 if (id == 0)
                     sector0 = ofs;
@@ -113,15 +113,15 @@ namespace PKHeX.Core
             if (data.Length == SaveUtil.SIZE_G3RAWHALF)
                 return 0;
 
-            var v0 = IsAllMainSectorsPresent(data, 0, out var sectorZero0);
-            var v1 = IsAllMainSectorsPresent(data, 1, out var sectorZero1);
+            bool v0 = IsAllMainSectorsPresent(data, 0, out int sectorZero0);
+            bool v1 = IsAllMainSectorsPresent(data, 1, out int sectorZero1);
             if (!v0)
                 return v1 ? 1 : 0;
             if (!v1)
                 return 0;
 
-            var count0 = BitConverter.ToUInt32(data, sectorZero0 + 0x0FFC);
-            var count1 = BitConverter.ToUInt32(data, sectorZero1 + 0x0FFC);
+            uint count0 = BitConverter.ToUInt32(data, sectorZero0 + 0x0FFC);
+            uint count1 = BitConverter.ToUInt32(data, sectorZero1 + 0x0FFC);
             // don't care about 32bit overflow. a 10 second save would take 1,000 years to overflow!
             return count1 > count0 ? 1 : 0;
         }
@@ -231,7 +231,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var list = new List<string>();
+                List<string>? list = new List<string>();
                 for (int i = 0; i < COUNT_MAIN; i++)
                 {
                     if (!IsSectorValid(i))
@@ -308,7 +308,7 @@ namespace PKHeX.Core
             if (flagNumber >= EventFlagMax)
                 throw new ArgumentException($"Event Flag to get ({flagNumber}) is greater than max ({EventFlagMax}).");
 
-            var start = EventFlag;
+            int start = EventFlag;
             return GetFlag(start + (flagNumber >> 3), flagNumber & 7);
         }
 
@@ -317,7 +317,7 @@ namespace PKHeX.Core
             if (flagNumber >= EventFlagMax)
                 throw new ArgumentException($"Event Flag to set ({flagNumber}) is greater than max ({EventFlagMax}).");
 
-            var start = EventFlag;
+            int start = EventFlag;
             SetFlag(start + (flagNumber >> 3), flagNumber & 7, value);
         }
 
@@ -373,8 +373,8 @@ namespace PKHeX.Core
         {
             get
             {
-                var pouch = GetItems();
-                foreach (var p in pouch)
+                InventoryPouch3[]? pouch = GetItems();
+                foreach (InventoryPouch3? p in pouch)
                 {
                     if (p.Type != InventoryType.PCItems)
                         p.SecurityKey = SecurityKey;
@@ -564,8 +564,8 @@ namespace PKHeX.Core
 
         public Mail GetMail(int i)
         {
-            var ofs = GetMailOffset(i);
-            var data = Large.Slice(ofs, Mail3.SIZE);
+            int ofs = GetMailOffset(i);
+            byte[]? data = Large.Slice(ofs, Mail3.SIZE);
             return new Mail3(data, ofs, Japanese);
         }
 
@@ -596,7 +596,7 @@ namespace PKHeX.Core
         public override void CopyChangesFrom(SaveFile sav)
         {
             SetData(sav.Data, 0);
-            var s3 = (SAV3)sav;
+            SAV3? s3 = (SAV3)sav;
             SetData(Small, s3.Small, 0);
             SetData(Large, s3.Large, 0);
             SetData(Storage, s3.Storage, 0);

@@ -13,7 +13,7 @@ namespace PKHeX.Core
             SlotsPerBox = slotsPerBox;
 
             blank = PKMConverter.GetBlank(t);
-            var slots = (Data.Length - Box) / blank.SIZE_STORED;
+            int slots = (Data.Length - Box) / blank.SIZE_STORED;
             BoxCount = slots / SlotsPerBox;
 
             GetIsPKMPresent = PKX.GetFuncIsPKMPresent(blank);

@@ -18,9 +18,9 @@ namespace PKHeX.Core
 
         private void VerifyMedalsRegular(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var train = (ISuperTrain)pkm;
-            var Info = data.Info;
+            PKM? pkm = data.pkm;
+            ISuperTrain? train = (ISuperTrain)pkm;
+            LegalInfo? Info = data.Info;
             uint value = BitConverter.ToUInt32(data.pkm.Data, 0x2C);
             if ((value & 3) != 0) // 2 unused flags
                 data.AddLine(GetInvalid(LSuperUnused));
@@ -67,7 +67,7 @@ namespace PKHeX.Core
 
         private void VerifyMedalsEvent(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             byte value = pkm.Data[0x3A];
             if (value != 0)
                 data.AddLine(GetInvalid(LSuperDistro));

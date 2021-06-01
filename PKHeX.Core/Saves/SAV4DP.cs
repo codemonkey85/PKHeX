@@ -136,7 +136,7 @@ namespace PKHeX.Core
 
         private void SetActiveGiftFlags(IReadOnlyList<MysteryGift> gifts)
         {
-            var arr = new bool[gifts.Count];
+            bool[]? arr = new bool[gifts.Count];
             for (int i = 0; i < arr.Length; i++)
                 arr[i] = !gifts[i].Empty;
             SetMysteryGiftDPSlotActiveFlags(arr);

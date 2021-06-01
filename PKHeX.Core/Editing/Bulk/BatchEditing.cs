@@ -43,19 +43,19 @@ namespace PKHeX.Core
 
         private static string[][] GetPropArray()
         {
-            var p = new string[Types.Length][];
+            string[][]? p = new string[Types.Length][];
             for (int i = 0; i < p.Length; i++)
             {
-                var pz = ReflectUtil.GetPropertiesPublic(Types[i]);
+                IEnumerable<string>? pz = ReflectUtil.GetPropertiesPublic(Types[i]);
                 p[i] = pz.Concat(CustomProperties).OrderBy(a => a).ToArray();
             }
 
             // Properties for any PKM
-            var any = ReflectUtil.GetPropertiesPublic(typeof(PK1)).Union(p.SelectMany(a => a)).OrderBy(a => a).ToArray();
+            string[]? any = ReflectUtil.GetPropertiesPublic(typeof(PK1)).Union(p.SelectMany(a => a)).OrderBy(a => a).ToArray();
             // Properties shared by all PKM
-            var all = p.Aggregate(new HashSet<string>(p[0]), (h, e) => { h.IntersectWith(e); return h; }).OrderBy(a => a).ToArray();
+            string[]? all = p.Aggregate(new HashSet<string>(p[0]), (h, e) => { h.IntersectWith(e); return h; }).OrderBy(a => a).ToArray();
 
-            var p1 = new string[Types.Length + 2][];
+            string[][]? p1 = new string[Types.Length + 2][];
             Array.Copy(p, 0, p1, 1, p.Length);
             p1[0] = any;
             p1[^1] = all;
@@ -72,7 +72,7 @@ namespace PKHeX.Core
         /// <returns>True if has property, false if does not.</returns>
         public static bool TryGetHasProperty(PKM pk, string name, [NotNullWhen(true)] out PropertyInfo? pi)
         {
-            var type = pk.GetType();
+            Type? type = pk.GetType();
             return TryGetHasProperty(type, name, out pi);
         }
 
@@ -85,13 +85,13 @@ namespace PKHeX.Core
         /// <returns>True if has property, false if does not.</returns>
         public static bool TryGetHasProperty(Type type, string name, [NotNullWhen(true)] out PropertyInfo? pi)
         {
-            var index = Array.IndexOf(Types, type);
+            int index = Array.IndexOf(Types, type);
             if (index < 0)
             {
                 pi = null;
                 return false;
             }
-            var props = Props[index];
+            Dictionary<string, PropertyInfo>? props = Props[index];
             return props.TryGetValue(name, out pi);
         }
 
@@ -102,9 +102,9 @@ namespace PKHeX.Core
         {
             for (int i = 0; i < Types.Length; i++)
             {
-                var type = Types[i];
-                var props = Props[i];
-                if (!props.TryGetValue(property, out var pi))
+                Type? type = Types[i];
+                Dictionary<string, PropertyInfo>? props = Props[i];
+                if (!props.TryGetValue(property, out PropertyInfo? pi))
                     continue;
                 yield return $"{type.Name}: {pi.PropertyType.Name}";
             }
@@ -123,17 +123,17 @@ namespace PKHeX.Core
 
             if (typeIndex == 0) // Any
             {
-                foreach (var p in Props)
+                foreach (Dictionary<string, PropertyInfo>? p in Props)
                 {
-                    if (p.TryGetValue(propertyName, out var pi))
+                    if (p.TryGetValue(propertyName, out PropertyInfo? pi))
                         return pi.PropertyType.Name;
                 }
                 return null;
             }
 
             int index = typeIndex - 1 >= Props.Length ? 0 : typeIndex - 1; // All vs Specific
-            var pr = Props[index];
-            if (!pr.TryGetValue(propertyName, out var info))
+            Dictionary<string, PropertyInfo>? pr = Props[index];
+            if (!pr.TryGetValue(propertyName, out PropertyInfo? info))
                 return null;
             return info.PropertyType.Name;
         }
@@ -144,7 +144,7 @@ namespace PKHeX.Core
         /// <param name="il">Instructions to initialize.</param>
         public static void ScreenStrings(IEnumerable<StringInstruction> il)
         {
-            foreach (var i in il.Where(i => !i.PropertyValue.All(char.IsDigit)))
+            foreach (StringInstruction? i in il.Where(i => !i.PropertyValue.All(char.IsDigit)))
             {
                 string pv = i.PropertyValue;
                 if (pv.StartsWith("$") && !pv.StartsWith(CONST_BYTES) && pv.Contains(','))
@@ -190,9 +190,9 @@ namespace PKHeX.Core
         /// <returns>True if <see cref="obj"/> matches all filters.</returns>
         public static bool IsFilterMatch(IEnumerable<StringInstruction> filters, object obj)
         {
-            foreach (var cmd in filters)
+            foreach (StringInstruction? cmd in filters)
             {
-                if (!ReflectUtil.HasProperty(obj, cmd.PropertyName, out var pi))
+                if (!ReflectUtil.HasProperty(obj, cmd.PropertyName, out PropertyInfo? pi))
                     return false;
                 try
                 {
@@ -221,7 +221,7 @@ namespace PKHeX.Core
         /// <returns>Result of the attempted modification.</returns>
         public static bool TryModify(PKM pk, IEnumerable<StringInstruction> filters, IEnumerable<StringInstruction> modifications)
         {
-            var result = TryModifyPKM(pk, filters, modifications);
+            ModifyResult result = TryModifyPKM(pk, filters, modifications);
             return result == ModifyResult.Modified;
         }
 
@@ -237,9 +237,9 @@ namespace PKHeX.Core
             if (!pk.ChecksumValid || pk.Species == 0)
                 return ModifyResult.Invalid;
 
-            var info = new BatchInfo(pk);
-            var pi = Props[Array.IndexOf(Types, pk.GetType())];
-            foreach (var cmd in filters)
+            BatchInfo? info = new BatchInfo(pk);
+            Dictionary<string, PropertyInfo>? pi = Props[Array.IndexOf(Types, pk.GetType())];
+            foreach (StringInstruction? cmd in filters)
             {
                 try
                 {
@@ -257,11 +257,11 @@ namespace PKHeX.Core
             }
 
             ModifyResult result = ModifyResult.Modified;
-            foreach (var cmd in modifications)
+            foreach (StringInstruction? cmd in modifications)
             {
                 try
                 {
-                    var tmp = SetPKMProperty(cmd, info, pi);
+                    ModifyResult tmp = SetPKMProperty(cmd, info, pi);
                     if (tmp != ModifyResult.Modified)
                         result = tmp;
                 }
@@ -285,7 +285,7 @@ namespace PKHeX.Core
         /// <returns>True if filtered, else false.</returns>
         private static ModifyResult SetPKMProperty(StringInstruction cmd, BatchInfo info, IReadOnlyDictionary<string, PropertyInfo> props)
         {
-            var pk = info.Entity;
+            PKM? pk = info.Entity;
             if (cmd.PropertyValue.StartsWith(CONST_BYTES))
                 return SetByteArrayProperty(pk, cmd);
 
@@ -297,7 +297,7 @@ namespace PKHeX.Core
             if (SetComplexProperty(pk, cmd))
                 return ModifyResult.Modified;
 
-            if (!props.TryGetValue(cmd.PropertyName, out var pi))
+            if (!props.TryGetValue(cmd.PropertyName, out PropertyInfo? pi))
                 return ModifyResult.Error;
 
             if (!pi.CanWrite)
@@ -317,7 +317,7 @@ namespace PKHeX.Core
         /// <returns>True if filter matches, else false.</returns>
         private static bool IsFilterMatch(StringInstruction cmd, BatchInfo info, IReadOnlyDictionary<string, PropertyInfo> props)
         {
-            var match = FilterMods.Find(z => z.IsMatch(cmd.PropertyName));
+            IComplexFilter? match = FilterMods.Find(z => z.IsMatch(cmd.PropertyName));
             if (match != null)
                 return match.IsFiltered(info, cmd);
             return IsPropertyFiltered(cmd, info.Entity, props);
@@ -332,7 +332,7 @@ namespace PKHeX.Core
         /// <returns>True if filter matches, else false.</returns>
         private static bool IsFilterMatch(StringInstruction cmd, PKM pk, IReadOnlyDictionary<string, PropertyInfo> props)
         {
-            var match = FilterMods.Find(z => z.IsMatch(cmd.PropertyName));
+            IComplexFilter? match = FilterMods.Find(z => z.IsMatch(cmd.PropertyName));
             if (match != null)
                 return match.IsFiltered(pk, cmd);
             return IsPropertyFiltered(cmd, pk, props);
@@ -347,7 +347,7 @@ namespace PKHeX.Core
         /// <returns>True if filtered, else false.</returns>
         private static bool IsPropertyFiltered(StringInstruction cmd, PKM pk, IReadOnlyDictionary<string, PropertyInfo> props)
         {
-            if (!props.TryGetValue(cmd.PropertyName, out var pi))
+            if (!props.TryGetValue(cmd.PropertyName, out PropertyInfo? pi))
                 return false;
             if (!pi.CanRead)
                 return false;
@@ -362,7 +362,7 @@ namespace PKHeX.Core
         /// <param name="propValue">Suggestion string which starts with <see cref="CONST_SUGGEST"/></param>
         private static ModifyResult SetSuggestedPKMProperty(string name, BatchInfo info, string propValue)
         {
-            var first = SuggestionMods.Find(z => z.IsMatch(name, propValue, info));
+            ISuggestModification? first = SuggestionMods.Find(z => z.IsMatch(name, propValue, info));
             if (first != null)
                 return first.Modify(name, propValue, info);
             return ModifyResult.Error;
@@ -403,7 +403,7 @@ namespace PKHeX.Core
                 return true;
             }
 
-            var match = ComplexMods.Find(z => z.IsMatch(cmd.PropertyName, cmd.PropertyValue));
+            IComplexSet? match = ComplexMods.Find(z => z.IsMatch(cmd.PropertyName, cmd.PropertyValue));
             if (match == null)
                 return false;
 
@@ -424,7 +424,7 @@ namespace PKHeX.Core
                 return;
             }
 
-            if (TryGetHasProperty(pk, cmd.PropertyName, out var pi))
+            if (TryGetHasProperty(pk, cmd.PropertyName, out PropertyInfo? pi))
                 ReflectUtil.SetValue(pi, pk, Util.Rand.Next(pk.MaxIV + 1));
         }
 

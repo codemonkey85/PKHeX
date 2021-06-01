@@ -20,11 +20,11 @@ namespace PKHeX.Core
         {
             get
             {
-                var first = $"{Species:000} - {GameInfo.Strings.Species[Species]}";
+                string? first = $"{Species:000} - {GameInfo.Strings.Species[Species]}";
                 if (HeldItem != 0)
                     first += $"@ {GameInfo.Strings.Item[HeldItem]}";
-                var second = $"Moves: {string.Join(" / ", Moves.Select(z => GameInfo.Strings.Move[z]))}";
-                var third = $"Level: {Level}, EVs: {EVAll}, PID: {PID}";
+                string? second = $"Moves: {string.Join(" / ", Moves.Select(z => GameInfo.Strings.Move[z]))}";
+                string? third = $"Level: {Level}, EVs: {EVAll}, PID: {PID}";
                 return first + Environment.NewLine + second + Environment.NewLine + third;
             }
         }

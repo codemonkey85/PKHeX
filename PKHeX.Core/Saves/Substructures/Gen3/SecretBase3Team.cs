@@ -52,7 +52,7 @@ namespace PKHeX.Core
 
         private void SetPKM(int i)
         {
-            var pk = Team[i];
+            SecretBase3PKM? pk = Team[i];
             BitConverter.GetBytes(pk.PID).CopyTo(Data, GetOffsetPID(i));
             BitConverter.GetBytes((ushort)pk.Species).CopyTo(Data, GetOffsetSpecies(i));
             BitConverter.GetBytes((ushort)pk.HeldItem).CopyTo(Data, GetOffsetItem(i));

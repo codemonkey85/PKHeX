@@ -47,7 +47,7 @@ namespace PKHeX.Core
         /// <param name="max">Maximum value to set</param>
         public static void AwakeningSetRandom(this IAwakened pk, int min = 0, int max = Legal.AwakeningMax)
         {
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             int randClamp = max + 1;
             for (int index = 0; index < 6; index++)
                 pk.SetAV(index, rnd.Next(min, randClamp));

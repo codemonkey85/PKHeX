@@ -11,11 +11,11 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.Format >= 6)
                 VerifyEC(data);
 
-            var enc = data.EncounterMatch;
+            IEncounterable? enc = data.EncounterMatch;
             if (enc.Species == (int)Species.Wurmple)
                 VerifyECPIDWurmple(data);
 
@@ -29,7 +29,7 @@ namespace PKHeX.Core
 
         private void VerifyShiny(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
 
             switch (data.EncounterMatch)
             {
@@ -39,9 +39,9 @@ namespace PKHeX.Core
 
                     if (s is EncounterStatic8U {Shiny: Shiny.Random})
                     {
-						// Underground Raids are originally anti-shiny on encounter.
-						// When selecting a prize at the end, the game rolls and force-shiny is applied to be XOR=1.
-                        var xor = pkm.ShinyXor;
+                        // Underground Raids are originally anti-shiny on encounter.
+                        // When selecting a prize at the end, the game rolls and force-shiny is applied to be XOR=1.
+                        uint xor = pkm.ShinyXor;
                         if (xor is <= 15 and not 1)
                             data.AddLine(GetInvalid(LEncStaticPIDShiny, CheckIdentifier.Shiny));
                         break;
@@ -86,24 +86,24 @@ namespace PKHeX.Core
 
         private void VerifyG5PID_IDCorrelation(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var pid = pkm.EncryptionConstant;
-            var result = (pid & 1) ^ (pid >> 31) ^ (pkm.TID & 1) ^ (pkm.SID & 1);
+            PKM? pkm = data.pkm;
+            uint pid = pkm.EncryptionConstant;
+            long result = (pid & 1) ^ (pid >> 31) ^ (pkm.TID & 1) ^ (pkm.SID & 1);
             if (result != 0)
                 data.AddLine(GetInvalid(LPIDTypeMismatch));
         }
 
         private void VerifyECPIDWurmple(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
 
             if (pkm.Species == (int)Species.Wurmple)
             {
                 // Indicate what it will evolve into
                 uint evoVal = WurmpleUtil.GetWurmpleEvoVal(pkm.EncryptionConstant);
-                var evolvesTo = evoVal == 0 ? (int)Species.Beautifly : (int)Species.Dustox;
-                var species = ParseSettings.SpeciesStrings[evolvesTo];
-                var msg = string.Format(L_XWurmpleEvo_0, species);
+                int evolvesTo = evoVal == 0 ? (int)Species.Beautifly : (int)Species.Dustox;
+                string? species = ParseSettings.SpeciesStrings[evolvesTo];
+                string? msg = string.Format(L_XWurmpleEvo_0, species);
                 data.AddLine(GetValid(msg, CheckIdentifier.EC));
             }
             else if (!WurmpleUtil.IsWurmpleEvoValid(pkm))
@@ -114,8 +114,8 @@ namespace PKHeX.Core
 
         private static void VerifyEC(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var Info = data.Info;
+            PKM? pkm = data.pkm;
+            LegalInfo? Info = data.Info;
 
             if (pkm.EncryptionConstant == 0)
             {
@@ -149,19 +149,19 @@ namespace PKHeX.Core
 
         private static void VerifyTransferEC(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             // When transferred to Generation 6, the Encryption Constant is copied from the PID.
             // The PID is then checked to see if it becomes shiny with the new Shiny rules (>>4 instead of >>3)
             // If the PID is nonshiny->shiny, the top bit is flipped.
 
             // Check to see if the PID and EC are properly configured.
-            var ec = pkm.EncryptionConstant; // should be original PID
+            uint ec = pkm.EncryptionConstant; // should be original PID
             bool xorPID = ((pkm.TID ^ pkm.SID ^ (int)(ec & 0xFFFF) ^ (int)(ec >> 16)) & ~0x7) == 8;
             bool valid = pkm.PID == (xorPID ? (ec ^ 0x80000000) : ec);
             if (valid)
                 return;
 
-            var msg = xorPID ? LTransferPIDECBitFlip : LTransferPIDECEquals;
+            string? msg = xorPID ? LTransferPIDECBitFlip : LTransferPIDECEquals;
             data.AddLine(GetInvalid(msg, CheckIdentifier.EC));
         }
     }

@@ -26,7 +26,7 @@ namespace PKHeX.Drawing
 
         public static Bitmap ChangeOpacity(Image img, double trans)
         {
-            var bmp = (Bitmap)img.Clone();
+            Bitmap? bmp = (Bitmap)img.Clone();
             GetBitmapData(bmp, out BitmapData bmpData, out IntPtr ptr, out byte[] data);
 
             Marshal.Copy(ptr, data, 0, data.Length);
@@ -39,7 +39,7 @@ namespace PKHeX.Drawing
 
         public static Bitmap ChangeAllColorTo(Image img, Color c)
         {
-            var bmp = (Bitmap)img.Clone();
+            Bitmap? bmp = (Bitmap)img.Clone();
             GetBitmapData(bmp, out BitmapData bmpData, out IntPtr ptr, out byte[] data);
 
             Marshal.Copy(ptr, data, 0, data.Length);
@@ -52,7 +52,7 @@ namespace PKHeX.Drawing
 
         public static Bitmap ToGrayscale(Image img)
         {
-            var bmp = (Bitmap)img.Clone();
+            Bitmap? bmp = (Bitmap)img.Clone();
             GetBitmapData(bmp, out BitmapData bmpData, out IntPtr ptr, out byte[] data);
 
             Marshal.Copy(ptr, data, 0, data.Length);
@@ -72,9 +72,9 @@ namespace PKHeX.Drawing
 
         public static Bitmap GetBitmap(byte[] data, int width, int height, PixelFormat format = PixelFormat.Format32bppArgb)
         {
-            var bmp = new Bitmap(width, height, format);
-            var bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, format);
-            var ptr = bmpData.Scan0;
+            Bitmap? bmp = new Bitmap(width, height, format);
+            BitmapData? bmpData = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.WriteOnly, format);
+            IntPtr ptr = bmpData.Scan0;
             Marshal.Copy(data, 0, ptr, data.Length);
             bmp.UnlockBits(bmpData);
             return bmp;
@@ -82,8 +82,8 @@ namespace PKHeX.Drawing
 
         public static byte[] GetPixelData(Bitmap bitmap)
         {
-            var argbData = new byte[bitmap.Width * bitmap.Height * 4];
-            var bd = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+            byte[]? argbData = new byte[bitmap.Width * bitmap.Height * 4];
+            BitmapData? bd = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
             Marshal.Copy(bd.Scan0, argbData, 0, bitmap.Width * bitmap.Height * 4);
             bitmap.UnlockBits(bd);
             return argbData;
@@ -178,7 +178,7 @@ namespace PKHeX.Drawing
                     {
                         // update one of the color bits
                         // it is expected that a transparent pixel RGBA value is 0.
-                        var c = 4 * (i + (j * width));
+                        int c = 4 * (i + (j * width));
                         data[c + 0] += (byte)(amount * (0xFF - data[c + 0]));
                     }
                 }
@@ -194,7 +194,7 @@ namespace PKHeX.Drawing
                     continue;
 
                 // grab the transparency from the donor byte
-                var transparency = data[i + 0];
+                byte transparency = data[i + 0];
                 if (transparency == 0)
                     continue;
 

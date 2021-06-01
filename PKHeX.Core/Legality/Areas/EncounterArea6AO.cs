@@ -11,7 +11,7 @@ namespace PKHeX.Core
     {
         public static EncounterArea6AO[] GetAreas(byte[][] input, GameVersion game)
         {
-            var result = new EncounterArea6AO[input.Length];
+            EncounterArea6AO[]? result = new EncounterArea6AO[input.Length];
             for (int i = 0; i < input.Length; i++)
                 result[i] = new EncounterArea6AO(input[i], game);
             return result;
@@ -29,7 +29,7 @@ namespace PKHeX.Core
         {
             const int size = 4;
             int count = (data.Length - 4) / size;
-            var slots = new EncounterSlot6AO[count];
+            EncounterSlot6AO[]? slots = new EncounterSlot6AO[count];
             for (int i = 0; i < slots.Length; i++)
             {
                 int offset = 4 + (size * i);
@@ -52,14 +52,14 @@ namespace PKHeX.Core
 
         public override IEnumerable<EncounterSlot> GetMatchingSlots(PKM pkm, IReadOnlyList<EvoCriteria> chain)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;
 
-                    var boostMax = Type != SlotType.Rock_Smash ? DexNavBoost : FluteBoostMax;
+                    int boostMax = Type != SlotType.Rock_Smash ? DexNavBoost : FluteBoostMax;
                     const int boostMin = FluteBoostMin;
                     if (!slot.IsLevelWithinRange(pkm.Met_Level, boostMin, boostMax))
                         break;
@@ -68,8 +68,8 @@ namespace PKHeX.Core
                         break;
 
                     // Track some metadata about how this slot was matched.
-                    var ao = (EncounterSlot6AO)slot;
-                    var clone = ao with
+                    EncounterSlot6AO? ao = (EncounterSlot6AO)slot;
+                    EncounterSlot6AO? clone = ao with
                     {
                         WhiteFlute = evo.MinLevel < slot.LevelMin,
                         BlackFlute = evo.MinLevel > slot.LevelMax && evo.MinLevel <= slot.LevelMax + FluteBoostMax,

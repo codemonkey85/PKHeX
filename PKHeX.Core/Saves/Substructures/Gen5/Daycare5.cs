@@ -29,7 +29,7 @@ namespace PKHeX.Core
         {
             if (SAV is not SAV5B2W2)
                 return;
-            var data = Util.GetBytesFromHexString(value);
+            byte[]? data = Util.GetBytesFromHexString(value);
             SAV.SetData(data, Offset + 0x1CC);
         }
 

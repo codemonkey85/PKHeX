@@ -113,7 +113,7 @@ namespace PKHeX.Core
         /// </summary>
         public void RemoveAll()
         {
-            foreach (var item in Items)
+            foreach (InventoryItem? item in Items)
                 item.Clear();
         }
 
@@ -122,7 +122,7 @@ namespace PKHeX.Core
         /// </summary>
         public void RemoveAll(Func<InventoryItem, bool> deleteCriteria)
         {
-            foreach (var item in Items.Where(deleteCriteria))
+            foreach (InventoryItem? item in Items.Where(deleteCriteria))
                 item.Clear();
         }
 
@@ -131,7 +131,7 @@ namespace PKHeX.Core
         /// </summary>
         public void RemoveAll(Func<InventoryItem, int, bool> deleteCriteria)
         {
-            foreach (var item in Items.Where(deleteCriteria))
+            foreach (InventoryItem? item in Items.Where(deleteCriteria))
                 item.Clear();
         }
 
@@ -140,7 +140,7 @@ namespace PKHeX.Core
         /// </summary>
         public void ModifyAllCount(int value)
         {
-            foreach (var item in Items.Where(z => z.Count != 0))
+            foreach (InventoryItem? item in Items.Where(z => z.Count != 0))
                 item.Count = value;
         }
 
@@ -149,7 +149,7 @@ namespace PKHeX.Core
         /// </summary>
         public void ModifyAllCount(int value, Func<InventoryItem, bool> modifyCriteria)
         {
-            foreach (var item in Items.Where(z => z.Count != 0).Where(modifyCriteria))
+            foreach (InventoryItem? item in Items.Where(z => z.Count != 0).Where(modifyCriteria))
                 item.Count = value;
         }
 
@@ -158,7 +158,7 @@ namespace PKHeX.Core
         /// </summary>
         public void ModifyAllCount(int value, Func<InventoryItem, int, bool> modifyCriteria)
         {
-            foreach (var item in Items.Where(z => z.Count != 0).Where(modifyCriteria))
+            foreach (InventoryItem? item in Items.Where(z => z.Count != 0).Where(modifyCriteria))
                 item.Count = value;
         }
 
@@ -166,13 +166,13 @@ namespace PKHeX.Core
         {
             if (count <= 0)
                 count = 1;
-            foreach (var item in Items.Where(z => z.Count != 0))
+            foreach (InventoryItem? item in Items.Where(z => z.Count != 0))
                 item.Count = GetSuggestedItemCount(sav, item.Index, count);
         }
 
         public void ModifyAllCount(Func<InventoryItem, int> modification)
         {
-            foreach (var item in Items.Where(z => z.Count != 0))
+            foreach (InventoryItem? item in Items.Where(z => z.Count != 0))
                 item.Count = modification(item);
         }
 
@@ -195,13 +195,13 @@ namespace PKHeX.Core
             if (count < 0)
                 count = MaxCount;
 
-            var current = (InventoryItem[]) Items.Clone();
-            var itemEnd = Math.Min(Items.Length, newItems.Count);
+            InventoryItem[]? current = (InventoryItem[]) Items.Clone();
+            int itemEnd = Math.Min(Items.Length, newItems.Count);
             for (int i = 0; i < itemEnd; i++)
             {
-                var item = Items[i] = new InventoryItem {Index = newItems[i]};
+                InventoryItem? item = Items[i] = new InventoryItem {Index = newItems[i]};
 
-                var match = Array.Find(current, z => z.Index == newItems[i]);
+                InventoryItem? match = Array.Find(current, z => z.Index == newItems[i]);
                 if (match == null)
                 {
                     item.Count = count;
@@ -262,14 +262,14 @@ namespace PKHeX.Core
     {
         public static IReadOnlyList<InventoryPouch> LoadAll(this IReadOnlyList<InventoryPouch> value, byte[] data)
         {
-            foreach (var p in value)
+            foreach (InventoryPouch? p in value)
                 p.GetPouch(data);
             return value;
         }
 
         public static void SaveAll(this IReadOnlyList<InventoryPouch> value, byte[] data)
         {
-            foreach (var p in value)
+            foreach (InventoryPouch? p in value)
                 p.SetPouch(data);
         }
     }

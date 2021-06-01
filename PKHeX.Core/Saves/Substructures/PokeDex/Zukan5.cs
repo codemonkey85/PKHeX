@@ -60,7 +60,7 @@ namespace PKHeX.Core
 
         protected override void SetAllDexSeenFlags(int baseBit, int form, int gender, bool isShiny, bool value = true)
         {
-            var shiny = isShiny ? 1 : 0;
+            int shiny = isShiny ? 1 : 0;
             SetDexFlags(baseBit, baseBit, gender, shiny);
             SetFormFlags(baseBit + 1, form, shiny, value);
         }
@@ -116,7 +116,7 @@ namespace PKHeX.Core
         {
             int species = pkm.Species;
             int form = pkm.Form;
-            var shiny = pkm.IsShiny ? 1 : 0;
+            int shiny = pkm.IsShiny ? 1 : 0;
             SetFormFlags(species, form, shiny);
         }
 
@@ -127,7 +127,7 @@ namespace PKHeX.Core
             if (f < 0)
                 return;
 
-            var bit = f + form;
+            int bit = f + form;
 
             // Set Form Seen Flag
             SetFormFlag(bit, shiny, value);
@@ -144,7 +144,7 @@ namespace PKHeX.Core
         {
             for (int i = 0; i < fc; i++)
             {
-                var index = f + i;
+                int index = f + i;
                 if (GetFormFlag(index, 2)) // Nonshiny
                     return true; // already set
                 if (GetFormFlag(index, 3)) // Shiny
@@ -155,7 +155,7 @@ namespace PKHeX.Core
 
         public bool[] GetLanguageBitflags(int species)
         {
-            var result = new bool[DexLangIDCount];
+            bool[]? result = new bool[DexLangIDCount];
             int bit = species - 1;
             for (int i = 0; i < DexLangIDCount; i++)
             {
@@ -177,20 +177,20 @@ namespace PKHeX.Core
 
         public void ToggleLanguageFlagsAll(bool value)
         {
-            var arr = GetBlankLanguageBits(value);
+            bool[]? arr = GetBlankLanguageBits(value);
             for (int i = 1; i <= SAV.MaxSpeciesID; i++)
                 SetLanguageBitflags(i, arr);
         }
 
         public void ToggleLanguageFlagsSingle(int species, bool value)
         {
-            var arr = GetBlankLanguageBits(value);
+            bool[]? arr = GetBlankLanguageBits(value);
             SetLanguageBitflags(species, arr);
         }
 
         private bool[] GetBlankLanguageBits(bool value)
         {
-            var result = new bool[DexLangIDCount];
+            bool[]? result = new bool[DexLangIDCount];
             for (int i = 0; i < DexLangIDCount; i++)
                 result[i] = value;
             return result;

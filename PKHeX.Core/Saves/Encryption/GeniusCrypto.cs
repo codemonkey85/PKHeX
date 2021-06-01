@@ -7,7 +7,7 @@
     {
         public static byte[] Decrypt(byte[] input, int start, int end, ushort[] keys)
         {
-            var output = (byte[])input.Clone();
+            byte[]? output = (byte[])input.Clone();
             Decrypt(input, start, end, keys, output);
             return output;
         }
@@ -18,7 +18,7 @@
             {
                 for (int i = 0; i < keys.Length; i++)
                 {
-                    var index = ofs + (i * 2);
+                    int index = ofs + (i * 2);
                     ushort val = BigEndian.ToUInt16(input, index);
                     val -= keys[i];
                     output[index] = (byte)(val >> 8);
@@ -31,7 +31,7 @@
 
         public static byte[] Encrypt(byte[] input, int start, int end, ushort[] keys)
         {
-            var output = (byte[])input.Clone();
+            byte[]? output = (byte[])input.Clone();
             Encrypt(input, start, end, keys, output);
             return output;
         }
@@ -42,7 +42,7 @@
             {
                 for (int i = 0; i < keys.Length; i++)
                 {
-                    var index = ofs + (i * 2);
+                    int index = ofs + (i * 2);
                     ushort val = BigEndian.ToUInt16(input, index);
                     val += keys[i];
                     output[index] = (byte)(val >> 8);
@@ -55,10 +55,10 @@
 
         private static void AdvanceKeys(ushort[] keys)
         {
-            var k3 = keys[3] + 0x13;
-            var k2 = keys[2] + 0x17;
-            var k1 = keys[1] + 0x29;
-            var k0 = keys[0] + 0x43;
+            int k3 = keys[3] + 0x13;
+            int k2 = keys[2] + 0x17;
+            int k1 = keys[1] + 0x29;
+            int k0 = keys[0] + 0x43;
 
             // Rotate 4bit groups across the diagonal [ / ] after biasing each u16 (no overflow):
             // 0123           FB73 

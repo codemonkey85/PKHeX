@@ -48,8 +48,8 @@ namespace PKHeX.Core
 
         private static bool IsUsedKeyItem(int generation, int item, int species) => generation switch
         {
-            6 => Memories.KeyItemMemoryArgsGen6.TryGetValue(species, out var value) && value.Contains((ushort) item),
-            8 => Memories.KeyItemMemoryArgsGen8.TryGetValue(species, out var value) && value.Contains((ushort) item),
+            6 => Memories.KeyItemMemoryArgsGen6.TryGetValue(species, out ushort[]? value) && value.Contains((ushort) item),
+            8 => Memories.KeyItemMemoryArgsGen8.TryGetValue(species, out ushort[]? value) && value.Contains((ushort) item),
             _ => false
         };
 
@@ -60,13 +60,13 @@ namespace PKHeX.Core
 
         public static bool GetCanLearnMachineMove(PKM pkm, int move, int generation, GameVersion version = GameVersion.Any)
         {
-            var evos = EvolutionChain.GetValidPreEvolutions(pkm);
+            List<EvoCriteria>? evos = EvolutionChain.GetValidPreEvolutions(pkm);
             return MoveList.GetValidMoves(pkm, version, evos, generation, types: MoveSourceType.AllMachines).Contains(move);
         }
 
         public static bool CanKnowMove(PKM pkm, MemoryVariableSet memory, int gen, LegalInfo info, bool battleOnly = false)
         {
-            var move = memory.Variable;
+            int move = memory.Variable;
             if (move == 0)
                 return false;
 
@@ -79,7 +79,7 @@ namespace PKHeX.Core
             if (GetCanKnowMove(pkm, memory.Variable, gen, info.EvoChainsAllGens))
                 return true;
 
-            var enc = info.EncounterMatch;
+            IEncounterable? enc = info.EncounterMatch;
             if (enc is IMoveset ms && ms.Moves.Contains(move))
                 return true;
 
@@ -114,7 +114,7 @@ namespace PKHeX.Core
                 return false;
             for (int i = 1; i <= generation; i++)
             {
-                var moves = MoveList.GetValidMoves(pkm, version, evos[i], i, types: MoveSourceType.All);
+                IEnumerable<int>? moves = MoveList.GetValidMoves(pkm, version, evos[i], i, types: MoveSourceType.All);
                 if (moves.Contains(move))
                     return true;
             }

@@ -16,7 +16,7 @@ namespace PKHeX.Core
             Moves = GetFilteredMoves(sav, source, HaX).ToList();
             if (sav.Generation > 1)
             {
-                var items = Source.GetItemDataSource(sav.Version, sav.Generation, sav.HeldItems, HaX);
+                List<ComboItem>? items = Source.GetItemDataSource(sav.Version, sav.Generation, sav.HeldItems, HaX);
                 items.RemoveAll(i => i.Value > sav.MaxItemID);
                 Items = items;
             }
@@ -25,7 +25,7 @@ namespace PKHeX.Core
                 Items = Array.Empty<ComboItem>();
             }
 
-            var gamelist = GameUtil.GetVersionsWithinRange(sav, sav.Generation).ToList();
+            List<GameVersion>? gamelist = GameUtil.GetVersionsWithinRange(sav, sav.Generation).ToList();
             Games = Source.VersionDataSource.Where(g => gamelist.Contains((GameVersion)g.Value)).ToList();
 
             Languages = GameDataSource.LanguageDataSource(sav.Generation);
@@ -55,7 +55,7 @@ namespace PKHeX.Core
             if (HaX)
                 return source.HaXMoveDataSource.Where(m => m.Value <= sav.MaxMoveID);
 
-            var legal = source.LegalMoveDataSource;
+            IReadOnlyList<ComboItem>? legal = source.LegalMoveDataSource;
             return sav switch
             {
                 SAV7b => legal.Where(s => Legal.AllowedMovesGG.Contains((short) s.Value)), // LGPE: Not all moves are available
@@ -78,21 +78,21 @@ namespace PKHeX.Core
 
         public IReadOnlyList<ComboItem> GetAbilityList(PKM pkm)
         {
-            var abilities = pkm.PersonalInfo.Abilities;
+            IReadOnlyList<int>? abilities = pkm.PersonalInfo.Abilities;
             int format = pkm.Format;
             return GetAbilityList(abilities, format);
         }
 
         public IReadOnlyList<ComboItem> GetAbilityList(IReadOnlyList<int> abilities, int format)
         {
-            var count = format == 3 && (abilities[1] == 0 || abilities[1] == abilities[0]) ? 1 : abilities.Count;
-            var list = new ComboItem[count];
+            int count = format == 3 && (abilities[1] == 0 || abilities[1] == abilities[0]) ? 1 : abilities.Count;
+            ComboItem[]? list = new ComboItem[count];
 
-            var alist = Source.Strings.Ability;
-            var suffix = AbilityIndexSuffixes;
+            IReadOnlyList<string>? alist = Source.Strings.Ability;
+            string[]? suffix = AbilityIndexSuffixes;
             for (int i = 0; i < list.Length; i++)
             {
-                var ability = abilities[i];
+                int ability = abilities[i];
                 list[i] = new ComboItem(alist[ability] + suffix[i], ability);
             }
 

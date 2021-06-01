@@ -24,8 +24,8 @@ namespace PKHeX.Core
                 return false;
             if (RestrictVersion == 0)
                 return true; // no data
-            var bitIndex = v - (int)GameVersion.SN;
-            var bit = 1 << bitIndex;
+            int bitIndex = v - (int)GameVersion.SN;
+            int bit = 1 << bitIndex;
             return (RestrictVersion & bit) != 0;
         }
 
@@ -312,14 +312,14 @@ namespace PKHeX.Core
             if (!IsPokémon)
                 throw new ArgumentException(nameof(IsPokémon));
 
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
 
             int currentLevel = Level > 0 ? Level : rnd.Next(1, 101);
             int metLevel = MetLevel > 0 ? MetLevel : currentLevel;
-            var version = OriginGame != 0 ? OriginGame : (int)this.GetCompatibleVersion((GameVersion)sav.Game);
-            var language = Language != 0 ? Language : (int)Core.Language.GetSafeLanguage(Generation, (LanguageID)sav.Language, (GameVersion)version);
+            int version = OriginGame != 0 ? OriginGame : (int)this.GetCompatibleVersion((GameVersion)sav.Game);
+            int language = Language != 0 ? Language : (int)Core.Language.GetSafeLanguage(Generation, (LanguageID)sav.Language, (GameVersion)version);
 
-            var pi = PersonalTable.USUM.GetFormEntry(Species, Form);
+            PersonalInfo? pi = PersonalTable.USUM.GetFormEntry(Species, Form);
             PK7 pk = new()
             {
                 Species = Species,
@@ -432,10 +432,10 @@ namespace PKHeX.Core
 
         private void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = PersonalTable.USUM.GetFormEntry(Species, Form);
+            PersonalInfo? pi = PersonalTable.USUM.GetFormEntry(Species, Form);
             pk.Nature = (int)criteria.GetNature((Nature)Nature);
             pk.Gender = criteria.GetGender(Gender, pi);
-            var av = GetAbilityIndex(criteria);
+            int av = GetAbilityIndex(criteria);
             pk.RefreshAbility(av);
             SetPID(pk);
             SetIVs(pk);
@@ -472,8 +472,8 @@ namespace PKHeX.Core
         private void SetIVs(PKM pk)
         {
             int[] finalIVs = new int[6];
-            var ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
-            var rng = Util.Rand;
+            int ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
+            Random? rng = Util.Rand;
             if (ivflag == 0) // Random IVs
             {
                 for (int i = 0; i < 6; i++)

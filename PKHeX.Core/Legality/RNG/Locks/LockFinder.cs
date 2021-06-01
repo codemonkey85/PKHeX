@@ -8,19 +8,19 @@ namespace PKHeX.Core
         {
             if (s.Version == GameVersion.XD && pkm.IsShiny)
                 return false; // no xd shiny shadow mons
-            var teams = s.Locks;
+            TeamLock[]? teams = s.Locks;
             if (teams.Length == 0)
                 return true;
 
-            var tsv = s.Version == GameVersion.XD ? (pkm.TID ^ pkm.SID) >> 3 : -1; // no xd shiny shadow mons
+            int tsv = s.Version == GameVersion.XD ? (pkm.TID ^ pkm.SID) >> 3 : -1; // no xd shiny shadow mons
             return IsAllShadowLockValid(pv, teams, tsv);
         }
 
         public static bool IsAllShadowLockValid(PIDIV pv, IEnumerable<TeamLock> teams, int tsv = -1)
         {
-            foreach (var t in teams)
+            foreach (TeamLock? t in teams)
             {
-                var result = new TeamLockResult(t, pv.OriginSeed, tsv);
+                TeamLockResult? result = new TeamLockResult(t, pv.OriginSeed, tsv);
                 if (result.Valid)
                     return true;
             }
@@ -31,8 +31,8 @@ namespace PKHeX.Core
         public static bool IsXDStarterValid(uint seed, int TID, int SID)
         {
             // pidiv reversed 2x yields SID, 3x yields TID. shift by 7 if another PKM is generated prior
-            var SIDf = RNG.XDRNG.Reverse(seed, 2);
-            var TIDf = RNG.XDRNG.Prev(SIDf);
+            uint SIDf = RNG.XDRNG.Reverse(seed, 2);
+            uint TIDf = RNG.XDRNG.Prev(SIDf);
             return SIDf >> 16 == SID && TIDf >> 16 == TID;
         }
 
@@ -43,8 +43,8 @@ namespace PKHeX.Core
             if (species == (int)Species.Espeon)
                 rev += 7;
 
-            var rng = RNG.XDRNG;
-            var SIDf = rng.Reverse(seed, rev);
+            RNG? rng = RNG.XDRNG;
+            uint SIDf = rng.Reverse(seed, rev);
             int ctr = 0;
             uint temp;
             while ((temp = rng.Prev(SIDf)) >> 16 != TID || SIDf >> 16 != SID)
@@ -55,10 +55,10 @@ namespace PKHeX.Core
                 ctr++;
             }
 
-            var next = rng.Next(SIDf);
+            uint next = rng.Next(SIDf);
 
             // generate Umbreon
-            var PIDIV = GenerateValidColoStarterPID(ref next, TID, SID);
+            PIDIVGroup PIDIV = GenerateValidColoStarterPID(ref next, TID, SID);
             if (species == (int)Species.Espeon) // need Espeon, which is immediately next
                 PIDIV = GenerateValidColoStarterPID(ref next, TID, SID);
 
@@ -86,15 +86,15 @@ namespace PKHeX.Core
 
         private static PIDIVGroup GenerateValidColoStarterPID(ref uint uSeed, int TID, int SID)
         {
-            var rng = RNG.XDRNG;
+            RNG? rng = RNG.XDRNG;
 
             uSeed = rng.Advance(uSeed, 2); // skip fakePID
-            var IV1 = (uSeed >> 16) & 0x7FFF;
+            uint IV1 = (uSeed >> 16) & 0x7FFF;
             uSeed = rng.Next(uSeed);
-            var IV2 = (uSeed >> 16) & 0x7FFF;
+            uint IV2 = (uSeed >> 16) & 0x7FFF;
             uSeed = rng.Next(uSeed);
             uSeed = rng.Advance(uSeed, 1); // skip ability call
-            var PID = GenerateStarterPID(ref uSeed, TID, SID);
+            uint PID = GenerateStarterPID(ref uSeed, TID, SID);
 
             uSeed = rng.Advance(uSeed, 2); // PID calls consumed
 
@@ -109,7 +109,7 @@ namespace PKHeX.Core
             const byte ratio = 0x1F; // 12.5% F (can't be female)
             while (true)
             {
-                var next = RNG.XDRNG.Next(uSeed);
+                uint next = RNG.XDRNG.Next(uSeed);
                 PID = (uSeed & 0xFFFF0000) | (next >> 16);
                 if ((PID & 0xFF) >= ratio && !IsShiny(TID, SID, PID))
                     break;

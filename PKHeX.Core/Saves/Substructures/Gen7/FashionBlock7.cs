@@ -14,7 +14,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var data = SAV.GetData(Offset, 0x5A8);
+                byte[]? data = SAV.GetData(Offset, 0x5A8);
                 return data.Select(b => new FashionItem7(b)).ToArray();
             }
             set
@@ -32,7 +32,7 @@ namespace PKHeX.Core
         /// </summary>
         public void Reset()
         {
-            var offsetList = SAV is SAV7USUM
+            int[]? offsetList = SAV is SAV7USUM
                 ? (SAV.Gender == 0
                     ? new[] { 0x03A, 0x109, 0x1DA, 0x305, 0x3D9, 0x4B1, 0x584 }   // M
                     : new[] { 0x05E, 0x208, 0x264, 0x395, 0x3B4, 0x4F9, 0x5A8 })  // F
@@ -40,7 +40,7 @@ namespace PKHeX.Core
                     ? new[] { 0x000, 0x0FB, 0x124, 0x28F, 0x3B4, 0x452, 0x517 }   // M
                     : new[] { 0x000, 0x100, 0x223, 0x288, 0x3B4, 0x452, 0x517 }); // F
 
-            foreach (var ofs in offsetList)
+            foreach (int ofs in offsetList)
                 SAV.Data[Offset + ofs] = 3; // owned | new
         }
     }

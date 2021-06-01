@@ -12,7 +12,7 @@ namespace PKHeX.Core
 
         public static EncounterArea1[] GetAreas(byte[][] input, GameVersion game)
         {
-            var result = new EncounterArea1[input.Length];
+            EncounterArea1[]? result = new EncounterArea1[input.Length];
             for (int i = 0; i < input.Length; i++)
                 result[i] = new EncounterArea1(input[i], game);
             return result;
@@ -26,7 +26,7 @@ namespace PKHeX.Core
             Rate = data[3];
 
             int count = (data.Length - 4) / 4;
-            var slots = new EncounterSlot1[count];
+            EncounterSlot1[]? slots = new EncounterSlot1[count];
             for (int i = 0; i < slots.Length; i++)
             {
                 int offset = 4 + (4 * i);
@@ -42,9 +42,9 @@ namespace PKHeX.Core
         public override IEnumerable<EncounterSlot> GetMatchingSlots(PKM pkm, IReadOnlyList<EvoCriteria> chain)
         {
             int rate = pkm is PK1 {Gen1_NotTradeback: true} pk1 ? pk1.Catch_Rate : -1;
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;
@@ -56,7 +56,7 @@ namespace PKHeX.Core
 
                     if (rate != -1)
                     {
-                        var expect = (slot.Version == GameVersion.YW ? PersonalTable.Y : PersonalTable.RB)[slot.Species].CatchRate;
+                        int expect = (slot.Version == GameVersion.YW ? PersonalTable.Y : PersonalTable.RB)[slot.Species].CatchRate;
                         if (expect != rate)
                             break;
                     }

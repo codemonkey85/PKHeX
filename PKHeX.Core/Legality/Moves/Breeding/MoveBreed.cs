@@ -8,7 +8,7 @@ namespace PKHeX.Core
     {
         public static bool Process(int generation, int species, int form, GameVersion version, int[] moves)
         {
-            _  = Process(generation, species, form, version, moves, out var valid);
+            _  = Process(generation, species, form, version, moves, out bool valid);
             return valid;
         }
 
@@ -23,7 +23,7 @@ namespace PKHeX.Core
 
         public static int[] GetExpectedMoves(int[] moves, IEncounterTemplate enc)
         {
-            var parse = Process(enc.Generation, enc.Species, enc.Form, enc.Version, moves, out var valid);
+            object? parse = Process(enc.Generation, enc.Species, enc.Form, enc.Version, moves, out bool valid);
             if (valid)
                 return moves;
             return GetExpectedMoves(enc.Generation, enc.Species, enc.Form, enc.Version, moves, parse);
@@ -33,8 +33,8 @@ namespace PKHeX.Core
         {
             // Try rearranging the order of the moves.
             // Build an info table
-            var x = (byte[])parse;
-            var details = new MoveOrder[moves.Length];
+            byte[]? x = (byte[])parse;
+            MoveOrder[]? details = new MoveOrder[moves.Length];
             for (byte i = 0; i < x.Length; i++)
                 details[i] = new MoveOrder((ushort) moves[i], x[i]);
 
@@ -44,23 +44,23 @@ namespace PKHeX.Core
                 : details.OrderBy(z => z.Move == 0).ThenBy(z => z.Source != (byte) EggSource2.Base);
 
             // Reorder the moves.
-            var reorder1 = new int[moves.Length];
-            var exp = expect.ToList();
+            int[]? reorder1 = new int[moves.Length];
+            List<MoveOrder>? exp = expect.ToList();
             for (int i = 0; i < moves.Length; i++)
                 reorder1[i] = exp[i].Move;
 
             // Check if that worked...
-            _ = Process(generation, species, form, version, reorder1, out var valid);
+            _ = Process(generation, species, form, version, reorder1, out bool valid);
             if (valid)
                 return reorder1;
 
             // Well, that didn't work; probably because the moves aren't valid. Let's remove all the base moves, and get a fresh set.
-            var reorder2 = reorder1; // reuse instead of reallocate
-            var learn = GameData.GetLearnsets(version);
-            var table = GameData.GetPersonal(version);
-            var index = table.GetFormIndex(species, form);
-            var learnset = learn[index];
-            var baseMoves = learnset.GetBaseEggMoves(generation >= 4 ? 1 : 5);
+            int[]? reorder2 = reorder1; // reuse instead of reallocate
+            Learnset[]? learn = GameData.GetLearnsets(version);
+            PersonalTable? table = GameData.GetPersonal(version);
+            int index = table.GetFormIndex(species, form);
+            Learnset? learnset = learn[index];
+            ReadOnlySpan<int> baseMoves = learnset.GetBaseEggMoves(generation >= 4 ? 1 : 5);
 
             RebuildMoves(baseMoves, exp, reorder2);
 
@@ -78,8 +78,8 @@ namespace PKHeX.Core
 
         private static void RebuildMoves(ReadOnlySpan<int> baseMoves, List<MoveOrder> exp, int[] result)
         {
-            var notBase = new List<int>();
-            foreach (var m in exp)
+            List<int>? notBase = new List<int>();
+            foreach (MoveOrder m in exp)
             {
                 if (m.Source == 0)
                     continue; // invalid
@@ -94,7 +94,7 @@ namespace PKHeX.Core
             int ctr = 0;
             for (; ctr < baseCount; ctr++)
                 result[ctr] = baseMoves[baseMoves.Length - baseCount + ctr];
-            foreach (var m in notBase)
+            foreach (int m in notBase)
                 result[ctr++] = m;
 
             for (int i = ctr; i < result.Length; i++)

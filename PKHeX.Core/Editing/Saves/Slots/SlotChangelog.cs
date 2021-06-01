@@ -18,14 +18,14 @@ namespace PKHeX.Core
 
         public void AddNewChange(ISlotInfo info)
         {
-            var revert = GetReversion(info, SAV);
+            SlotReversion? revert = GetReversion(info, SAV);
             AddUndo(revert);
         }
 
         public ISlotInfo Undo()
         {
-            var change = UndoStack.Pop();
-            var revert = GetReversion(change.Info, SAV);
+            SlotReversion? change = UndoStack.Pop();
+            SlotReversion? revert = GetReversion(change.Info, SAV);
             AddRedo(revert);
             change.Revert(SAV);
             return change.Info;
@@ -33,8 +33,8 @@ namespace PKHeX.Core
 
         public ISlotInfo Redo()
         {
-            var change = RedoStack.Pop();
-            var revert = GetReversion(change.Info, SAV);
+            SlotReversion? change = RedoStack.Pop();
+            SlotReversion? revert = GetReversion(change.Info, SAV);
             AddUndo(revert);
             change.Revert(SAV);
             return change.Info;

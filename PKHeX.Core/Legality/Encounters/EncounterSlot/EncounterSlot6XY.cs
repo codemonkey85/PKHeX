@@ -15,7 +15,7 @@ namespace PKHeX.Core
 
         protected override void SetFormatSpecificData(PKM pk)
         {
-            var pk6 = (PK6)pk;
+            PK6? pk6 = (PK6)pk;
             pk6.SetRandomMemory6();
             pk6.SetRandomEC();
         }

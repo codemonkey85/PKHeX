@@ -34,24 +34,24 @@ namespace PKHeX.WinForms
             // Preset Filters to only show PKM available for loaded save
             CB_FormatComparator.SelectedIndex = 3; // <=
 
-            var grid = MysteryPokeGrid;
-            var smallWidth = grid.Width;
-            var smallHeight = grid.Height;
+            PokeGrid? grid = MysteryPokeGrid;
+            int smallWidth = grid.Width;
+            int smallHeight = grid.Height;
             grid.InitializeGrid(6, 11, SpriteUtil.Spriter);
             grid.SetBackground(Resources.box_wp_clean);
-            var newWidth = grid.Width;
-            var newHeight = grid.Height;
-            var wdelta = newWidth - smallWidth;
+            int newWidth = grid.Width;
+            int newHeight = grid.Height;
+            int wdelta = newWidth - smallWidth;
             if (wdelta != 0)
                 Width += wdelta;
-            var hdelta = newHeight - smallHeight;
+            int hdelta = newHeight - smallHeight;
             if (hdelta != 0)
                 Height += hdelta;
 
             PKXBOXES = grid.Entries.ToArray();
 
             // Enable Scrolling when hovered over
-            foreach (var slot in PKXBOXES)
+            foreach (PictureBox? slot in PKXBOXES)
             {
                 // Enable Click
                 slot.MouseClick += (sender, e) =>
@@ -104,8 +104,8 @@ namespace PKHeX.WinForms
             int index = GetSenderIndex(sender);
             if (index < 0)
                 return;
-            var pk = Results[index].ConvertToPKM(SAV);
-            pk = PKMConverter.ConvertToType(pk, SAV.PKMType, out var c);
+            PKM? pk = Results[index].ConvertToPKM(SAV);
+            pk = PKMConverter.ConvertToType(pk, SAV.PKMType, out string? c);
             if (pk == null)
             {
                 WinFormsUtil.Error(c);
@@ -124,8 +124,8 @@ namespace PKHeX.WinForms
             int index = GetSenderIndex(sender);
             if (index < 0)
                 return;
-            var gift = Results[index];
-            var pk = gift.ConvertToPKM(SAV);
+            MysteryGift? gift = Results[index];
+            PKM? pk = gift.ConvertToPKM(SAV);
             WinFormsUtil.SavePKMDialog(pk);
         }
 
@@ -134,7 +134,7 @@ namespace PKHeX.WinForms
             int index = GetSenderIndex(sender);
             if (index < 0)
                 return;
-            var gift = Results[index];
+            MysteryGift? gift = Results[index];
             if (gift is not DataMysteryGift g) // e.g. WC3
             {
                 WinFormsUtil.Alert(MsgExportWC3DataFail);
@@ -145,7 +145,7 @@ namespace PKHeX.WinForms
 
         private int GetSenderIndex(object sender)
         {
-            var pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             int index = Array.IndexOf(PKXBOXES, pb);
             if (index >= RES_MAX)
             {
@@ -167,19 +167,19 @@ namespace PKHeX.WinForms
             CB_HeldItem.InitializeBinding();
             CB_Species.InitializeBinding();
 
-            var Any = new ComboItem(MsgAny, -1);
+            ComboItem? Any = new ComboItem(MsgAny, -1);
 
-            var DS_Species = new List<ComboItem>(GameInfo.SpeciesDataSource);
+            List<ComboItem>? DS_Species = new List<ComboItem>(GameInfo.SpeciesDataSource);
             DS_Species.RemoveAt(0);
-            var filteredSpecies = DS_Species.Where(z => RawDB.Any(mg => mg.Species == z.Value)).ToList();
+            List<ComboItem>? filteredSpecies = DS_Species.Where(z => RawDB.Any(mg => mg.Species == z.Value)).ToList();
             filteredSpecies.Insert(0, Any);
             CB_Species.DataSource = filteredSpecies;
 
-            var DS_Item = new List<ComboItem>(GameInfo.ItemDataSource);
+            List<ComboItem>? DS_Item = new List<ComboItem>(GameInfo.ItemDataSource);
             DS_Item.Insert(0, Any); CB_HeldItem.DataSource = DS_Item;
 
             // Set the Move ComboBoxes too..
-            var DS_Move = new List<ComboItem>(GameInfo.MoveDataSource);
+            List<ComboItem>? DS_Move = new List<ComboItem>(GameInfo.MoveDataSource);
             DS_Move.RemoveAt(0); DS_Move.Insert(0, Any);
             {
                 foreach (ComboBox cb in new[] { CB_Move1, CB_Move2, CB_Move3, CB_Move4 })
@@ -210,7 +210,7 @@ namespace PKHeX.WinForms
 
         private void LoadDatabase()
         {
-            var db = EncounterEvent.GetAllEvents();
+            IEnumerable<MysteryGift>? db = EncounterEvent.GetAllEvents();
 
             // when all sprites in new size are available, remove this filter
             db = SAV switch
@@ -222,7 +222,7 @@ namespace PKHeX.WinForms
             };
 
             RawDB = new List<MysteryGift>(db);
-            foreach (var mg in RawDB)
+            foreach (MysteryGift? mg in RawDB)
                 mg.GiftUsed = false;
 
             try
@@ -254,14 +254,14 @@ namespace PKHeX.WinForms
             if (DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgDBExportResultsPrompt))
                 return;
 
-            using var fbd = new FolderBrowserDialog();
+            using FolderBrowserDialog? fbd = new FolderBrowserDialog();
             if (DialogResult.OK != fbd.ShowDialog())
                 return;
 
             string path = fbd.SelectedPath;
             Directory.CreateDirectory(path);
 
-            foreach (var gift in Results.OfType<DataMysteryGift>()) // WC3 have no data
+            foreach (DataMysteryGift? gift in Results.OfType<DataMysteryGift>()) // WC3 have no data
                 File.WriteAllBytes(Path.Combine(path, Util.CleanFileName(gift.FileName)), gift.Write());
         }
 
@@ -307,12 +307,12 @@ namespace PKHeX.WinForms
 
             if (RTB_Instructions.Lines.Any(line => line.Length > 0))
             {
-                var filters = StringInstruction.GetFilters(RTB_Instructions.Lines).ToArray();
+                StringInstruction[]? filters = StringInstruction.GetFilters(RTB_Instructions.Lines).ToArray();
                 BatchEditing.ScreenStrings(filters);
                 res = res.Where(pkm => BatchEditing.IsFilterMatch(filters, pkm)); // Compare across all filters
             }
 
-            var results = res.ToArray();
+            MysteryGift[]? results = res.ToArray();
             if (results.Length == 0)
                 WinFormsUtil.Alert(MsgDBSearchNone);
 
@@ -369,11 +369,11 @@ namespace PKHeX.WinForms
 
         private void Menu_Import_Click(object sender, EventArgs e)
         {
-            if (!BoxView.GetBulkImportSettings(out var clearAll, out var overwrite, out var noSetb))
+            if (!BoxView.GetBulkImportSettings(out bool clearAll, out bool overwrite, out PKMImportSetting noSetb))
                 return;
 
             int box = BoxView.Box.CurrentBox;
-            int ctr = SAV.LoadBoxes(Results, out var result, box, clearAll, overwrite, noSetb);
+            int ctr = SAV.LoadBoxes(Results, out string? result, box, clearAll, overwrite, noSetb);
             if (ctr <= 0)
                 return;
 
@@ -414,7 +414,7 @@ namespace PKHeX.WinForms
 
         private void ShowHoverTextForSlot(object sender, EventArgs e)
         {
-            var pb = (PictureBox)sender;
+            PictureBox? pb = (PictureBox)sender;
             int index = Array.IndexOf(PKXBOXES, pb);
             if (!GetShiftedIndex(ref index))
                 return;

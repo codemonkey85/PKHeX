@@ -54,7 +54,7 @@ namespace PKHeX.WinForms.Controls
                 return;
             }
 
-            var img = c switch
+            Image? img = c switch
             {
                 SlotInfoBox b => p.Sprite(s, b.Box, b.Slot, flagIllegal),
                 SlotInfoParty ps => p.Sprite(s, -1, ps.Slot, flagIllegal),

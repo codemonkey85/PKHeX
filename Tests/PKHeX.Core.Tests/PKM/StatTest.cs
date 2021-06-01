@@ -9,7 +9,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void CalcStatsGB()
         {
-            var pk = new PK2
+            PK2? pk = new PK2
             {
                 Species = (int) Species.Gyarados,
                 CurrentLevel = 38,
@@ -45,8 +45,8 @@ namespace PKHeX.Tests.PKM
         [InlineData(41, 25, 91)]
         public void CalculateCP(int level, int statSum, int expect)
         {
-            var result1 = (((level * 4.0f / 100.0f) + 2.0f) * (statSum & 0xFFFF));
-            var result2 = (int)result1;
+            float result1 = (((level * 4.0f / 100.0f) + 2.0f) * (statSum & 0xFFFF));
+            int result2 = (int)result1;
 
             result2.Should().Be(expect);
         }

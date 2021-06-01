@@ -10,7 +10,7 @@ namespace PKHeX.Core
     {
         public static EncounterArea7b[] GetAreas(byte[][] input, GameVersion game)
         {
-            var result = new EncounterArea7b[input.Length];
+            EncounterArea7b[]? result = new EncounterArea7b[input.Length];
             for (int i = 0; i < input.Length; i++)
                 result[i] = new EncounterArea7b(input[i], game);
             return result;
@@ -26,7 +26,7 @@ namespace PKHeX.Core
         {
             const int size = 4;
             int count = (data.Length - 2) / size;
-            var slots = new EncounterSlot7b[count];
+            EncounterSlot7b[]? slots = new EncounterSlot7b[count];
             for (int i = 0; i < slots.Length; i++)
             {
                 int offset = 2 + (size * i);
@@ -44,14 +44,14 @@ namespace PKHeX.Core
 
         public override IEnumerable<EncounterSlot> GetMatchingSlots(PKM pkm, IReadOnlyList<EvoCriteria> chain)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;
 
-                    var met = pkm.Met_Level;
+                    int met = pkm.Met_Level;
                     if (!slot.IsLevelWithinRange(met, 0, CatchComboBonus))
                         break;
                     if (slot.Form != evo.Form)

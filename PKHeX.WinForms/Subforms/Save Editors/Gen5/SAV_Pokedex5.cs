@@ -107,7 +107,7 @@ namespace PKHeX.WinForms
             int pk = species;
 
             // Load Partitions
-            var Dex = SAV.Zukan;
+            Zukan5? Dex = SAV.Zukan;
             CP[0].Checked = Dex.GetCaught(species);
             for (int i = 0; i < 4; i++)
                 CP[i + 1].Checked = Dex.GetSeen(species, i);
@@ -128,7 +128,7 @@ namespace PKHeX.WinForms
                 GB_Language.Enabled = true;
             }
 
-            var pi = SAV.Personal[pk];
+            PersonalInfo? pi = SAV.Personal[pk];
 
             CHK_P2.Enabled = CHK_P4.Enabled = CHK_P6.Enabled = CHK_P8.Enabled = !pi.OnlyFemale;
             CHK_P3.Enabled = CHK_P5.Enabled = CHK_P7.Enabled = CHK_P9.Enabled = !(pi.OnlyMale || pi.Genderless);
@@ -160,7 +160,7 @@ namespace PKHeX.WinForms
             if (species < 0)
                 return;
 
-            var Dex = SAV.Zukan;
+            Zukan5? Dex = SAV.Zukan;
             Dex.SetCaught(species, CP[0].Checked);
             for (int i = 0; i < 4; i++)
                 Dex.SetSeen(species, i, CP[i + 1].Checked);
@@ -228,7 +228,7 @@ namespace PKHeX.WinForms
 
             if (ModifierKeys == Keys.Control)
             {
-                foreach (var chk in new[] { CHK_P6, CHK_P7, CHK_P8, CHK_P9 })
+                foreach (CheckBox? chk in new[] { CHK_P6, CHK_P7, CHK_P8, CHK_P9 })
                     chk.Checked = false;
             }
             else if (!(CHK_P6.Checked || CHK_P7.Checked || CHK_P8.Checked || CHK_P9.Checked))

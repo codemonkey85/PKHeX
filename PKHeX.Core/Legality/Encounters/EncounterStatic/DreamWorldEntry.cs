@@ -12,8 +12,8 @@ namespace PKHeX.Core
 
         private void AddTo(GameVersion game, EncounterStatic5[] result, ref int ctr)
         {
-            var p = (PersonalInfoBW)PersonalTable.B2W2[Species];
-            var a = p.HasHiddenAbility ? 4 : 1;
+            PersonalInfoBW? p = (PersonalInfoBW)PersonalTable.B2W2[Species];
+            int a = p.HasHiddenAbility ? 4 : 1;
             if (Move1 == 0)
             {
                 result[ctr++] = new EncounterStatic5(game)
@@ -54,11 +54,11 @@ namespace PKHeX.Core
         public static EncounterStatic5[] GetArray(GameVersion game, IReadOnlyList<DreamWorldEntry> t)
         {
             // Split encounters with multiple permitted special moves -- a pkm can only be obtained with 1 of the special moves!
-            var count = t.Sum(z => z.EntryCount);
-            var result = new EncounterStatic5[count];
+            int count = t.Sum(z => z.EntryCount);
+            EncounterStatic5[]? result = new EncounterStatic5[count];
 
             int ctr = 0;
-            foreach (var s in t)
+            foreach (DreamWorldEntry? s in t)
                 s.AddTo(game, result, ref ctr);
             return result;
         }

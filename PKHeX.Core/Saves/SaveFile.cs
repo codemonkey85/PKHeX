@@ -41,7 +41,7 @@ namespace PKHeX.Core
 
         public SaveFile Clone()
         {
-            var sav = CloneInternal();
+            SaveFile? sav = CloneInternal();
             sav.Metadata = Metadata;
             return sav;
         }
@@ -262,7 +262,7 @@ namespace PKHeX.Core
 
         private void SetID7(int sid7, int tid7)
         {
-            var oid = (sid7 * 1_000_000) + (tid7 % 1_000_000);
+            int oid = (sid7 * 1_000_000) + (tid7 % 1_000_000);
             TID = (ushort)oid;
             SID = oid >> 16;
         }
@@ -278,7 +278,7 @@ namespace PKHeX.Core
             if (!HasParty)
                 return false;
 
-            var party = PartyData;
+            IList<PKM>? party = PartyData;
             return party.Count == party.Where(t => t.Species != 0).Where((t, i) => t.IsEgg || except.Contains(i)).Count();
         }
 
@@ -288,7 +288,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var count = PartyCount;
+                int count = PartyCount;
                 if (count > MaxPartyCount)
                     count = MaxPartyCount;
 
@@ -306,7 +306,7 @@ namespace PKHeX.Core
                     Debug.WriteLine($"Empty first slot, received {value.Count}.");
 #endif
                 int ctr = 0;
-                foreach (var exist in value.Where(pk => pk.Species != 0))
+                foreach (PKM? exist in value.Where(pk => pk.Species != 0))
                     SetPartySlot(exist, PartyBuffer, GetPartyOffset(ctr++));
                 for (int i = ctr; i < 6; i++)
                     SetPartySlot(BlankPKM, PartyBuffer, GetPartyOffset(i));
@@ -406,7 +406,7 @@ namespace PKHeX.Core
             // Move all party slots down one
             for (int i = slot + 1; i <= newEmpty; i++) // Slide slots down
             {
-                var current = GetPartySlotAtIndex(i);
+                PKM? current = GetPartySlotAtIndex(i);
                 SetPartySlotAtIndex(current, i - 1, PKMImportSetting.Skip, PKMImportSetting.Skip);
             }
             SetPartySlotAtIndex(BlankPKM, newEmpty, PKMImportSetting.Skip, PKMImportSetting.Skip);
@@ -538,7 +538,7 @@ namespace PKHeX.Core
             int skipped = 0;
             for (int slot = 0; slot < BoxSlotCount; slot++)
             {
-                var pk = value[index + slot];
+                PKM? pk = value[index + slot];
                 if (!pk.StorageFlags.IsOverwriteProtected())
                     SetBoxSlotAtIndex(pk, box, slot);
                 else
@@ -550,14 +550,14 @@ namespace PKHeX.Core
 
         public PKM[] GetBoxData(int box)
         {
-            var data = new PKM[BoxSlotCount];
+            PKM[]? data = new PKM[BoxSlotCount];
             AddBoxData(data, box, 0);
             return data;
         }
 
         public void AddBoxData(IList<PKM> data, int box, int index)
         {
-            var boxName = GetBoxName(box);
+            string? boxName = GetBoxName(box);
             for (int slot = 0; slot < BoxSlotCount; slot++)
             {
                 int i = slot + index;
@@ -586,7 +586,7 @@ namespace PKHeX.Core
 
         public int NextOpenBoxSlot(int lastKnownOccupied = -1)
         {
-            var storage = BoxBuffer;
+            byte[]? storage = BoxBuffer;
             int count = BoxSlotCount * BoxCount;
             for (int i = lastKnownOccupied + 1; i < count; i++)
             {
@@ -756,20 +756,20 @@ namespace PKHeX.Core
         /// <returns>Count of repositioned <see cref="PKM"/> slots.</returns>
         public int SortBoxes(int BoxStart = 0, int BoxEnd = -1, Func<IEnumerable<PKM>, IEnumerable<PKM>>? sortMethod = null, bool reverse = false)
         {
-            var BD = BoxData;
+            IList<PKM>? BD = BoxData;
             int start = BoxSlotCount * BoxStart;
-            var Section = BD.Skip(start);
+            IEnumerable<PKM>? Section = BD.Skip(start);
             if (BoxEnd >= BoxStart)
                 Section = Section.Take(BoxSlotCount * (BoxEnd - BoxStart + 1));
 
             Func<PKM, bool> skip = IsSlotOverwriteProtected;
             Section = Section.Where(z => !skip(z));
-            var Sorted = (sortMethod ?? PKMSorting.OrderBySpecies)(Section);
+            IEnumerable<PKM>? Sorted = (sortMethod ?? PKMSorting.OrderBySpecies)(Section);
             if (reverse)
                 Sorted = Sorted.ReverseSort();
 
-            var result = Sorted.ToArray();
-            var boxclone = new PKM[BD.Count];
+            PKM[]? result = Sorted.ToArray();
+            PKM[]? boxclone = new PKM[BD.Count];
             BD.CopyTo(boxclone, 0);
             int count = result.CopyTo(boxclone, skip, start);
 
@@ -777,7 +777,7 @@ namespace PKHeX.Core
 
             for (int i = 0; i < boxclone.Length; i++)
             {
-                var pk = boxclone[i];
+                PKM? pk = boxclone[i];
                 SetBoxSlotAtIndex(pk, i, PKMImportSetting.Skip, PKMImportSetting.Skip);
             }
             return count;
@@ -800,12 +800,12 @@ namespace PKHeX.Core
         /// <returns>Count of deleted <see cref="PKM"/> slots.</returns>
         public int ClearBoxes(int BoxStart = 0, int BoxEnd = -1, Func<PKM, bool>? deleteCriteria = null)
         {
-            var storage = BoxBuffer;
+            byte[]? storage = BoxBuffer;
 
             if (BoxEnd < 0)
                 BoxEnd = BoxCount - 1;
 
-            var blank = GetDataForBox(BlankPKM);
+            byte[]? blank = GetDataForBox(BlankPKM);
             int deleted = 0;
             for (int i = BoxStart; i <= BoxEnd; i++)
             {
@@ -813,12 +813,12 @@ namespace PKHeX.Core
                 {
                     if (IsSlotOverwriteProtected(i, p))
                         continue;
-                    var ofs = GetBoxSlotOffset(i, p);
+                    int ofs = GetBoxSlotOffset(i, p);
                     if (!IsPKMPresent(storage, ofs))
                         continue;
                     if (deleteCriteria != null)
                     {
-                        var pk = GetBoxSlotAtIndex(i, p);
+                        PKM? pk = GetBoxSlotAtIndex(i, p);
                         if (!deleteCriteria(pk))
                             continue;
                     }
@@ -842,7 +842,7 @@ namespace PKHeX.Core
             if (BoxEnd < 0)
                 BoxEnd = BoxCount - 1;
 
-            var storage = BoxBuffer;
+            byte[]? storage = BoxBuffer;
             int modified = 0;
             for (int b = BoxStart; b <= BoxEnd; b++)
             {
@@ -850,10 +850,10 @@ namespace PKHeX.Core
                 {
                     if (IsSlotOverwriteProtected(b, s))
                         continue;
-                    var ofs = GetBoxSlotOffset(b, s);
+                    int ofs = GetBoxSlotOffset(b, s);
                     if (!IsPKMPresent(storage, ofs))
                         continue;
-                    var pk = GetBoxSlotAtIndex(b, s);
+                    PKM? pk = GetBoxSlotAtIndex(b, s);
                     action(pk);
                     ++modified;
                     SetBoxSlot(pk, storage, ofs, PKMImportSetting.Skip, PKMImportSetting.Skip);
@@ -918,9 +918,9 @@ namespace PKHeX.Core
             if (data.Length != expectLength)
                 return false;
 
-            var BD = BoxData;
-            var entryLength = GetDataForBox(BlankPKM).Length;
-            var pkdata = ArrayUtil.EnumerateSplit(data, entryLength);
+            IList<PKM>? BD = BoxData;
+            int entryLength = GetDataForBox(BlankPKM).Length;
+            IEnumerable<byte[]>? pkdata = ArrayUtil.EnumerateSplit(data, entryLength);
             pkdata.Select(GetPKM).CopyTo(BD, IsSlotOverwriteProtected, start);
             BoxData = BD;
             return true;
@@ -933,7 +933,7 @@ namespace PKHeX.Core
         public static bool CompressStorage(this SaveFile sav, byte[] storage, out int storedCount, IList<int>[] slotPointers)
         {
             // keep track of empty slots, and only write them at the end if slots were shifted (no need otherwise).
-            var empty = new List<byte[]>();
+            List<byte[]>? empty = new List<byte[]>();
             bool shiftedSlots = false;
 
             ushort ctr = 0;
@@ -969,7 +969,7 @@ namespace PKHeX.Core
 
             for (int i = ctr; i < count; i++)
             {
-                var data = empty[i - ctr];
+                byte[]? data = empty[i - ctr];
                 int offset = sav.GetBoxSlotOffset(i);
                 data.CopyTo(storage, offset);
             }

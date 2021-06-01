@@ -71,27 +71,27 @@ namespace PKHeX.Core
 
         protected override bool GetIsBoxChecksumValid(int i)
         {
-            var boxOfs = GetBoxOffset(i) - ListHeaderSizeBox;
-            var size = BoxSize - 2;
-            var chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
-            var actual = BigEndian.ToUInt16(Data, boxOfs + size);
+            int boxOfs = GetBoxOffset(i) - ListHeaderSizeBox;
+            int size = BoxSize - 2;
+            ushort chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
+            ushort actual = BigEndian.ToUInt16(Data, boxOfs + size);
             return chk == actual;
         }
 
         protected override void SetBoxMetadata(int i)
         {
-            var bdata = GetBoxOffset(i);
+            int bdata = GetBoxOffset(i);
 
             // Set box count
             int count = 0;
             for (int s = 0; s < BoxSlotCount; s++)
             {
-                var rel = bdata + (SIZE_STORED * s);
+                int rel = bdata + (SIZE_STORED * s);
                 if (Data[rel] != 0) // Species present
                     count++;
             }
 
-            var boxOfs = bdata - ListHeaderSizeBox;
+            int boxOfs = bdata - ListHeaderSizeBox;
             if (Data[boxOfs] == 0)
             {
                 Data[boxOfs] = 1;
@@ -107,9 +107,9 @@ namespace PKHeX.Core
 
         protected override void SetBoxChecksum(int i)
         {
-            var boxOfs = GetBoxOffset(i) - ListHeaderSizeBox;
-            var size = BoxSize - 2;
-            var chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
+            int boxOfs = GetBoxOffset(i) - ListHeaderSizeBox;
+            int size = BoxSize - 2;
+            ushort chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
             BigEndian.GetBytes(chk).CopyTo(Data, boxOfs + size);
         }
 
@@ -118,7 +118,7 @@ namespace PKHeX.Core
             if ((uint)team >= TeamCountType)
                 throw new ArgumentOutOfRangeException(nameof(team));
 
-            var index = (TeamCountType * (int)type) + team;
+            int index = (TeamCountType * (int)type) + team;
             return GetTeamOffset(index);
         }
 
@@ -132,20 +132,20 @@ namespace PKHeX.Core
 
         public string GetTeamName(int team)
         {
-            var name = $"{((Stadium2TeamType) (team / TeamCountType)).ToString().Replace('_', ' ')} {(team % 10) + 1}";
+            string? name = $"{((Stadium2TeamType) (team / TeamCountType)).ToString().Replace('_', ' ')} {(team % 10) + 1}";
 
-            var ofs = GetTeamOffset(team);
-            var str = GetString(ofs + 4, 7);
+            int ofs = GetTeamOffset(team);
+            string? str = GetString(ofs + 4, 7);
             if (string.IsNullOrWhiteSpace(str))
                 return name;
-            var id = BigEndian.ToUInt16(Data, ofs + 2);
+            ushort id = BigEndian.ToUInt16(Data, ofs + 2);
             return $"{name} [{id:D5}:{str}]";
         }
 
         public override string GetBoxName(int box)
         {
-            var ofs = GetBoxOffset(box) - 0x10;
-            var str = GetString(ofs, 0x10);
+            int ofs = GetBoxOffset(box) - 0x10;
+            string? str = GetString(ofs, 0x10);
             if (string.IsNullOrWhiteSpace(str))
                 return $"Box {box + 1}";
             return str;
@@ -156,12 +156,12 @@ namespace PKHeX.Core
             if ((uint)team >= TeamCount)
                 throw new ArgumentOutOfRangeException(nameof(team));
 
-            var name = GetTeamName(team);
-            var members = new SK2[6];
-            var ofs = GetTeamOffset(team);
+            string? name = GetTeamName(team);
+            SK2[]? members = new SK2[6];
+            int ofs = GetTeamOffset(team);
             for (int i = 0; i < 6; i++)
             {
-                var rel = ofs + ListHeaderSizeTeam + (i * SIZE_STORED);
+                int rel = ofs + ListHeaderSizeTeam + (i * SIZE_STORED);
                 members[i] = (SK2)GetStoredSlot(Data, rel);
             }
             return new SlotGroup(name, members);

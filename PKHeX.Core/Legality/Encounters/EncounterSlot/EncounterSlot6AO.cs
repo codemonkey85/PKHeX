@@ -20,10 +20,10 @@ namespace PKHeX.Core
 
         protected override void SetFormatSpecificData(PKM pk)
         {
-            var pk6 = (PK6)pk;
+            PK6? pk6 = (PK6)pk;
             if (CanDexNav)
             {
-                var eggMoves = GetDexNavMoves();
+                int[]? eggMoves = GetDexNavMoves();
                 if (eggMoves.Length > 0)
                     pk6.RelearnMove1 = eggMoves[Util.Rand.Next(eggMoves.Length)];
             }
@@ -48,14 +48,14 @@ namespace PKHeX.Core
 
         private int[] GetDexNavMoves()
         {
-            var et = EvolutionTree.GetEvolutionTree(6);
-            var sf = et.GetBaseSpeciesForm(Species, Form);
+            EvolutionTree? et = EvolutionTree.GetEvolutionTree(6);
+            int sf = et.GetBaseSpeciesForm(Species, Form);
             return MoveEgg.GetEggMoves(6, sf & 0x7FF, sf >> 11, Version);
         }
 
         public bool CanBeDexNavMove(int move)
         {
-            var baseEgg = GetDexNavMoves();
+            int[]? baseEgg = GetDexNavMoves();
             return System.Array.IndexOf(baseEgg, move) >= 0;
         }
     }

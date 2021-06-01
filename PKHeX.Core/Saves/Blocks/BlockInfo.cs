@@ -23,7 +23,7 @@ namespace PKHeX.Core
         /// <returns>True if checksums are valid, false if anything is invalid.</returns>
         public static bool GetChecksumsValid(IEnumerable<BlockInfo> blocks, byte[] data)
         {
-            foreach (var b in blocks)
+            foreach (BlockInfo? b in blocks)
             {
                 if (b.Length + b.Offset > data.Length)
                     return false;
@@ -41,7 +41,7 @@ namespace PKHeX.Core
         /// <param name="data">Complete data array</param>
         public static void SetChecksums(IEnumerable<BlockInfo> blocks, byte[] data)
         {
-            foreach (var b in blocks)
+            foreach (BlockInfo? b in blocks)
                 b.SetChecksum(data);
         }
 
@@ -53,7 +53,7 @@ namespace PKHeX.Core
         /// <returns>Multi-line string with <see cref="Summary"/> data.</returns>
         public static string GetChecksumInfo(IReadOnlyList<BlockInfo> blocks, byte[] data)
         {
-            var invalid = GetInvalidBlockCount(blocks, data, out var list);
+            int invalid = GetInvalidBlockCount(blocks, data, out List<string>? list);
             list.Add($"SAV: {blocks.Count - invalid}/{blocks.Count}");
             return string.Join(Environment.NewLine, list);
         }

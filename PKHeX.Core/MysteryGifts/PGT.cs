@@ -60,7 +60,7 @@ namespace PKHeX.Core
             set
             {
                 _pk = value;
-                var data = value.Data.All(z => z == 0)
+                byte[]? data = value.Data.All(z => z == 0)
                     ? value.Data
                     : PokeCrypto.EncryptArray45(value.Data);
                 data.CopyTo(Data, 8);
@@ -70,7 +70,7 @@ namespace PKHeX.Core
         public override byte[] Write()
         {
             // Ensure PGT content is encrypted
-            var clone = (PGT)Clone();
+            PGT? clone = (PGT)Clone();
             clone.VerifyPKEncryption();
             return clone.Data;
         }
@@ -139,7 +139,7 @@ namespace PKHeX.Core
             SetPINGA(pk4, criteria);
             SetMetData(pk4, sav);
 
-            var pi = pk4.PersonalInfo;
+            PersonalInfo? pi = pk4.PersonalInfo;
             pk4.CurrentFriendship = pk4.IsEgg ? pi.HatchCycles : pi.BaseFriendship;
 
             pk4.RefreshChecksum();
@@ -187,7 +187,7 @@ namespace PKHeX.Core
             // Ability is forced already, can't force anything
 
             // Generate PID
-            var seed = SetPID(pk4, criteria);
+            uint seed = SetPID(pk4, criteria);
 
             if (!IsManaphyEgg)
                 seed = Util.Rand32(); // reseed, do not have method 1 correlation
@@ -209,7 +209,7 @@ namespace PKHeX.Core
 
             // The games don't decide the Nature/Gender up-front, but we can try to honor requests.
             // Pre-determine the result values, and generate something.
-            var n = (int)criteria.GetNature(Nature.Random);
+            int n = (int)criteria.GetNature(Nature.Random);
             // Gender is already pre-determined in the template.
             while (true)
             {
@@ -252,7 +252,7 @@ namespace PKHeX.Core
 
         public static bool IsRangerManaphy(PKM pkm)
         {
-            var egg = pkm.Egg_Location;
+            int egg = pkm.Egg_Location;
             if (!pkm.IsEgg) // Link Trade Egg or Ranger
                 return egg is Locations.LinkTrade4 or Locations.Ranger4;
             if (egg != Locations.Ranger4)
@@ -261,7 +261,7 @@ namespace PKHeX.Core
             if (pkm.Language == (int)LanguageID.Korean) // never korean
                 return false;
 
-            var met = pkm.Met_Location;
+            int met = pkm.Met_Location;
             return met is Locations.LinkTrade4 or 0;
         }
 

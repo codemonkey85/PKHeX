@@ -50,7 +50,7 @@ namespace PKHeX.Core
         {
             if (Legal.FixedGenderFromBiGender.Contains(species)) // Nincada -> Shedinja loses gender causing 'false', edge case
                 return true;
-            var pi = PKX.Personal[species];
+            PersonalInfo? pi = PKX.Personal[species];
             if (!pi.Genderless && !pi.OnlyMale)
                 return true;
             if (MixedGenderBreeding.Contains(species))
@@ -126,8 +126,8 @@ namespace PKHeX.Core
         public static bool CanHatchAsEgg(int species, int form, GameVersion game)
         {
             // Sanity check form for origin
-            var gameInfo = GameData.GetPersonal(game);
-            var entry = gameInfo.GetFormEntry(species, form);
+            PersonalTable? gameInfo = GameData.GetPersonal(game);
+            PersonalInfo? entry = gameInfo.GetFormEntry(species, form);
             return form < entry.FormCount || (species == (int)Rotom && form <= 5);
         }
 

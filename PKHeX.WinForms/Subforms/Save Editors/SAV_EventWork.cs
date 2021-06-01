@@ -30,8 +30,8 @@ namespace PKHeX.WinForms
             for (int i = 0; i < SAV.MaxWork; i++)
                 CB_Stats.Items.Add(i.ToString());
 
-            var work = GetStringList(sav.Version, "const");
-            var flag = GetStringList(sav.Version, "flags");
+            string[]? work = GetStringList(sav.Version, "const");
+            string[]? flag = GetStringList(sav.Version, "flags");
             Editor = new SplitEventEditor<int>(SAV, work, flag);
 
             SuspendLayout();
@@ -59,21 +59,21 @@ namespace PKHeX.WinForms
 
         private void LoadFlags(IEnumerable<EventVarGroup> editorFlag)
         {
-            foreach (var g in editorFlag)
+            foreach (EventVarGroup? g in editorFlag)
             {
-                var tlp = new TableLayoutPanel {Dock = DockStyle.Fill, Name = $"TLP_F{g.Type}", AutoScroll = true};
+                TableLayoutPanel? tlp = new TableLayoutPanel {Dock = DockStyle.Fill, Name = $"TLP_F{g.Type}", AutoScroll = true};
                 tlp.SuspendLayout();
                 int i = 0;
-                foreach (var f in g.Vars.OfType<EventFlag>())
+                foreach (EventFlag? f in g.Vars.OfType<EventFlag>())
                 {
-                    var lbl = new Label
+                    Label? lbl = new Label
                     {
                         Text = f.Name,
                         Name = flagLabelTag + f.RawIndex.ToString("0000"),
                         Margin = Padding.Empty,
                         AutoSize = true
                     };
-                    var chk = new CheckBox
+                    CheckBox? chk = new CheckBox
                     {
                         Name = flagTag + f.RawIndex.ToString("0000"),
                         CheckAlign = ContentAlignment.MiddleLeft,
@@ -87,7 +87,7 @@ namespace PKHeX.WinForms
                     tlp.Controls.Add(lbl, 1, i);
                     i++;
                 }
-                var tab = new TabPage
+                TabPage? tab = new TabPage
                 {
                     Name = $"Tab_F{g.Type}",
                     Text = g.Type.ToString()
@@ -100,21 +100,21 @@ namespace PKHeX.WinForms
 
         private void LoadWork(IEnumerable<EventVarGroup> editorWork)
         {
-            foreach (var g in editorWork)
+            foreach (EventVarGroup? g in editorWork)
             {
-                var tlp = new TableLayoutPanel {Dock = DockStyle.Fill, Name = $"TLP_W{g.Type}", AutoScroll = true};
+                TableLayoutPanel? tlp = new TableLayoutPanel {Dock = DockStyle.Fill, Name = $"TLP_W{g.Type}", AutoScroll = true};
                 tlp.SuspendLayout();
                 int i = 0;
-                foreach (var f in g.Vars.OfType<EventWork<int>>())
+                foreach (EventWork<int>? f in g.Vars.OfType<EventWork<int>>())
                 {
-                    var lbl = new Label
+                    Label? lbl = new Label
                     {
                         Text = f.Name,
                         Name = constLabelTag + f.RawIndex.ToString("0000"),
                         Margin = Padding.Empty,
                         AutoSize = true
                     };
-                    var nud = new NumericUpDown
+                    NumericUpDown? nud = new NumericUpDown
                     {
                         Maximum = int.MaxValue,
                         Minimum = int.MinValue,
@@ -123,7 +123,7 @@ namespace PKHeX.WinForms
                         Margin = Padding.Empty,
                         Width = 50,
                     };
-                    var cb = new ComboBox
+                    ComboBox? cb = new ComboBox
                     {
                         Margin = Padding.Empty,
                         Width = 150,
@@ -142,9 +142,9 @@ namespace PKHeX.WinForms
                     {
                         if (editing)
                             return;
-                        var val = (int) cb.SelectedValue;
+                        int val = (int) cb.SelectedValue;
                         editing = true;
-                        var match = f.Options.FirstOrDefault(z => z.Value == val);
+                        EventWorkVal? match = f.Options.FirstOrDefault(z => z.Value == val);
                         nud.Enabled = match?.Custom == true;
                         if (!nud.Enabled)
                         {
@@ -158,7 +158,7 @@ namespace PKHeX.WinForms
                         if (editing)
                             return;
 
-                        var val = Util.ToInt32(nud.Text);
+                        int val = Util.ToInt32(nud.Text);
                         f.Value = val;
                         editing = true;
                         if (f.RawIndex == CB_Stats.SelectedIndex)
@@ -169,7 +169,7 @@ namespace PKHeX.WinForms
                     tlp.Controls.Add(cb, 1, i);
                     tlp.Controls.Add(nud, 2, i);
                     {
-                        var match = f.Options.FirstOrDefault(z => z.Value == f.Value);
+                        EventWorkVal? match = f.Options.FirstOrDefault(z => z.Value == f.Value);
                         if (match != null)
                         {
                             cb.SelectedValue = match.Value;
@@ -178,7 +178,7 @@ namespace PKHeX.WinForms
                     }
                     i++;
                 }
-                var tab = new TabPage
+                TabPage? tab = new TabPage
                 {
                     Name = $"Tab_W{g.Type}",
                     Text = g.Type.ToString()
@@ -226,7 +226,7 @@ namespace PKHeX.WinForms
 
         private void OpenSAV(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog();
+            using OpenFileDialog? ofd = new OpenFileDialog();
             if (ofd.ShowDialog() == DialogResult.OK)
                 LoadSAV(sender, ofd.FileName);
         }
@@ -242,7 +242,7 @@ namespace PKHeX.WinForms
 
         private static string[] GetStringList(GameVersion game, string type)
         {
-            var gamePrefix = GetGameFilePrefix(game);
+            string? gamePrefix = GetGameFilePrefix(game);
             return GameLanguage.GetStrings(gamePrefix, GameInfo.CurrentLanguage, type);
         }
 
@@ -268,7 +268,7 @@ namespace PKHeX.WinForms
 
         private void DiffSaves()
         {
-            var diff7b = new EventWorkDiff7b(TB_OldSAV.Text, TB_NewSAV.Text);
+            EventWorkDiff7b? diff7b = new EventWorkDiff7b(TB_OldSAV.Text, TB_NewSAV.Text);
             if (diff7b.Message.Length != 0)
             {
                 WinFormsUtil.Alert(diff7b.Message);
@@ -287,21 +287,21 @@ namespace PKHeX.WinForms
         private void Main_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            var dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, Name, "Yes: Old Save" + Environment.NewLine + "No: New Save");
-            var button = dr == DialogResult.Yes ? B_LoadOld : B_LoadNew;
+            DialogResult dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, Name, "Yes: Old Save" + Environment.NewLine + "No: New Save");
+            Button? button = dr == DialogResult.Yes ? B_LoadOld : B_LoadNew;
             LoadSAV(button, files[0]);
         }
 
         private void B_ApplyFlag_Click(object sender, EventArgs e)
         {
-            var index = (int)NUD_Flag.Value;
+            int index = (int)NUD_Flag.Value;
             SAV.SetFlag(index, c_CustomFlag.Checked);
             Origin.State.Edited = true;
         }
 
         private void B_ApplyWork_Click(object sender, EventArgs e)
         {
-            var index = CB_Stats.SelectedIndex;
+            int index = CB_Stats.SelectedIndex;
             SAV.SetWork(index, (int)NUD_Stat.Value);
             Origin.State.Edited = true;
         }

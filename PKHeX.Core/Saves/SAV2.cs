@@ -69,41 +69,41 @@ namespace PKHeX.Core
             int splitAtIndex = (Japanese ? 6 : 7);
             int stored = SIZE_STOREDBOX;
             int baseDest = Data.Length - SIZE_RESERVED;
-            var capacity = Japanese ? PokeListType.StoredJP : PokeListType.Stored;
+            PokeListType capacity = Japanese ? PokeListType.StoredJP : PokeListType.Stored;
             for (int i = 0; i < BoxCount; i++)
             {
                 int ofs = GetBoxRawDataOffset(i, splitAtIndex);
-                var box = GetData(ofs, stored);
-                var boxDest = baseDest + (i * SIZE_BOX);
-                var boxPL = new PokeList2(box, capacity, Japanese);
+                byte[]? box = GetData(ofs, stored);
+                int boxDest = baseDest + (i * SIZE_BOX);
+                PokeList2? boxPL = new PokeList2(box, capacity, Japanese);
                 for (int j = 0; j < boxPL.Pokemon.Length; j++)
                 {
-                    var dest = boxDest + (j * SIZE_STORED);
-                    var pkDat = (j < boxPL.Count)
+                    int dest = boxDest + (j * SIZE_STORED);
+                    byte[]? pkDat = (j < boxPL.Count)
                         ? new PokeList2(boxPL[j]).Write()
                         : new byte[PokeList2.GetDataLength(PokeListType.Single, Japanese)];
                     pkDat.CopyTo(Data, dest);
                 }
             }
 
-            var current = GetData(Offsets.CurrentBox, stored);
-            var curBoxPL = new PokeList2(current, capacity, Japanese);
-            var curDest = baseDest + (CurrentBox * SIZE_BOX);
+            byte[]? current = GetData(Offsets.CurrentBox, stored);
+            PokeList2? curBoxPL = new PokeList2(current, capacity, Japanese);
+            int curDest = baseDest + (CurrentBox * SIZE_BOX);
             for (int i = 0; i < curBoxPL.Pokemon.Length; i++)
             {
-                var dest = curDest + (i * SIZE_STORED);
-                var pkDat = i < curBoxPL.Count
+                int dest = curDest + (i * SIZE_STORED);
+                byte[]? pkDat = i < curBoxPL.Count
                     ? new PokeList2(curBoxPL[i]).Write()
                     : new byte[PokeList2.GetDataLength(PokeListType.Single, Japanese)];
                 pkDat.CopyTo(Data, dest);
             }
 
-            var party = GetData(Offsets.Party, SIZE_STOREDPARTY);
-            var partyPL = new PokeList2(party, PokeListType.Party, Japanese);
+            byte[]? party = GetData(Offsets.Party, SIZE_STOREDPARTY);
+            PokeList2? partyPL = new PokeList2(party, PokeListType.Party, Japanese);
             for (int i = 0; i < partyPL.Pokemon.Length; i++)
             {
-                var dest = GetPartyOffset(i);
-                var pkDat = i < partyPL.Count
+                int dest = GetPartyOffset(i);
+                byte[]? pkDat = i < partyPL.Count
                     ? new PokeList2(partyPL[i]).Write()
                     : new byte[PokeList2.GetDataLength(PokeListType.Single, Japanese)];
                 pkDat.CopyTo(Data, dest);
@@ -115,8 +115,8 @@ namespace PKHeX.Core
 
                 DaycareFlags[0] = Data[offset];
                 offset++;
-                var pk1 = ReadPKMFromOffset(offset); // parent 1
-                var daycare1 = new PokeList2(pk1);
+                PK2? pk1 = ReadPKMFromOffset(offset); // parent 1
+                PokeList2? daycare1 = new PokeList2(pk1);
                 offset += (StringLength * 2) + 0x20; // nick/ot/pkm
                 DaycareFlags[1] = Data[offset];
                 offset++;
@@ -124,12 +124,12 @@ namespace PKHeX.Core
                 offset++;
                 //byte BreedMotherOrNonDitto = Data[offset];
                 offset++;
-                var pk2 = ReadPKMFromOffset(offset); // parent 2
-                var daycare2 = new PokeList2(pk2);
+                PK2? pk2 = ReadPKMFromOffset(offset); // parent 2
+                PokeList2? daycare2 = new PokeList2(pk2);
                 offset += (StringLength * 2) + PokeCrypto.SIZE_2STORED; // nick/ot/pkm
-                var pk3 = ReadPKMFromOffset(offset); // egg!
+                PK2? pk3 = ReadPKMFromOffset(offset); // egg!
                 pk3.IsEgg = true;
-                var daycare3 = new PokeList2(pk3);
+                PokeList2? daycare3 = new PokeList2(pk3);
 
                 daycare1.Write().CopyTo(Data, GetPartyOffset(7 + (0 * 2)));
                 daycare2.Write().CopyTo(Data, GetPartyOffset(7 + (1 * 2)));
@@ -171,7 +171,7 @@ namespace PKHeX.Core
             int splitAtIndex = (Japanese ? 6 : 7);
             for (int i = 0; i < BoxCount; i++)
             {
-                var boxPL = new PokeList2(Japanese ? PokeListType.StoredJP : PokeListType.Stored, Japanese);
+                PokeList2? boxPL = new PokeList2(Japanese ? PokeListType.StoredJP : PokeListType.Stored, Japanese);
                 int slot = 0;
                 for (int j = 0; j < boxPL.Pokemon.Length; j++)
                 {
@@ -186,7 +186,7 @@ namespace PKHeX.Core
                     boxPL.Write().CopyTo(Data, Offsets.CurrentBox);
             }
 
-            var partyPL = new PokeList2(PokeListType.Party, Japanese);
+            PokeList2? partyPL = new PokeList2(PokeListType.Party, Japanese);
             int pSlot = 0;
             for (int i = 0; i < 6; i++)
             {
@@ -514,7 +514,7 @@ namespace PKHeX.Core
         public override void SetBoxName(int box, string value)
         {
             int len = Korean ? 17 : 9;
-            var data = SetString(value, len, len, 0x50);
+            byte[]? data = SetString(value, len, len, 0x50);
             SetData(data, Offsets.BoxNames + (box * len));
         }
 
@@ -678,9 +678,9 @@ namespace PKHeX.Core
 
         private ushort GetResetKey()
         {
-            var val = (TID >> 8) + (TID & 0xFF) + ((Money >> 16) & 0xFF) + ((Money >> 8) & 0xFF) + (Money & 0xFF);
-            var ot = Data.Skip(Offsets.Trainer1 + 2).TakeWhile((z, i) => i < 5 && z != 0x50);
-            var tr = ot.Sum(z => z);
+            long val = (TID >> 8) + (TID & 0xFF) + ((Money >> 16) & 0xFF) + ((Money >> 8) & 0xFF) + (Money & 0xFF);
+            IEnumerable<byte>? ot = Data.Skip(Offsets.Trainer1 + 2).TakeWhile((z, i) => i < 5 && z != 0x50);
+            int tr = ot.Sum(z => z);
             return (ushort)(val + tr);
         }
 

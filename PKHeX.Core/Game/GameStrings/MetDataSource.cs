@@ -34,28 +34,28 @@ namespace PKHeX.Core
 
         private static List<ComboItem> CreateGen2(GameStrings s)
         {
-            var locations = Util.GetCBList(s.metGSC_00000.AsSpan(0, 0x5F));
+            List<ComboItem>? locations = Util.GetCBList(s.metGSC_00000.AsSpan(0, 0x5F));
             Util.AddCBWithOffset(locations, s.metGSC_00000.AsSpan(0x7E, 2), 0x7E);
             return locations;
         }
 
         private static List<ComboItem> CreateGen3(GameStrings s)
         {
-            var locations = Util.GetCBList(s.metRSEFRLG_00000.AsSpan(0, 213));
+            List<ComboItem>? locations = Util.GetCBList(s.metRSEFRLG_00000.AsSpan(0, 213));
             Util.AddCBWithOffset(locations, s.metRSEFRLG_00000.AsSpan(253, 3), 253);
             return locations;
         }
 
         private static List<ComboItem> CreateGen3CXD(GameStrings s)
         {
-            var list = Util.GetCBList(s.metCXD_00000);
+            List<ComboItem>? list = Util.GetCBList(s.metCXD_00000);
             list.RemoveAll(z => z.Text.Length == 0);
             return list;
         }
 
         private static List<ComboItem> CreateGen4(GameStrings s)
         {
-            var locations = Util.GetCBList(s.metHGSS_00000, 0);
+            List<ComboItem>? locations = Util.GetCBList(s.metHGSS_00000, 0);
             Util.AddCBWithOffset(locations, s.metHGSS_02000, 2000, Locations.Daycare4);
             Util.AddCBWithOffset(locations, s.metHGSS_02000, 2000, Locations.LinkTrade4);
             Util.AddCBWithOffset(locations, s.metHGSS_03000, 3000, Locations.Ranger4);
@@ -68,9 +68,9 @@ namespace PKHeX.Core
         private IReadOnlyList<ComboItem> CreateGen4Transfer()
         {
             // Pal Park to front
-            var met = MetGen4.ToArray();
-            var index = Array.FindIndex(met, z => z.Value == Locations.Transfer3);
-            var pal = met[index];
+            ComboItem[]? met = MetGen4.ToArray();
+            int index = Array.FindIndex(met, z => z.Value == Locations.Transfer3);
+            ComboItem? pal = met[index];
             Array.Copy(met, 0, met, 1, index);
             met[0] = pal;
             return met;
@@ -78,7 +78,7 @@ namespace PKHeX.Core
 
         private static List<ComboItem> CreateGen5(GameStrings s)
         {
-            var locations = Util.GetCBList(s.metBW2_00000, 0);
+            List<ComboItem>? locations = Util.GetCBList(s.metBW2_00000, 0);
             Util.AddCBWithOffset(locations, s.metBW2_60000, 60001, Locations.Daycare5);
             Util.AddCBWithOffset(locations, s.metBW2_30000, 30001, Locations.LinkTrade5);
             Util.AddCBWithOffset(locations, s.metBW2_00000, 00000, Legal.Met_BW2_0);
@@ -91,9 +91,9 @@ namespace PKHeX.Core
         private IReadOnlyList<ComboItem> CreateGen5Transfer()
         {
             // PokéTransfer to front
-            var met = MetGen5.ToArray();
-            var index = Array.FindIndex(met, z => z.Value == Locations.Transfer4);
-            var xfr = met[index];
+            ComboItem[]? met = MetGen5.ToArray();
+            int index = Array.FindIndex(met, z => z.Value == Locations.Transfer4);
+            ComboItem? xfr = met[index];
             Array.Copy(met, 0, met, 1, index);
             met[0] = xfr;
             return met;
@@ -101,7 +101,7 @@ namespace PKHeX.Core
 
         private static List<ComboItem> CreateGen6(GameStrings s)
         {
-            var locations = Util.GetCBList(s.metXY_00000, 0);
+            List<ComboItem>? locations = Util.GetCBList(s.metXY_00000, 0);
             Util.AddCBWithOffset(locations, s.metXY_60000, 60001, Locations.Daycare5);
             Util.AddCBWithOffset(locations, s.metXY_30000, 30001, Locations.LinkTrade6);
             Util.AddCBWithOffset(locations, s.metXY_00000, 00000, Legal.Met_XY_0);
@@ -113,7 +113,7 @@ namespace PKHeX.Core
 
         private static List<ComboItem> CreateGen7(GameStrings s)
         {
-            var locations = Util.GetCBList(s.metSM_00000, 0);
+            List<ComboItem>? locations = Util.GetCBList(s.metSM_00000, 0);
             Util.AddCBWithOffset(locations, s.metSM_60000, 60001, Locations.Daycare5);
             Util.AddCBWithOffset(locations, s.metSM_30000, 30001, Locations.LinkTrade6);
             Util.AddCBWithOffset(locations, s.metSM_00000, 00000, Legal.Met_SM_0);
@@ -125,7 +125,7 @@ namespace PKHeX.Core
 
         private static List<ComboItem> CreateGen7GG(GameStrings s)
         {
-            var locations = Util.GetCBList(s.metGG_00000, 0);
+            List<ComboItem>? locations = Util.GetCBList(s.metGG_00000, 0);
             Util.AddCBWithOffset(locations, s.metGG_60000, 60001, 60002);
             Util.AddCBWithOffset(locations, s.metGG_30000, 30001, Locations.LinkTrade6);
             Util.AddCBWithOffset(locations, s.metGG_00000, 00000, Legal.Met_GG_0);
@@ -137,7 +137,7 @@ namespace PKHeX.Core
 
         private static List<ComboItem> CreateGen8(GameStrings s)
         {
-            var locations = Util.GetCBList(s.metSWSH_00000, 0);
+            List<ComboItem>? locations = Util.GetCBList(s.metSWSH_00000, 0);
             Util.AddCBWithOffset(locations, s.metSWSH_60000, 60001, 60002);
             Util.AddCBWithOffset(locations, s.metSWSH_30000, 30001, Locations.LinkTrade6);
             Util.AddCBWithOffset(locations, s.metSWSH_00000, 00000, Legal.Met_SWSH_0);
@@ -187,7 +187,7 @@ namespace PKHeX.Core
 
             static IReadOnlyList<ComboItem> Partition1(IReadOnlyList<ComboItem> list, Func<int, bool> criteria)
             {
-                var result = new ComboItem[list.Count];
+                ComboItem[]? result = new ComboItem[list.Count];
                 return GetOrderedList(list, result, criteria);
             }
 
@@ -196,9 +196,9 @@ namespace PKHeX.Core
                 // store values that match criteria at the next available position of the array
                 // store non-matches starting at the end. reverse before returning
                 int end = list.Count - 1;
-                for (var index = start; index < list.Count; index++)
+                for (int index = start; index < list.Count; index++)
                 {
-                    var item = list[index];
+                    ComboItem? item = list[index];
                     if (criteria(item.Value))
                         result[start++] = item;
                     else
@@ -211,7 +211,7 @@ namespace PKHeX.Core
 
             static IReadOnlyList<ComboItem> Partition2(IReadOnlyList<ComboItem> list, Func<int, bool> criteria, int keepFirst = 3)
             {
-                var result = new ComboItem[list.Count];
+                ComboItem[]? result = new ComboItem[list.Count];
                 for (int i = 0; i < keepFirst; i++)
                     result[i] = list[i];
                 return GetOrderedList(list, result, criteria, keepFirst);

@@ -46,7 +46,7 @@ namespace PKHeX.Core
             if (pkm.Format != 3)
                 return true; // transfer location verified later
 
-            var met = pkm.Met_Location;
+            int met = pkm.Met_Location;
             if (Version == GameVersion.XD)
             {
                 if (met == Location)
@@ -73,7 +73,7 @@ namespace PKHeX.Core
 
         protected override void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             int gender = criteria.GetGender(-1, pi);
             int nature = (int)criteria.GetNature(Nature.Random);
             int ability = criteria.GetAbilityFromNumber(0);
@@ -86,8 +86,8 @@ namespace PKHeX.Core
             do
             {
                 PIDGenerator.SetRandomWildPID(pk, 3, nature, ability, gender, PIDType.CXD);
-                var pidiv = MethodFinder.Analyze(pk);
-                var result = LockFinder.IsAllShadowLockValid(this, pidiv, pk);
+                PIDIV? pidiv = MethodFinder.Analyze(pk);
+                bool result = LockFinder.IsAllShadowLockValid(this, pidiv, pk);
                 if (result)
                     break;
             }

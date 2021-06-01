@@ -41,14 +41,14 @@ namespace PKHeX.WinForms
 
                 // Trainer Card Species
                 ComboBox[] cba = { CB_TCM1, CB_TCM2, CB_TCM3, CB_TCM4, CB_TCM5, CB_TCM6 };
-                var legal = GameInfo.FilteredSources.Species.ToList();
+                System.Collections.Generic.List<ComboItem>? legal = GameInfo.FilteredSources.Species.ToList();
                 for (int i = 0; i < cba.Length; i++)
                 {
                     cba[i].Items.Clear();
                     cba[i].InitializeBinding();
                     cba[i].DataSource = new BindingSource(legal, null);
-                    var g3Species = SAV.GetEventConst(0x43 + i);
-                    var species = SpeciesConverter.GetG4Species(g3Species);
+                    ushort g3Species = SAV.GetEventConst(0x43 + i);
+                    int species = SpeciesConverter.GetG4Species(g3Species);
                     cba[i].SelectedValue = species;
                 }
             }
@@ -72,8 +72,8 @@ namespace PKHeX.WinForms
                 ComboBox[] cba = { CB_TCM1, CB_TCM2, CB_TCM3, CB_TCM4, CB_TCM5, CB_TCM6 };
                 for (int i = 0; i < cba.Length; i++)
                 {
-                    var species = (ushort) WinFormsUtil.GetIndex(cba[i]);
-                    var g3Species = SpeciesConverter.GetG3Species(species);
+                    ushort species = (ushort) WinFormsUtil.GetIndex(cba[i]);
+                    int g3Species = SpeciesConverter.GetG3Species(species);
                     SAV.SetEventConst(0x43 + i, (ushort)g3Species);
                 }
             }
@@ -113,8 +113,8 @@ namespace PKHeX.WinForms
         #region Ferry
         private void B_GetTickets_Click(object sender, EventArgs e)
         {
-            var Pouches = SAV.Inventory;
-            var itemlist = GameInfo.Strings.GetItemStrings(SAV.Generation, SAV.Version).ToArray();
+            System.Collections.Generic.IReadOnlyList<InventoryPouch>? Pouches = SAV.Inventory;
+            string[]? itemlist = GameInfo.Strings.GetItemStrings(SAV.Generation, SAV.Version).ToArray();
             for (int i = 0; i < itemlist.Length; i++)
             {
                 if (string.IsNullOrEmpty(itemlist[i]))
@@ -126,13 +126,13 @@ namespace PKHeX.WinForms
             if (!SAV.Japanese && DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, $"Non Japanese save file. Add {itemlist[oldsea]} (unreleased)?"))
                 tickets = tickets.Take(tickets.Length - 1).ToArray(); // remove old sea map
 
-            var p = Pouches.FirstOrDefault(z => z.Type == InventoryType.KeyItems);
+            InventoryPouch? p = Pouches.FirstOrDefault(z => z.Type == InventoryType.KeyItems);
             if (p == null)
                 throw new ArgumentException(nameof(InventoryPouch.Type));
 
             // check for missing tickets
-            var missing = tickets.Where(z => !p.Items.Any(item => item.Index == z && item.Count == 1)).ToList();
-            var have = tickets.Except(missing).ToList();
+            System.Collections.Generic.List<int>? missing = tickets.Where(z => !p.Items.Any(item => item.Index == z && item.Count == 1)).ToList();
+            System.Collections.Generic.List<int>? have = tickets.Except(missing).ToList();
             if (missing.Count == 0)
             {
                 WinFormsUtil.Alert("Already have all tickets.");
@@ -149,12 +149,12 @@ namespace PKHeX.WinForms
                 return;
             }
 
-            var added = string.Join(", ", missing.Select(u => itemlist[u]));
-            var addmsg = $"Add the following items?{Environment.NewLine}{added}";
+            string? added = string.Join(", ", missing.Select(u => itemlist[u]));
+            string? addmsg = $"Add the following items?{Environment.NewLine}{added}";
             if (have.Count > 0)
             {
                 string had = string.Join(", ", have.Select(u => itemlist[u]));
-                var havemsg = $"Already have:{Environment.NewLine}{had}";
+                string? havemsg = $"Already have:{Environment.NewLine}{had}";
                 addmsg += Environment.NewLine + Environment.NewLine + havemsg;
             }
             if (DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, addmsg))
@@ -163,7 +163,7 @@ namespace PKHeX.WinForms
             // insert items at the end
             for (int i = 0; i < missing.Count; i++)
             {
-                var item = p.Items[end + i];
+                InventoryItem? item = p.Items[end + i];
                 item.Index = missing[i];
                 item.Count = 1;
             }
@@ -229,7 +229,7 @@ namespace PKHeX.WinForms
             foreach (RadioButton rb in StatRBA)
                 rb.Checked = false;
 
-            var bft = BFT[BFF[facility][1]];
+            string[]? bft = BFT[BFF[facility][1]];
             if (bft == null)
             {
                 CB_Stats2.Visible = false;
@@ -237,7 +237,7 @@ namespace PKHeX.WinForms
             else
             {
                 CB_Stats2.Visible = true;
-                foreach (var t in bft)
+                foreach (string? t in bft)
                     CB_Stats2.Items.Add(t);
 
                 CB_Stats2.SelectedIndex = 0;
@@ -264,7 +264,7 @@ namespace PKHeX.WinForms
                 return;
 
             int BattleType = CB_Stats2.SelectedIndex;
-            var bft = BFT[BFF[Facility][1]];
+            string[]? bft = BFT[BFF[Facility][1]];
             if (bft == null)
                 BattleType = 0;
             else if (BattleType < 0)
@@ -381,10 +381,10 @@ namespace PKHeX.WinForms
         {
             for (int i = 0; i < SymbolButtonA.Length; i++)
             {
-                var flagIndex = 0x860 + 0x64 + (i * 2);
-                var silver = SAV.GetEventFlag(flagIndex);
-                var gold = SAV.GetEventFlag(flagIndex + 1);
-                var value = silver ? gold ? Color.Gold : Color.Silver : Color.Transparent;
+                int flagIndex = 0x860 + 0x64 + (i * 2);
+                bool silver = SAV.GetEventFlag(flagIndex);
+                bool gold = SAV.GetEventFlag(flagIndex + 1);
+                Color value = silver ? gold ? Color.Gold : Color.Silver : Color.Transparent;
                 SymbolButtonA[i].BackColor = value;
             }
         }
@@ -393,11 +393,11 @@ namespace PKHeX.WinForms
         {
             for (int i = 0; i < 7; i++)
             {
-                var color = SymbolButtonA[i].BackColor;
+                Color color = SymbolButtonA[i].BackColor;
                 bool silver = color != Color.Transparent;
                 bool gold = color == Color.Gold;
 
-                var flagIndex = 0x860 + 0x64 + (i * 2);
+                int flagIndex = 0x860 + 0x64 + (i * 2);
                 SAV.SetEventFlag(flagIndex, silver);
                 SAV.SetEventFlag(flagIndex, gold);
             }
@@ -406,11 +406,11 @@ namespace PKHeX.WinForms
 
         private void BTN_Symbol_Click(object sender, EventArgs e)
         {
-            var match = Array.Find(SymbolButtonA, z => z == sender);
+            Button? match = Array.Find(SymbolButtonA, z => z == sender);
             if (match == null)
                 return;
 
-            var color = match.BackColor;
+            Color color = match.BackColor;
             color = color == Color.Transparent ? Color.Silver : color == Color.Silver ? Color.Gold : Color.Transparent;
             match.BackColor = color;
         }
@@ -418,8 +418,8 @@ namespace PKHeX.WinForms
 
         private void LoadRecords()
         {
-            var records = new Record3(SAV);
-            var items = Record3.GetItems(SAV);
+            Record3? records = new Record3(SAV);
+            System.Collections.Generic.IList<ComboItem>? items = Record3.GetItems(SAV);
             CB_Record.InitializeBinding();
             CB_Record.DataSource = items;
             NUD_RecordValue.Minimum = int.MinValue;
@@ -430,7 +430,7 @@ namespace PKHeX.WinForms
                 if (CB_Record.SelectedValue == null)
                     return;
 
-                var index = WinFormsUtil.GetIndex(CB_Record);
+                int index = WinFormsUtil.GetIndex(CB_Record);
                 LoadRecordID(index);
                 NUD_FameH.Visible = NUD_FameS.Visible = NUD_FameM.Visible = index == 1;
             };
@@ -442,8 +442,8 @@ namespace PKHeX.WinForms
                 if (CB_Record.SelectedValue == null)
                     return;
 
-                var index = WinFormsUtil.GetIndex(CB_Record);
-                var val = (uint) NUD_RecordValue.Value;
+                int index = WinFormsUtil.GetIndex(CB_Record);
+                uint val = (uint) NUD_RecordValue.Value;
                 records.SetRecord(index, val);
                 if (index == 1)
                     LoadFame(val);
@@ -472,9 +472,9 @@ namespace PKHeX.WinForms
 
         public uint GetFameTime()
         {
-            var hrs = Math.Min(9999, (uint)NUD_FameH.Value);
-            var min = Math.Min(59, (uint)NUD_FameM.Value);
-            var sec = Math.Min(59, (uint)NUD_FameS.Value);
+            uint hrs = Math.Min(9999, (uint)NUD_FameH.Value);
+            uint min = Math.Min(59, (uint)NUD_FameM.Value);
+            uint sec = Math.Min(59, (uint)NUD_FameS.Value);
 
             return (hrs << 16) | (min << 8) | sec;
         }

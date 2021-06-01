@@ -65,7 +65,7 @@ namespace PKHeX.Core
         /// <param name="gender">Desired <see cref="PKM.Gender"/>.</param>
         public static void SetAttackIVFromGender(this PKM pk, int gender)
         {
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             while (pk.Gender != gender)
                 pk.IV_ATK = rnd.Next(16);
         }

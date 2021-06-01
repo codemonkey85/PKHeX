@@ -12,13 +12,13 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm is IAwakened a)
             {
                 VerifyAwakenedValues(data, a);
                 return;
             }
-            var enc = data.EncounterMatch;
+            IEncounterable? enc = data.EncounterMatch;
             int sum = pkm.EVTotal;
             if (sum > 0 && pkm.IsEgg)
                 data.AddLine(GetInvalid(LEffortEgg));
@@ -30,7 +30,7 @@ namespace PKHeX.Core
 
             if (sum > 510) // format >= 3
                 data.AddLine(GetInvalid(LEffortAbove510));
-            var evs = pkm.EVs;
+            int[]? evs = pkm.EVs;
             if (format >= 6 && evs.Any(ev => ev > 252))
                 data.AddLine(GetInvalid(LEffortAbove252));
 
@@ -45,8 +45,8 @@ namespace PKHeX.Core
                 }
                 else // check for gained EVs without gaining EXP -- don't check gen5+ which have wings to boost above 100.
                 {
-                    var growth = PersonalTable.HGSS[enc.Species].EXPGrowth;
-                    var baseEXP = Experience.GetEXP(enc.LevelMin, growth);
+                    int growth = PersonalTable.HGSS[enc.Species].EXPGrowth;
+                    uint baseEXP = Experience.GetEXP(enc.LevelMin, growth);
                     if (baseEXP == pkm.EXP && evs.Any(ev => ev > vitaMax))
                         data.AddLine(GetInvalid(string.Format(LEffortUntrainedCap, vitaMax)));
                 }
@@ -63,7 +63,7 @@ namespace PKHeX.Core
 
         private void VerifyAwakenedValues(LegalityAnalysis data, IAwakened awakened)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             int sum = pkm.EVTotal;
             if (sum != 0)
                 data.AddLine(GetInvalid(LEffortShouldBeZero));
@@ -71,7 +71,7 @@ namespace PKHeX.Core
             if (!awakened.AwakeningAllValid())
                 data.AddLine(GetInvalid(LAwakenedCap));
 
-            var enc = data.EncounterMatch;
+            IEncounterable? enc = data.EncounterMatch;
             if (enc is EncounterSlot7GO && Enumerable.Range(0, 6).Select(awakened.GetAV).Any(z => z < 2))
                 data.AddLine(GetInvalid(string.Format(LAwakenedShouldBeValue, 2))); // go park transfers have 2 AVs for all stats.
             else if (awakened.AwakeningSum() == 0 && !enc.IsWithinEncounterRange(pkm))

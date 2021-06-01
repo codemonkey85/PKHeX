@@ -76,8 +76,8 @@ namespace PKHeX.Core
 
             // Starting in Generation 7, forms have separate evolution data.
             int format = Game - Gen1 + 1;
-            var oldStyle = format < 7;
-            var connections = oldStyle ? CreateTreeOld() : CreateTree();
+            bool oldStyle = format < 7;
+            IEnumerable<KeyValuePair<int, EvolutionLink>>? connections = oldStyle ? CreateTreeOld() : CreateTree();
 
             Lineage = connections.ToLookup(obj => obj.Key, obj => obj.Value);
         }
@@ -86,21 +86,21 @@ namespace PKHeX.Core
         {
             for (int sSpecies = 1; sSpecies <= MaxSpeciesTree; sSpecies++)
             {
-                var fc = Personal[sSpecies].FormCount;
+                int fc = Personal[sSpecies].FormCount;
                 for (int sForm = 0; sForm < fc; sForm++)
                 {
-                    var index = sSpecies;
-                    var evos = Entries[index];
-                    foreach (var evo in evos)
+                    int index = sSpecies;
+                    EvolutionMethod[]? evos = Entries[index];
+                    foreach (EvolutionMethod? evo in evos)
                     {
-                        var dSpecies = evo.Species;
+                        int dSpecies = evo.Species;
                         if (dSpecies == 0)
                             continue;
 
-                        var dForm = sSpecies == (int)Species.Espurr && evo.Method == (int)EvolutionType.LevelUpFormFemale1 ? 1 : sForm;
-                        var key = GetLookupKey(dSpecies, dForm);
+                        int dForm = sSpecies == (int)Species.Espurr && evo.Method == (int)EvolutionType.LevelUpFormFemale1 ? 1 : sForm;
+                        int key = GetLookupKey(dSpecies, dForm);
 
-                        var link = new EvolutionLink(sSpecies, sForm, evo);
+                        EvolutionLink? link = new EvolutionLink(sSpecies, sForm, evo);
                         yield return new KeyValuePair<int, EvolutionLink>(key, link);
                     }
                 }
@@ -111,21 +111,21 @@ namespace PKHeX.Core
         {
             for (int sSpecies = 1; sSpecies <= MaxSpeciesTree; sSpecies++)
             {
-                var fc = Personal[sSpecies].FormCount;
+                int fc = Personal[sSpecies].FormCount;
                 for (int sForm = 0; sForm < fc; sForm++)
                 {
-                    var index = Personal.GetFormIndex(sSpecies, sForm);
-                    var evos = Entries[index];
-                    foreach (var evo in evos)
+                    int index = Personal.GetFormIndex(sSpecies, sForm);
+                    EvolutionMethod[]? evos = Entries[index];
+                    foreach (EvolutionMethod? evo in evos)
                     {
-                        var dSpecies = evo.Species;
+                        int dSpecies = evo.Species;
                         if (dSpecies == 0)
                             break;
 
-                        var dForm = evo.GetDestinationForm(sForm);
-                        var key = GetLookupKey(dSpecies, dForm);
+                        int dForm = evo.GetDestinationForm(sForm);
+                        int key = GetLookupKey(dSpecies, dForm);
 
-                        var link = new EvolutionLink(sSpecies, sForm, evo);
+                        EvolutionLink? link = new EvolutionLink(sSpecies, sForm, evo);
                         yield return new KeyValuePair<int, EvolutionLink>(key, link);
                     }
                 }
@@ -168,15 +168,15 @@ namespace PKHeX.Core
             BanEvo((int)Species.Weezing, 0, pkm => pkm.Version >= (int)SW);
             BanEvo((int)Species.MrMime, 0, pkm => pkm.Version >= (int)SW);
 
-            foreach (var s in GetEvolutions((int)Species.Eevee, 0)) // Eeveelutions
+            foreach (int s in GetEvolutions((int)Species.Eevee, 0)) // Eeveelutions
                 BanEvo(s, 0, pkm => pkm is IGigantamax {CanGigantamax: true});
         }
 
         private void BanEvo(int species, int form, Func<PKM, bool> func)
         {
-            var key = GetLookupKey(species, form);
-            var node = Lineage[key];
-            foreach (var link in node)
+            int key = GetLookupKey(species, form);
+            IEnumerable<EvolutionLink>? node = Lineage[key];
+            foreach (EvolutionLink? link in node)
                 link.IsBanned = func;
         }
 
@@ -224,17 +224,17 @@ namespace PKHeX.Core
         /// <returns>Enumerable of species IDs (with the Form IDs included, left shifted by 11).</returns>
         public IEnumerable<int> GetEvolutionsAndPreEvolutions(int species, int form)
         {
-            foreach (var s in GetPreEvolutions(species, form))
+            foreach (int s in GetPreEvolutions(species, form))
                 yield return s;
             yield return species;
-            foreach (var s in GetEvolutions(species, form))
+            foreach (int s in GetEvolutions(species, form))
                 yield return s;
         }
 
         public int GetBaseSpeciesForm(int species, int form, int skip = 0)
         {
-            var chain = GetEvolutionsAndPreEvolutions(species, form);
-            foreach (var c in chain)
+            IEnumerable<int>? chain = GetEvolutionsAndPreEvolutions(species, form);
+            foreach (int c in chain)
             {
                 if (skip == 0)
                     return c;
@@ -252,15 +252,15 @@ namespace PKHeX.Core
         public IEnumerable<int> GetPreEvolutions(int species, int form)
         {
             int index = GetLookupKey(species, form);
-            var node = Lineage[index];
-            foreach (var method in node)
+            IEnumerable<EvolutionLink>? node = Lineage[index];
+            foreach (EvolutionLink? method in node)
             {
-                var s = method.Species;
+                int s = method.Species;
                 if (s == 0)
                     continue;
-                var f = method.Form;
-                var preEvolutions = GetPreEvolutions(s, f);
-                foreach (var preEvo in preEvolutions)
+                int f = method.Form;
+                IEnumerable<int>? preEvolutions = GetPreEvolutions(s, f);
+                foreach (int preEvo in preEvolutions)
                     yield return preEvo;
                 yield return s | (f << 11);
             }
@@ -276,16 +276,16 @@ namespace PKHeX.Core
         {
             int format = Game - Gen1 + 1;
             int index = format < 7 ? species : Personal.GetFormIndex(species, form);
-            var evos = Entries[index];
-            foreach (var method in evos)
+            EvolutionMethod[]? evos = Entries[index];
+            foreach (EvolutionMethod? method in evos)
             {
-                var s = method.Species;
+                int s = method.Species;
                 if (s == 0)
                     continue;
-                var f = method.GetDestinationForm(form);
+                int f = method.GetDestinationForm(form);
                 yield return s | (f << 11);
-                var nextEvolutions = GetEvolutions(s, f);
-                foreach (var nextEvo in nextEvolutions)
+                IEnumerable<int>? nextEvolutions = GetEvolutions(s, f);
+                foreach (int nextEvo in nextEvolutions)
                     yield return nextEvo;
             }
         }
@@ -304,10 +304,10 @@ namespace PKHeX.Core
             int species = pkm.Species;
             int form = pkm.Form;
             int lvl = maxLevel;
-            var first = new EvoCriteria(species, form) { Level = lvl };
+            EvoCriteria? first = new EvoCriteria(species, form) { Level = lvl };
 
             const int maxEvolutions = 3;
-            var dl = new List<EvoCriteria>(maxEvolutions) { first };
+            List<EvoCriteria>? dl = new List<EvoCriteria>(maxEvolutions) { first };
 
             switch (species)
             {
@@ -319,16 +319,16 @@ namespace PKHeX.Core
             // There aren't any convergent evolution paths, so only yield the first connection.
             while (true)
             {
-                var key = GetLookupKey(species, form);
-                var node = Lineage[key];
+                int key = GetLookupKey(species, form);
+                IEnumerable<EvolutionLink>? node = Lineage[key];
 
                 bool oneValid = false;
-                foreach (var link in node)
+                foreach (EvolutionLink? link in node)
                 {
                     if (link.IsEvolutionBanned(pkm) && !skipChecks)
                         continue;
 
-                    var evo = link.Method;
+                    EvolutionMethod? evo = link.Method;
                     if (!evo.Valid(pkm, lvl, skipChecks))
                         continue;
 
@@ -342,7 +342,7 @@ namespace PKHeX.Core
 
                     species = link.Species;
                     form = link.Form;
-                    var detail = evo.GetEvoCriteria(species, form, lvl);
+                    EvoCriteria? detail = evo.GetEvoCriteria(species, form, lvl);
                     dl.Add(detail);
                     break;
                 }
@@ -351,7 +351,7 @@ namespace PKHeX.Core
             }
 
             // Remove future gen pre-evolutions; no Munchlax from a Gen3 Snorlax, no Pichu from a Gen1-only Raichu, etc
-            var last = dl[^1];
+            EvoCriteria? last = dl[^1];
             if (last.Species > maxSpeciesOrigin && dl.Any(d => d.Species <= maxSpeciesOrigin))
                 dl.RemoveAt(dl.Count - 1);
 
@@ -364,7 +364,7 @@ namespace PKHeX.Core
 
         private static void UpdateMinValues(IReadOnlyList<EvoCriteria> dl, EvolutionMethod evo)
         {
-            var last = dl[^1];
+            EvoCriteria? last = dl[^1];
             if (!evo.RequiresLevelUp)
             {
                 // Evolutions like elemental stones, trade, etc
@@ -376,7 +376,7 @@ namespace PKHeX.Core
                 // Friendship based Evolutions, Pichu -> Pikachu, Eevee -> Umbreon, etc
                 last.MinLevel = 2;
 
-                var first = dl[0];
+                EvoCriteria? first = dl[0];
                 if (dl.Count > 1 && !first.RequiresLvlUp)
                     first.MinLevel = 2; // Raichu from Pikachu would have a minimum level of 1; accounting for Pichu (level up required) results in a minimum level of 2
             }
@@ -384,7 +384,7 @@ namespace PKHeX.Core
             {
                 last.MinLevel = evo.Level;
 
-                var first = dl[0];
+                EvoCriteria? first = dl[0];
                 if (dl.Count > 1)
                 {
                     if (first.RequiresLvlUp)

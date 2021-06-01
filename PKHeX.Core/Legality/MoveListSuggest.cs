@@ -17,8 +17,8 @@ namespace PKHeX.Core
             // try to give current moves
             if (enc.Generation <= 2)
             {
-                var lvl = pkm.Format >= 7 ? pkm.Met_Level : pkm.CurrentLevel;
-                var ver = enc.Version;
+                int lvl = pkm.Format >= 7 ? pkm.Met_Level : pkm.CurrentLevel;
+                GameVersion ver = enc.Version;
                 return MoveLevelUp.GetEncounterMoves(enc.Species, 0, lvl, ver);
             }
 
@@ -40,7 +40,7 @@ namespace PKHeX.Core
 
         private static IEnumerable<int> GetValidMoves(PKM pkm, GameVersion version, IReadOnlyList<IReadOnlyList<EvoCriteria>> evoChains, int minLvLG1 = 1, int minLvLG2 = 1, MoveSourceType types = MoveSourceType.Reminder, bool RemoveTransferHM = true)
         {
-            var r = new List<int> { 0 };
+            List<int>? r = new List<int> { 0 };
             if (types.HasFlagFast(MoveSourceType.RelearnMoves) && pkm.Format >= 6)
                 r.AddRange(pkm.RelearnMoves);
 
@@ -52,7 +52,7 @@ namespace PKHeX.Core
 
             for (int generation = start; generation <= pkm.Format; generation++)
             {
-                var chain = evoChains[generation];
+                IReadOnlyList<EvoCriteria>? chain = evoChains[generation];
                 if (chain.Count == 0)
                     continue;
                 r.AddRange(MoveList.GetValidMoves(pkm, version, chain, generation, minLvLG1: minLvLG1, minLvLG2: minLvLG2, types: types, RemoveTransferHM: RemoveTransferHM));
@@ -72,8 +72,8 @@ namespace PKHeX.Core
         {
             if (!analysis.Parsed)
                 return new int[4];
-            var pkm = analysis.pkm;
-            var enc = analysis.EncounterMatch;
+            PKM? pkm = analysis.pkm;
+            IEncounterable? enc = analysis.EncounterMatch;
             return MoveList.GetValidRelearn(pkm, enc.Species, enc.Form, (GameVersion)pkm.Version).ToArray();
         }
 
@@ -93,14 +93,14 @@ namespace PKHeX.Core
         {
             if (!analysis.Parsed)
                 return new int[4];
-            var pkm = analysis.pkm;
+            PKM? pkm = analysis.pkm;
             if (pkm.IsEgg && pkm.Format >= 6)
                 return pkm.RelearnMoves;
 
             if (pkm.IsEgg)
                 types = types.ClearNonEggSources();
 
-            var info = analysis.Info;
+            LegalInfo? info = analysis.Info;
             return GetSuggestedMoves(pkm, info.EvoChainsAllGens, types, info.EncounterOriginal);
         }
 
@@ -131,9 +131,9 @@ namespace PKHeX.Core
         /// </summary>
         public static IReadOnlyList<int> GetSuggestedRelearnMovesFromEncounter(this LegalityAnalysis analysis, IEncounterTemplate? enc = null)
         {
-            var info = analysis.Info;
+            LegalInfo? info = analysis.Info;
             enc ??= info.EncounterOriginal;
-            var pkm = analysis.pkm;
+            PKM? pkm = analysis.pkm;
 
             if (VerifyRelearnMoves.ShouldNotHaveRelearnMoves(enc, pkm))
                 return Empty;
@@ -147,20 +147,20 @@ namespace PKHeX.Core
         {
             // Split-breed species like Budew & Roselia may be legal for one, and not the other.
             // If we're not a split-breed or are already legal, return.
-            var result = enc.GetEggRelearnMoves(parse, pkm);
+            IReadOnlyList<int>? result = enc.GetEggRelearnMoves(parse, pkm);
             int generation = enc.Generation;
-            var split = Breeding.GetSplitBreedGeneration(generation);
+            ICollection<int>? split = Breeding.GetSplitBreedGeneration(generation);
             if (!split.Contains(enc.Species) || enc.Generation <= 2)
                 return result;
 
-            var tmp = pkm.Clone();
+            PKM? tmp = pkm.Clone();
             tmp.SetRelearnMoves(result);
-            var la = new LegalityAnalysis(tmp);
+            LegalityAnalysis? la = new LegalityAnalysis(tmp);
             if (la.Info.Moves.All(z => z.Valid))
                 return result;
 
             // Try again with the other split-breed species if possible.
-            var incense = EncounterEggGenerator.GenerateEggs(tmp, generation).FirstOrDefault();
+            EncounterEgg? incense = EncounterEggGenerator.GenerateEggs(tmp, generation).FirstOrDefault();
             if (incense is null || incense.Species == enc.Species)
                 return result;
 
@@ -171,10 +171,10 @@ namespace PKHeX.Core
         {
             // Extract a list of the moves that should end up in the relearn move list.
             int ctr = 0;
-            var moves = new int[4];
-            for (var i = 0; i < parse.Count; i++)
+            int[]? moves = new int[4];
+            for (int i = 0; i < parse.Count; i++)
             {
-                var m = parse[i];
+                CheckMoveResult? m = parse[i];
                 if (!m.ShouldBeInRelearnMoves())
                     continue;
                 moves[ctr++] = pkm.GetMove(i);
@@ -184,7 +184,7 @@ namespace PKHeX.Core
             int volt = Array.IndexOf(moves, (int) Move.VoltTackle, 0, ctr);
             if (volt != -1)
             {
-                var dest = ctr - 1;
+                int dest = ctr - 1;
                 moves[volt] = moves[dest];
                 moves[dest] = (int) Move.VoltTackle;
             }

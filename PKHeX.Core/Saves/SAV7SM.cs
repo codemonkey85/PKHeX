@@ -73,7 +73,7 @@ namespace PKHeX.Core
 
         public void UpdateMagearnaConstant()
         {
-            var flag = GetEventFlag(3100);
+            bool flag = GetEventFlag(3100);
             ulong value = flag ? MagearnaConst : 0ul;
             SetData(BitConverter.GetBytes(value), Blocks.BlockInfo[35].Offset + 0x168);
         }

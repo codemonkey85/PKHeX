@@ -10,7 +10,7 @@ namespace PKHeX.Tests.Legality
         [InlineData(GameVersion.B)]
         public void HasOriginalMetLocation5(GameVersion g)
         {
-            var pk5 = new PK5 {Version = (int) g};
+            PK5? pk5 = new PK5 {Version = (int) g};
             pk5.HasOriginalMetLocation.Should().BeTrue();
         }
 
@@ -19,7 +19,7 @@ namespace PKHeX.Tests.Legality
         [InlineData(GameVersion.X)]
         public void HasOriginalMetLocation6(GameVersion g)
         {
-            var pk5 = new PK6 { Version = (int)g };
+            PK6? pk5 = new PK6 { Version = (int)g };
             pk5.HasOriginalMetLocation.Should().BeTrue();
         }
 
@@ -29,7 +29,7 @@ namespace PKHeX.Tests.Legality
         [InlineData(GameVersion.SN)]
         public void HasOriginalMetLocation7(GameVersion g)
         {
-            var pk5 = new PK7 { Version = (int)g };
+            PK7? pk5 = new PK7 { Version = (int)g };
             pk5.HasOriginalMetLocation.Should().BeTrue();
         }
     }

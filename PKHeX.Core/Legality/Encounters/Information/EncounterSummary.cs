@@ -25,14 +25,14 @@ namespace PKHeX.Core
 
         private static string GetLocationName(IEncounterTemplate z)
         {
-            var gen = z.Generation;
-            var version = z.Version;
+            int gen = z.Generation;
+            GameVersion version = z.Version;
             if (gen < 0 && version > 0)
                 gen = version.GetGeneration();
 
             if (z is not ILocation l)
                 return $"[Gen{gen}]\t";
-            var loc = l.GetEncounterLocation(gen, (int)version);
+            string? loc = l.GetEncounterLocation(gen, (int)version);
 
             if (string.IsNullOrWhiteSpace(loc))
                 return $"[Gen{gen}]\t";
@@ -43,9 +43,9 @@ namespace PKHeX.Core
         {
             if (!string.IsNullOrWhiteSpace(header))
                 yield return $"=={header}==";
-            var summaries = advanced ? GetSummaries(items) : items.Select(z => new EncounterSummary(z));
-            var objs = summaries.GroupBy(z => z.LocationName);
-            foreach (var g in objs)
+            IEnumerable<EncounterSummary>? summaries = advanced ? GetSummaries(items) : items.Select(z => new EncounterSummary(z));
+            IEnumerable<IGrouping<string, EncounterSummary>>? objs = summaries.GroupBy(z => z.LocationName);
+            foreach (IGrouping<string, EncounterSummary>? g in objs)
                 yield return $"\t{g.Key}{string.Join(", ", g.Select(z => z.Version).Distinct())}";
         }
 

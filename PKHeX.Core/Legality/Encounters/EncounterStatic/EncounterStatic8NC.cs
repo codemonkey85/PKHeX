@@ -12,13 +12,13 @@ namespace PKHeX.Core
 
         protected override bool IsMatchLocation(PKM pkm)
         {
-            var loc = pkm.Met_Location;
+            int loc = pkm.Met_Location;
             return loc is SharedNest or Watchtower;
         }
 
         protected override bool IsMatchLevel(PKM pkm, DexLevel evo)
         {
-            var lvl = pkm.Met_Level;
+            int lvl = pkm.Met_Level;
             if (lvl == Level)
                 return true;
 

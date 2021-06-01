@@ -43,11 +43,11 @@ namespace PKHeX.Core
             if (pkm.Format != 3)
                 return true; // transfer location verified later
 
-            var met = pkm.Met_Location;
+            int met = pkm.Met_Location;
             if (!Roaming)
                 return Location == met;
 
-            var table = Version <= GameVersion.E ? Roaming_MetLocation_RSE : Roaming_MetLocation_FRLG;
+            int[]? table = Version <= GameVersion.E ? Roaming_MetLocation_RSE : Roaming_MetLocation_FRLG;
             return table.Contains(met);
         }
 

@@ -30,7 +30,7 @@ namespace PKHeX.WinForms
                 5 or 6 or 7 => PopulateViewGiftsG567().ToArray(),
                 _ => throw new ArgumentException("Game not supported."),
             };
-            foreach (var pb in pba)
+            foreach (PictureBox? pb in pba)
             {
                 pb.AllowDrop = true;
                 pb.DragDrop += BoxSlot_DragDrop;
@@ -124,11 +124,11 @@ namespace PKHeX.WinForms
         // Mystery Gift IO (.file<->window)
         private void B_Import_Click(object sender, EventArgs e)
         {
-            using var import = new OpenFileDialog {Filter = WinFormsUtil.GetMysterGiftFilter(SAV.Generation, SAV.Version) };
+            using OpenFileDialog? import = new OpenFileDialog {Filter = WinFormsUtil.GetMysterGiftFilter(SAV.Generation, SAV.Version) };
             if (import.ShowDialog() != DialogResult.OK) return;
 
             string path = import.FileName;
-            var g = MysteryGift.GetMysteryGift(File.ReadAllBytes(path), Path.GetExtension(path));
+            DataMysteryGift? g = MysteryGift.GetMysteryGift(File.ReadAllBytes(path), Path.GetExtension(path));
             if (g == null)
             {
                 WinFormsUtil.Error(MsgMysteryGiftInvalid, path);
@@ -159,7 +159,7 @@ namespace PKHeX.WinForms
         // Mystery Gift RW (window<->sav)
         private void ClickView(object sender, EventArgs e)
         {
-            var pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             if (pb == null)
                 return;
             int index = pba.IndexOf(pb);
@@ -173,13 +173,13 @@ namespace PKHeX.WinForms
             if (mg == null)
                 return;
 
-            if (!mg.IsCardCompatible(SAV, out var msg))
+            if (!mg.IsCardCompatible(SAV, out string? msg))
             {
                 WinFormsUtil.Alert(MsgMysteryGiftSlotFail, msg);
                 return;
             }
 
-            var pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             if (pb == null)
                 return;
             int index = pba.IndexOf(pb);
@@ -206,12 +206,12 @@ namespace PKHeX.WinForms
 
         private void ClickDelete(object sender, EventArgs e)
         {
-            var pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             if (pb == null)
                 return;
             int index = pba.IndexOf(pb);
 
-            var arr = mga.Gifts[index].Data;
+            byte[]? arr = mga.Gifts[index].Data;
             Array.Clear(arr, 0, arr.Length);
 
             // Shuffle blank card down
@@ -225,8 +225,8 @@ namespace PKHeX.WinForms
 
                 i++;
 
-                var mg1 = mga.Gifts[i];
-                var mg2 = mga.Gifts[i-1];
+                DataMysteryGift? mg1 = mga.Gifts[i];
+                DataMysteryGift? mg2 = mga.Gifts[i-1];
 
                 mga.Gifts[i-1] = mg1;
                 mga.Gifts[i] = mg2;
@@ -245,12 +245,12 @@ namespace PKHeX.WinForms
         {
             // Make sure all of the Received Flags are flipped!
             bool[] flags = new bool[mga.Flags.Length];
-            foreach (var o in LB_Received.Items)
+            foreach (object? o in LB_Received.Items)
             {
-                var value = o?.ToString();
+                string? value = o?.ToString();
                 if (value == null)
                     continue;
-                var flag = Util.ToUInt32(value);
+                uint flag = Util.ToUInt32(value);
                 flags[flag] = true;
             }
 
@@ -306,7 +306,7 @@ namespace PKHeX.WinForms
                     WinFormsUtil.Alert(MsgMysteryGiftInvalid, path);
                     return;
                 }
-                var gift = MysteryGift.GetMysteryGift(File.ReadAllBytes(path), Path.GetExtension(path));
+                DataMysteryGift? gift = MysteryGift.GetMysteryGift(File.ReadAllBytes(path), Path.GetExtension(path));
                 if (gift == null)
                 {
                     WinFormsUtil.Error(MsgMysteryGiftInvalid, path);
@@ -351,13 +351,13 @@ namespace PKHeX.WinForms
 
             string desc = $"({mg.Type}) {string.Join(Environment.NewLine, mg.GetDescription())}";
 
-            using var form = new QR(qr, PB_Preview.Image, desc + Environment.NewLine + "PKHeX Wonder Card @ ProjectPokemon.org");
+            using QR? form = new QR(qr, PB_Preview.Image, desc + Environment.NewLine + "PKHeX Wonder Card @ ProjectPokemon.org");
             form.ShowDialog();
         }
 
         private void ImportQRToView(string url)
         {
-            var msg = QRDecode.GetQRData(url, out var data);
+            QRDecodeResult msg = QRDecode.GetQRData(url, out byte[]? data);
             if (msg != 0)
             {
                 WinFormsUtil.Alert(msg.ConvertMsg());
@@ -368,7 +368,7 @@ namespace PKHeX.WinForms
                 return;
 
             string[] types = mga.Gifts.Select(g => g.Type).Distinct().ToArray();
-            var gift = MysteryGift.GetMysteryGift(data);
+            DataMysteryGift? gift = MysteryGift.GetMysteryGift(data);
             if (gift == null)
                 return;
 
@@ -394,7 +394,7 @@ namespace PKHeX.WinForms
                 case Keys.Shift: ClickSet(sender, e); return;
                 case Keys.Alt: ClickDelete(sender, e); return;
             }
-            var pb = sender as PictureBox;
+            PictureBox? pb = sender as PictureBox;
             if (pb?.Image == null)
                 return;
 
@@ -406,7 +406,7 @@ namespace PKHeX.WinForms
             Cursor.Current = Cursors.Hand;
 
             // Make File
-            var gift = mga.Gifts[index];
+            DataMysteryGift? gift = mga.Gifts[index];
             string newfile = Path.Combine(Path.GetTempPath(), Util.CleanFileName(gift.FileName));
             try
             {
@@ -436,17 +436,17 @@ namespace PKHeX.WinForms
 
             if (wc_slot == -1) // dropped
             {
-                var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
+                string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
                 if (files == null || files.Length == 0)
                     return;
 
-                var first = files[0];
-                var fi = new FileInfo(first);
+                string? first = files[0];
+                FileInfo? fi = new FileInfo(first);
                 if (!MysteryGift.IsMysteryGift(fi.Length))
                 { WinFormsUtil.Alert(MsgFileUnsupported, first); return; }
 
                 byte[] data = File.ReadAllBytes(first);
-                var gift = MysteryGift.GetMysteryGift(data, fi.Extension);
+                DataMysteryGift? gift = MysteryGift.GetMysteryGift(data, fi.Extension);
                 if (gift == null)
                 { WinFormsUtil.Alert(MsgFileUnsupported, first); return; }
 
@@ -494,8 +494,8 @@ namespace PKHeX.WinForms
 
                         i++;
 
-                        var mg1 = mga.Gifts[i];
-                        var mg2 = mga.Gifts[i - 1];
+                        DataMysteryGift? mg1 = mga.Gifts[i];
+                        DataMysteryGift? mg2 = mga.Gifts[i - 1];
 
                         mga.Gifts[i - 1] = mg1;
                         mga.Gifts[i] = mg2;
@@ -523,30 +523,30 @@ namespace PKHeX.WinForms
             List<PictureBox> pb = new();
 
             // Row 1
-            var f1 = GetFlowLayoutPanel();
+            FlowLayoutPanel? f1 = GetFlowLayoutPanel();
             f1.Controls.Add(GetLabel($"{nameof(PGT)} 1-6"));
             for (int i = 0; i < 6; i++)
             {
-                var p = GetPictureBox();
+                PictureBox? p = GetPictureBox();
                 f1.Controls.Add(p);
                 pb.Add(p);
             }
             // Row 2
-            var f2 = GetFlowLayoutPanel();
+            FlowLayoutPanel? f2 = GetFlowLayoutPanel();
             f2.Controls.Add(GetLabel($"{nameof(PGT)} 7-8"));
             for (int i = 6; i < 8; i++)
             {
-                var p = GetPictureBox();
+                PictureBox? p = GetPictureBox();
                 f2.Controls.Add(p);
                 pb.Add(p);
             }
             // Row 3
-            var f3 = GetFlowLayoutPanel();
+            FlowLayoutPanel? f3 = GetFlowLayoutPanel();
             f3.Margin = new Padding(0, f3.Height, 0, 0);
             f3.Controls.Add(GetLabel($"{nameof(PCD)} 1-3"));
             for (int i = 8; i < 11; i++)
             {
-                var p = GetPictureBox();
+                PictureBox? p = GetPictureBox();
                 f3.Controls.Add(p);
                 pb.Add(p);
             }
@@ -559,7 +559,7 @@ namespace PKHeX.WinForms
 
         private List<PictureBox> PopulateViewGiftsG567()
         {
-            var pb = new List<PictureBox>();
+            List<PictureBox>? pb = new List<PictureBox>();
 
             const int cellsPerRow = 6;
             int rows = (int)Math.Ceiling(mga.Gifts.Length / (decimal)cellsPerRow);
@@ -567,14 +567,14 @@ namespace PKHeX.WinForms
 
             for (int i = 0; i < rows; i++)
             {
-                var row = GetFlowLayoutPanel();
+                FlowLayoutPanel? row = GetFlowLayoutPanel();
                 int count = cellsPerRow >= countRemaining ? countRemaining : cellsPerRow;
                 countRemaining -= count;
                 int start = (i * cellsPerRow) + 1;
                 row.Controls.Add(GetLabel($"{start}-{start + count - 1}"));
                 for (int j = 0; j < count; j++)
                 {
-                    var p = GetPictureBox();
+                    PictureBox? p = GetPictureBox();
                     row.Controls.Add(p);
                     pb.Add(p);
                 }
@@ -622,7 +622,7 @@ namespace PKHeX.WinForms
 
         private void B_ModifyAll_Click(object sender, EventArgs e)
         {
-            foreach (var g in mga.Gifts)
+            foreach (DataMysteryGift? g in mga.Gifts)
                 g.GiftUsed = sender == B_UsedAll;
             SetGiftBoxes();
             System.Media.SystemSounds.Asterisk.Play();

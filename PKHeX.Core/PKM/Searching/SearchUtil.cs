@@ -76,7 +76,7 @@ namespace PKHeX.Core.Searching
 
         public static IEnumerable<PKM> FilterByMoves(IEnumerable<PKM> res, IEnumerable<int> requiredMoves)
         {
-            var moves = new HashSet<int>(requiredMoves);
+            HashSet<int>? moves = new HashSet<int>(requiredMoves);
             int count = moves.Count;
             return res.Where(pk =>
                 pk.Moves.Where(z => z > 0)
@@ -89,8 +89,8 @@ namespace PKHeX.Core.Searching
             if (inputInstructions.All(string.IsNullOrWhiteSpace))
                 return res; // none specified;
 
-            var lines = inputInstructions.Where(z => !string.IsNullOrWhiteSpace(z));
-            var filters = StringInstruction.GetFilters(lines).ToArray();
+            IEnumerable<string>? lines = inputInstructions.Where(z => !string.IsNullOrWhiteSpace(z));
+            StringInstruction[]? filters = StringInstruction.GetFilters(lines).ToArray();
             BatchEditing.ScreenStrings(filters);
             return res.Where(pkm => BatchEditing.IsFilterMatch(filters, pkm)); // Compare across all filters
         }
@@ -117,7 +117,7 @@ namespace PKHeX.Core.Searching
 
         public static IEnumerable<PKM> GetClones(IEnumerable<PKM> res, CloneDetectionMethod type = CloneDetectionMethod.HashDetails)
         {
-            var method = GetCloneDetectMethod(type);
+            Func<PKM, string>? method = GetCloneDetectMethod(type);
             return GetClones(res, method);
         }
 

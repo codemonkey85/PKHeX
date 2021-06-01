@@ -16,7 +16,7 @@ namespace PKHeX.Core
         protected override void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
             base.ApplyDetails(sav, criteria, pk);
-            var pb = (PB7) pk;
+            PB7? pb = (PB7) pk;
             pb.AwakeningSetAllTo(2);
             pk.SetRandomEC();
             pb.HeightScalar = PokeSizeUtil.GetRandomScalar();
@@ -25,7 +25,7 @@ namespace PKHeX.Core
 
         protected override void SetEncounterMoves(PKM pk, GameVersion version, int level)
         {
-            var moves = MoveLevelUp.GetEncounterMoves(pk, level, GameVersion.GG);
+            int[]? moves = MoveLevelUp.GetEncounterMoves(pk, level, GameVersion.GG);
             pk.SetMoves(moves);
             pk.SetMaximumPPCurrent(moves);
         }

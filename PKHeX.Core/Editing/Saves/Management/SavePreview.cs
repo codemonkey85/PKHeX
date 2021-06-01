@@ -20,10 +20,10 @@ namespace PKHeX.Core
 
         public SavePreview(SaveFile sav, List<INamedFolderPath> paths)
         {
-            var meta = sav.Metadata;
-            var dir = meta.FileFolder;
+            SaveFileMetadata? meta = sav.Metadata;
+            string? dir = meta.FileFolder;
             const string notFound = "???";
-            var parent = dir == null ? notFound : paths.Find(z => dir.StartsWith(z.Path))?.DisplayText ?? new DirectoryInfo(dir).Name;
+            string? parent = dir == null ? notFound : paths.Find(z => dir.StartsWith(z.Path))?.DisplayText ?? new DirectoryInfo(dir).Name;
 
             Save = sav;
             Folder = parent;

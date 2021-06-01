@@ -202,7 +202,7 @@ namespace PKHeX.Core
 
         public PK3 ConvertToPK3()
         {
-            var pk = ConvertTo<PK3>();
+            PK3? pk = ConvertTo<PK3>();
             pk.RefreshChecksum();
             return pk;
         }

@@ -24,7 +24,7 @@ namespace PKHeX.Core
             int half = strings[1].Length / 2;
             for (int i = 0; i < half; i++)
             {
-                var t = table[i];
+                T? t = table[i];
                 t.Nicknames = getNames(i, strings);
                 t.TrainerNames = getNames(i + half, strings);
             }
@@ -35,7 +35,7 @@ namespace PKHeX.Core
         {
             for (int i = 0; i < table.Length; i++)
             {
-                var t = table[i];
+                T? t = table[i];
                 t.Nicknames = getNames(i, strings);
             }
             static string[] getNames(int i, IEnumerable<string[]> names) => names.Select(z => z.Length > i ? z[i] : string.Empty).ToArray();

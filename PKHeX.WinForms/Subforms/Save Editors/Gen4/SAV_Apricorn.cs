@@ -42,7 +42,7 @@ namespace PKHeX.WinForms
                 ValueType = typeof(int)
             };
             {
-                for (var i = 0; i <= 99; i++)
+                for (int i = 0; i <= 99; i++)
                     dgvCount.Items.Add(i);
 
                 dgvCount.DisplayIndex = 1;

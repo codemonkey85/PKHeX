@@ -18,7 +18,7 @@
         {
             base.ApplyDetails(sav, criteria, pk);
 
-            var pk1 = (PK1)pk;
+            PK1? pk1 = (PK1)pk;
             if (Version == GameVersion.YW)
             {
                 // Since we don't keep track of Yellow's Personal Data, just handle any differences here.

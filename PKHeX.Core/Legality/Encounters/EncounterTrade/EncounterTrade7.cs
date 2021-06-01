@@ -17,7 +17,7 @@ namespace PKHeX.Core
         protected override void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
             base.ApplyDetails(sav, criteria, pk);
-            var pk7 = (PK7)pk;
+            PK7? pk7 = (PK7)pk;
             pk7.OT_Memory = OT_Memory;
             pk7.OT_Intensity = OT_Intensity;
             pk7.OT_Feeling = OT_Feeling;

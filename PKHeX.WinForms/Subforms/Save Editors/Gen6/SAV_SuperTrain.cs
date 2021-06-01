@@ -20,7 +20,7 @@ namespace PKHeX.WinForms
             trba = GameInfo.Strings.trainingbags;
             trba[0] = "---";
             STB = ((ISaveBlock6Main) SAV).SuperTrain;
-            var ofs = STB.Offset;
+            int ofs = STB.Offset;
             offsetTime = ofs + 0x08;
             offsetSpec = ofs + 0x188;
             offsetVal = ofs + 0x18A;
@@ -126,7 +126,7 @@ namespace PKHeX.WinForms
             int emptyslots = 0;
             for (int i = 0; i < 12; i++)
             {
-                var bag = dataGridView1.Rows[i].Cells[1].Value.ToString();
+                string? bag = dataGridView1.Rows[i].Cells[1].Value.ToString();
                 if (Array.IndexOf(trba, bag) == 0)
                 {
                     emptyslots++;
@@ -135,9 +135,9 @@ namespace PKHeX.WinForms
                 STB.SetBag(i - emptyslots, (byte)Array.IndexOf(trba, bag));
             }
 
-            if (float.TryParse(TB_Time1.Text, out var t1))
+            if (float.TryParse(TB_Time1.Text, out float t1))
                 SAV.SetData(BitConverter.GetBytes(t1), offsetTime + (4 * 30));
-            if (float.TryParse(TB_Time2.Text, out var t2))
+            if (float.TryParse(TB_Time2.Text, out float t2))
                 SAV.SetData(BitConverter.GetBytes(t2), offsetTime + (4 * 31));
             SAV.SetData(BitConverter.GetBytes((ushort)WinFormsUtil.GetIndex(CB_S2)), offsetSpec + (4 * 30));
 
@@ -163,7 +163,7 @@ namespace PKHeX.WinForms
             int index = listBox1.SelectedIndex;
             if (index < 0 || loading)
                 return;
-            if (ushort.TryParse(TB_Unk.Text, out var val))
+            if (ushort.TryParse(TB_Unk.Text, out ushort val))
                 SAV.SetData(BitConverter.GetBytes(val), offsetVal + (4 * index));
         }
 
@@ -172,7 +172,7 @@ namespace PKHeX.WinForms
             int index = listBox1.SelectedIndex;
             if (index < 0 || loading)
                 return;
-            if (float.TryParse(TB_Time.Text, out var val))
+            if (float.TryParse(TB_Time.Text, out float val))
                 SAV.SetData(BitConverter.GetBytes(val), offsetTime + (4 * index));
         }
     }

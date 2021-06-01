@@ -37,10 +37,10 @@ namespace PKHeX.Core
         {
             if (pk is not PK8 pk8)
                 return;
-            var permit = pk8.PersonalInfo.TMHM;
-            foreach (var m in moves)
+            bool[]? permit = pk8.PersonalInfo.TMHM;
+            foreach (int m in moves)
             {
-                var index = Array.IndexOf(Legal.TMHM_SWSH, m, 100);
+                int index = Array.IndexOf(Legal.TMHM_SWSH, m, 100);
                 if (index < 100)
                     continue;
                 if (permit[index])
@@ -56,7 +56,7 @@ namespace PKHeX.Core
         {
             if (pk is not PK8 pk8)
                 return;
-            var permit = pk8.PersonalInfo.TMHM;
+            bool[]? permit = pk8.PersonalInfo.TMHM;
             for (int i = 100; i < permit.Length; i++)
             {
                 if (permit[i])

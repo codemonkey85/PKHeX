@@ -62,40 +62,40 @@ namespace PKHeX.Core
             // Stash boxes after the save file's end.
             int stored = SIZE_STOREDBOX;
             int baseDest = Data.Length - SIZE_RESERVED;
-            var capacity = Japanese ? PokeListType.StoredJP : PokeListType.Stored;
+            PokeListType capacity = Japanese ? PokeListType.StoredJP : PokeListType.Stored;
             for (int i = 0; i < BoxCount; i++)
             {
                 int ofs = GetBoxRawDataOffset(i);
-                var box = GetData(ofs, stored);
-                var boxDest = baseDest + (i * SIZE_BOX);
-                var boxPL = new PokeList1(box, capacity, Japanese);
+                byte[]? box = GetData(ofs, stored);
+                int boxDest = baseDest + (i * SIZE_BOX);
+                PokeList1? boxPL = new PokeList1(box, capacity, Japanese);
                 for (int j = 0; j < boxPL.Pokemon.Length; j++)
                 {
-                    var dest = boxDest + (j * SIZE_STORED);
-                    var pkDat = (j < boxPL.Count)
+                    int dest = boxDest + (j * SIZE_STORED);
+                    byte[]? pkDat = (j < boxPL.Count)
                         ? new PokeList1(boxPL[j]).Write()
                         : new byte[PokeList1.GetDataLength(PokeListType.Single, Japanese)];
                     pkDat.CopyTo(Data, dest);
                 }
             }
 
-            var current = GetData(Offsets.CurrentBox, SIZE_STOREDBOX);
-            var curBoxPL = new PokeList1(current, capacity, Japanese);
+            byte[]? current = GetData(Offsets.CurrentBox, SIZE_STOREDBOX);
+            PokeList1? curBoxPL = new PokeList1(current, capacity, Japanese);
             for (int i = 0; i < curBoxPL.Pokemon.Length; i++)
             {
-                var dest = Data.Length - SIZE_RESERVED + (CurrentBox * SIZE_BOX) + (i * SIZE_STORED);
-                var pkDat = i < curBoxPL.Count
+                int dest = Data.Length - SIZE_RESERVED + (CurrentBox * SIZE_BOX) + (i * SIZE_STORED);
+                byte[]? pkDat = i < curBoxPL.Count
                     ? new PokeList1(curBoxPL[i]).Write()
                     : new byte[PokeList1.GetDataLength(PokeListType.Single, Japanese)];
                 pkDat.CopyTo(Data, dest);
             }
 
-            var party = GetData(Offsets.Party, SIZE_STOREDPARTY);
-            var partyPL = new PokeList1(party, PokeListType.Party, Japanese);
+            byte[]? party = GetData(Offsets.Party, SIZE_STOREDPARTY);
+            PokeList1? partyPL = new PokeList1(party, PokeListType.Party, Japanese);
             for (int i = 0; i < partyPL.Pokemon.Length; i++)
             {
-                var dest = GetPartyOffset(i);
-                var pkDat = i < partyPL.Count
+                int dest = GetPartyOffset(i);
+                byte[]? pkDat = i < partyPL.Count
                     ? new PokeList1(partyPL[i]).Write()
                     : new byte[PokeList1.GetDataLength(PokeListType.Single, Japanese)];
                 pkDat.CopyTo(Data, dest);
@@ -128,10 +128,10 @@ namespace PKHeX.Core
 
         protected override byte[] GetFinalData()
         {
-            var capacity = Japanese ? PokeListType.StoredJP : PokeListType.Stored;
+            PokeListType capacity = Japanese ? PokeListType.StoredJP : PokeListType.Stored;
             for (int i = 0; i < BoxCount; i++)
             {
-                var boxPL = new PokeList1(capacity, Japanese);
+                PokeList1? boxPL = new PokeList1(capacity, Japanese);
                 int slot = 0;
                 for (int j = 0; j < boxPL.Pokemon.Length; j++)
                 {
@@ -141,7 +141,7 @@ namespace PKHeX.Core
                 }
 
                 // copy to box location
-                var boxdata = boxPL.Write();
+                byte[]? boxdata = boxPL.Write();
                 int ofs = GetBoxRawDataOffset(i);
                 SetData(boxdata, ofs);
 
@@ -150,7 +150,7 @@ namespace PKHeX.Core
                     SetData(boxdata, Offsets.CurrentBox);
             }
 
-            var partyPL = new PokeList1(PokeListType.Party, Japanese);
+            PokeList1? partyPL = new PokeList1(PokeListType.Party, Japanese);
             int pSlot = 0;
             for (int i = 0; i < 6; i++)
             {

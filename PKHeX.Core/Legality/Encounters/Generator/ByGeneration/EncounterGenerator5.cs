@@ -15,17 +15,17 @@ namespace PKHeX.Core
         {
             int ctr = 0;
 
-            var chain = EncounterOrigin.GetOriginChain(pkm);
+            IReadOnlyList<EvoCriteria>? chain = EncounterOrigin.GetOriginChain(pkm);
             if (pkm.WasEvent || pkm.WasEventEgg)
             {
-                foreach (var z in GetValidGifts(pkm, chain))
+                foreach (MysteryGift? z in GetValidGifts(pkm, chain))
                 { yield return z; ++ctr; }
                 if (ctr != 0) yield break;
             }
 
             if (pkm.WasBredEgg)
             {
-                foreach (var z in GenerateEggs(pkm, 5))
+                foreach (EncounterEgg? z in GenerateEggs(pkm, 5))
                 { yield return z; ++ctr; }
                 if (ctr == 0) yield break;
             }
@@ -33,9 +33,9 @@ namespace PKHeX.Core
             IEncounterable? deferred = null;
             IEncounterable? partial = null;
 
-            foreach (var z in GetValidStaticEncounter(pkm, chain))
+            foreach (EncounterStatic? z in GetValidStaticEncounter(pkm, chain))
             {
-                var match = z.GetMatchRating(pkm);
+                EncounterMatchRating match = z.GetMatchRating(pkm);
                 switch (match)
                 {
                     case Match: yield return z; ++ctr; break;
@@ -45,9 +45,9 @@ namespace PKHeX.Core
             }
             if (ctr != 0) yield break;
 
-            foreach (var z in GetValidWildEncounters(pkm, chain))
+            foreach (EncounterSlot? z in GetValidWildEncounters(pkm, chain))
             {
-                var match = z.GetMatchRating(pkm);
+                EncounterMatchRating match = z.GetMatchRating(pkm);
                 switch (match)
                 {
                     case Match: yield return z; ++ctr; break;
@@ -57,9 +57,9 @@ namespace PKHeX.Core
             }
             if (ctr != 0) yield break;
 
-            foreach (var z in GetValidEncounterTrades(pkm, chain))
+            foreach (EncounterTrade? z in GetValidEncounterTrades(pkm, chain))
             {
-                var match = z.GetMatchRating(pkm);
+                EncounterMatchRating match = z.GetMatchRating(pkm);
                 switch (match)
                 {
                     case Match: yield return z; /*++ctr*/ break;

@@ -42,7 +42,7 @@ namespace PKHeX.Core
             base.ApplyDetails(sav, criteria, pk);
             pk.SetRelearnMoves(Relearn);
 
-            var pk8 = (PK8)pk;
+            PK8? pk8 = (PK8)pk;
             pk8.DynamaxLevel = DynamaxLevel;
             pk8.HT_Language = sav.Language;
             pk8.OT_Memory = OT_Memory;

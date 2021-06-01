@@ -32,7 +32,7 @@ namespace PKHeX.Core
 
         public void MaxCheat(bool special = false)
         {
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             if (special)
             {
                 for (int i = 0; i < PuffSlots; i++)

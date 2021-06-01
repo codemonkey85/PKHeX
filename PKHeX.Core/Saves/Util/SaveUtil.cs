@@ -270,7 +270,7 @@ namespace PKHeX.Core
             int count = data.Length/SIZE_G3RAWHALF;
             for (int slot = 0; slot < count; slot++)
             {
-                if (!SAV3.IsAllMainSectorsPresent(data, slot, out var smallOffset))
+                if (!SAV3.IsAllMainSectorsPresent(data, slot, out int smallOffset))
                     continue;
 
                 // Detect RS/E/FRLG
@@ -318,9 +318,9 @@ namespace PKHeX.Core
 
             // Verify first checksum
             const int offset = 0x2000;
-            var span = new ReadOnlySpan<byte>(data, offset + 4, 0x1FF8);
-            var chk = Checksums.CheckSum16BigInvert(span);
-            var actual = BigEndian.ToUInt32(data, offset);
+            ReadOnlySpan<byte> span = new ReadOnlySpan<byte>(data, offset + 4, 0x1FF8);
+            uint chk = Checksums.CheckSum16BigInvert(span);
+            uint actual = BigEndian.ToUInt32(data, offset);
             return chk == actual ? RSBOX : Invalid;
         }
 
@@ -336,7 +336,7 @@ namespace PKHeX.Core
             const int offset = 0x6000;
             for (int i = 0; i < 3; i++)
             {
-                var ofs = offset + (0x1E000 * i);
+                int ofs = offset + (0x1E000 * i);
                 if (BitConverter.ToUInt32(data, ofs) != 0x00000101)
                     return Invalid;
             }
@@ -355,7 +355,7 @@ namespace PKHeX.Core
             const int offset = 0x6000;
             for (int i = 0; i < 2; i++)
             {
-                var ofs = offset + (0x28000 * i);
+                int ofs = offset + (0x28000 * i);
                 if ((BitConverter.ToUInt32(data, ofs) & 0xFFFE_FFFF) != 0x00000101)
                     return Invalid;
             }
@@ -374,10 +374,10 @@ namespace PKHeX.Core
             // Korean saves have a different timestamp from other localizations.
             bool validSequence(int offset)
             {
-                var size = BitConverter.ToUInt32(data, offset - 0xC);
+                uint size = BitConverter.ToUInt32(data, offset - 0xC);
                 if (size != (offset & 0xFFFF))
                     return false;
-                var sdk = BitConverter.ToUInt32(data, offset - 0x8);
+                uint sdk = BitConverter.ToUInt32(data, offset - 0x8);
 
                 const int DATE_INT = 0x20060623;
                 const int DATE_KO  = 0x20070903;
@@ -501,8 +501,8 @@ namespace PKHeX.Core
         /// <returns>An appropriate type of save file for the given data, or null if the save data is invalid.</returns>
         public static SaveFile? GetVariantSAV(string path)
         {
-            var data = File.ReadAllBytes(path);
-            var sav = GetVariantSAV(data, path);
+            byte[]? data = File.ReadAllBytes(path);
+            SaveFile? sav = GetVariantSAV(data, path);
             if (sav == null)
                 return null;
             sav.Metadata.SetExtraInfo(path);
@@ -516,28 +516,28 @@ namespace PKHeX.Core
         public static SaveFile? GetVariantSAV(byte[] data, string? path = null)
         {
 #if !EXCLUDE_HACKS
-            foreach (var h in CustomSaveReaders)
+            foreach (ISaveReader? h in CustomSaveReaders)
             {
                 if (!h.IsRecognized(data.Length))
                     continue;
 
-                var custom = h.ReadSaveFile(data, path);
+                SaveFile? custom = h.ReadSaveFile(data, path);
                 if (custom != null)
                     return custom;
             }
 #endif
 
-            var sav = GetVariantSAVInternal(data);
+            SaveFile? sav = GetVariantSAVInternal(data);
             if (sav != null)
                 return sav;
 
 #if !EXCLUDE_EMULATOR_FORMATS
-            foreach (var h in Handlers)
+            foreach (ISaveHandler? h in Handlers)
             {
                 if (!h.IsRecognized(data.Length))
                     continue;
 
-                var split = h.TrySplit(data);
+                SaveHandlerSplitResult? split = h.TrySplit(data);
                 if (split == null)
                     continue;
 
@@ -556,7 +556,7 @@ namespace PKHeX.Core
 
         private static SaveFile? GetVariantSAVInternal(byte[] data)
         {
-            var type = GetSAVType(data);
+            GameVersion type = GetSAVType(data);
             return type switch
             {
                 // Main Games
@@ -611,7 +611,7 @@ namespace PKHeX.Core
             if (data.Length == 0)
                 return null;
 
-            var split = DolphinHandler.TrySplit(data);
+            SaveHandlerSplitResult? split = DolphinHandler.TrySplit(data);
             if (split != null)
                 data = split.Data;
 
@@ -660,7 +660,7 @@ namespace PKHeX.Core
         /// <returns>Blank save file from the requested game, null if no game exists for that <see cref="GameVersion"/>.</returns>
         public static SaveFile GetBlankSAV(GameVersion game, string trainerName, LanguageID language = LanguageID.English)
         {
-            var sav = GetBlankSAV(game, language);
+            SaveFile? sav = GetBlankSAV(game, language);
             sav.Game = (int)game;
             sav.OT = trainerName;
             if (sav.Generation >= 4)
@@ -740,7 +740,7 @@ namespace PKHeX.Core
         /// <returns>Save File for that generation.</returns>
         public static SaveFile GetBlankSAV(int generation, string trainerName, LanguageID language = LanguageID.English)
         {
-            var ver = GameUtil.GetVersion(generation);
+            GameVersion ver = GameUtil.GetVersion(generation);
             return GetBlankSAV(ver, trainerName, language);
         }
 
@@ -760,10 +760,10 @@ namespace PKHeX.Core
             }
             try
             {
-                var searchOption = deep ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+                SearchOption searchOption = deep ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
                 // force evaluation so that an invalid path will throw before we return true/false.
                 // EnumerateFiles throws an exception while iterating, which won't be caught by the try-catch here.
-                var files = Directory.GetFiles(folderPath, "*", searchOption);
+                string[]? files = Directory.GetFiles(folderPath, "*", searchOption);
                 result = files.Where(f => IsSizeValid(FileUtil.GetFileSize(f)));
                 return true;
             }

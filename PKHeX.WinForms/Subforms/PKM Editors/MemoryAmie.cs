@@ -25,7 +25,7 @@ namespace PKHeX.WinForms
                 comboBox.InitializeBinding();
                 Main.SetCountrySubRegion(comboBox, "countries");
             }
-            foreach (var region in PrevRegions)
+            foreach (ComboBox? region in PrevRegions)
                 region.InitializeBinding();
             GetLangStrings();
             LoadFields();
@@ -213,21 +213,21 @@ namespace PKHeX.WinForms
 
         private void GetLangStrings()
         {
-            var strings = MemStrings;
+            MemoryStrings? strings = MemStrings;
             CB_OTMemory.InitializeBinding();
             CB_CTMemory.InitializeBinding();
             CB_OTMemory.DataSource = new BindingSource(strings.Memory, null);
             CB_CTMemory.DataSource = new BindingSource(strings.Memory, null);
 
             // Quality Chooser
-            foreach (var q in strings.GetMemoryQualities())
+            foreach (string? q in strings.GetMemoryQualities())
             {
                 CB_CTQual.Items.Add(q);
                 CB_OTQual.Items.Add(q);
             }
 
             // Feeling Chooser
-            foreach (var q in strings.GetMemoryFeelings(pkm.Format))
+            foreach (string? q in strings.GetMemoryFeelings(pkm.Format))
             {
                 CB_CTFeel.Items.Add(q);
                 CB_OTFeel.Items.Add(q);
@@ -239,8 +239,8 @@ namespace PKHeX.WinForms
             if (sender == CB_CTMemory)
             {
                 int memory = WinFormsUtil.GetIndex((ComboBox)sender);
-                var memIndex = Memories.GetMemoryArgType(memory, pkm.Generation);
-                var argvals = MemStrings.GetArgumentStrings(memIndex);
+                MemoryArgType memIndex = Memories.GetMemoryArgType(memory, pkm.Generation);
+                System.Collections.Generic.List<ComboItem>? argvals = MemStrings.GetArgumentStrings(memIndex);
                 CB_CTVar.InitializeBinding();
                 CB_CTVar.DataSource = new BindingSource(argvals, null);
                 LCTV.Text = TextArgs.GetMemoryCategory(memIndex, pkm.Generation);
@@ -249,8 +249,8 @@ namespace PKHeX.WinForms
             else
             {
                 int memory = WinFormsUtil.GetIndex((ComboBox)sender);
-                var memIndex = Memories.GetMemoryArgType(memory, pkm.Format);
-                var argvals = MemStrings.GetArgumentStrings(memIndex);
+                MemoryArgType memIndex = Memories.GetMemoryArgType(memory, pkm.Format);
+                System.Collections.Generic.List<ComboItem>? argvals = MemStrings.GetArgumentStrings(memIndex);
                 CB_OTVar.InitializeBinding();
                 CB_OTVar.DataSource = new BindingSource(argvals, null);
                 LOTV.Text = TextArgs.GetMemoryCategory(memIndex, pkm.Format);

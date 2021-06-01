@@ -18,13 +18,13 @@ namespace PKHeX.Core
         /// <returns>Consumable list of gifts.</returns>
         public static IEnumerable<MysteryGift> GetGiftsFromFolder(string folder)
         {
-            foreach (var file in Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories))
+            foreach (string? file in Directory.EnumerateFiles(folder, "*", SearchOption.AllDirectories))
             {
-                var fi = new FileInfo(file);
+                FileInfo? fi = new FileInfo(file);
                 if (!MysteryGift.IsMysteryGift(fi.Length))
                     continue;
 
-                var gift = MysteryGift.GetMysteryGift(File.ReadAllBytes(file), fi.Extension);
+                DataMysteryGift? gift = MysteryGift.GetMysteryGift(File.ReadAllBytes(file), fi.Extension);
                 if (gift != null)
                     yield return gift;
             }
@@ -48,7 +48,7 @@ namespace PKHeX.Core
             if (gift.Empty)
                 return new[] { MsgMysteryGiftSlotEmpty };
 
-            var result = new List<string> { gift.CardHeader };
+            List<string>? result = new List<string> { gift.CardHeader };
             if (gift.IsItem)
             {
                 AddLinesItem(gift, strings, result);
@@ -93,7 +93,7 @@ namespace PKHeX.Core
             if (gift is not WC7 wc7)
                 return;
 
-            for (var ind = 1; wc7.GetItem(ind) != 0; ind++)
+            for (int ind = 1; wc7.GetItem(ind) != 0; ind++)
             {
                 result.Add($"Item: {strings.Item[wc7.GetItem(ind)]} (Quantity: {wc7.GetQuantity(ind)})");
             }
@@ -101,9 +101,9 @@ namespace PKHeX.Core
 
         private static void AddLinesPKM(MysteryGift gift, IBasicStrings strings, ICollection<string> result)
         {
-            var id = gift.Generation < 7 ? $"{gift.TID:D5}/{gift.SID:D5}" : $"[{gift.TrainerSID7:D4}]{gift.TrainerID7:D6}";
+            string? id = gift.Generation < 7 ? $"{gift.TID:D5}/{gift.SID:D5}" : $"[{gift.TrainerSID7:D4}]{gift.TrainerID7:D6}";
 
-            var first =
+            string? first =
                 $"{strings.Species[gift.Species]} @ {strings.Item[gift.HeldItem >= 0 ? gift.HeldItem : 0]}  --- "
                 + (gift.IsEgg ? strings.EggName : $"{gift.OT_Name} - {id}");
             result.Add(first);
@@ -111,7 +111,7 @@ namespace PKHeX.Core
 
             if (gift is WC7 wc7)
             {
-                var addItem = wc7.AdditionalItem;
+                ushort addItem = wc7.AdditionalItem;
                 if (addItem != 0)
                     result.Add($"+ {strings.Item[addItem]}");
             }

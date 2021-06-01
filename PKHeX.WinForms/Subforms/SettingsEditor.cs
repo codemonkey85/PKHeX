@@ -16,7 +16,7 @@ namespace PKHeX.WinForms
 
             if (obj is PKHeXSettings s)
             {
-                var noSelectVersions = new[] {GameVersion.GO};
+                GameVersion[]? noSelectVersions = new[] {GameVersion.GO};
                 CB_Blank.InitializeBinding();
                 CB_Blank.DataSource = GameInfo.VersionDataSource.Where(z => !noSelectVersions.Contains((GameVersion)z.Value)).ToList();
                 CB_Blank.SelectedValue = (int) s.Startup.DefaultSaveVersion;
@@ -34,16 +34,16 @@ namespace PKHeX.WinForms
 
         private void LoadSettings(object obj)
         {
-            var type = obj.GetType();
-            var props = ReflectUtil.GetPropertiesCanWritePublicDeclared(type);
-            foreach (var p in props)
+            Type? type = obj.GetType();
+            System.Collections.Generic.IEnumerable<string>? props = ReflectUtil.GetPropertiesCanWritePublicDeclared(type);
+            foreach (string? p in props)
             {
-                var state = ReflectUtil.GetValue(obj, p);
+                object? state = ReflectUtil.GetValue(obj, p);
                 if (state is null)
                     continue;
 
-                var tab = new TabPage(p);
-                var pg = new PropertyGrid { SelectedObject = state, Dock = DockStyle.Fill };
+                TabPage? tab = new TabPage(p);
+                PropertyGrid? pg = new PropertyGrid { SelectedObject = state, Dock = DockStyle.Fill };
                 tab.Controls.Add(pg);
                 tabControl1.TabPages.Add(tab);
             }
@@ -59,10 +59,10 @@ namespace PKHeX.WinForms
         {
             try
             {
-                var dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, "Resetting settings requires the program to exit.", MessageStrings.MsgContinue);
+                DialogResult dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, "Resetting settings requires the program to exit.", MessageStrings.MsgContinue);
                 if (dr != DialogResult.Yes)
                     return;
-                var path = Main.ConfigPath;
+                string? path = Main.ConfigPath;
                 if (File.Exists(path))
                     File.Delete(path);
                 System.Diagnostics.Process.Start(Application.ExecutablePath);

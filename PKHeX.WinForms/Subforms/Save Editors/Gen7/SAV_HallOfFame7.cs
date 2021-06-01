@@ -21,11 +21,11 @@ namespace PKHeX.WinForms
                 CB_C1, CB_C2, CB_C3, CB_C4, CB_C5, CB_C6,
             };
 
-            var block = SAV.Fame;
-            var specList = GameInfo.SpeciesDataSource.Where(s => s.Value <= SAV.MaxSpeciesID).ToList();
+            HallOfFame7? block = SAV.Fame;
+            System.Collections.Generic.List<ComboItem>? specList = GameInfo.SpeciesDataSource.Where(s => s.Value <= SAV.MaxSpeciesID).ToList();
             for (int i = 0; i < entries.Length; i++)
             {
-                var cb = entries[i];
+                ComboBox? cb = entries[i];
                 cb.Items.Clear();
                 cb.InitializeBinding();
                 cb.DataSource = new BindingSource(specList, null);
@@ -42,7 +42,7 @@ namespace PKHeX.WinForms
 
         private void B_Close_Click(object sender, EventArgs e)
         {
-            var block = SAV.Fame;
+            HallOfFame7? block = SAV.Fame;
             for (int i = 0; i < entries.Length; i++)
                 block.SetEntry(i, (ushort)WinFormsUtil.GetIndex(entries[i]));
 

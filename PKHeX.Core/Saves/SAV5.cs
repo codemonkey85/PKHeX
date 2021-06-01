@@ -106,7 +106,7 @@ namespace PKHeX.Core
 
         protected override void SetPKM(PKM pkm, bool isParty = false)
         {
-            var pk5 = (PK5)pkm;
+            PK5? pk5 = (PK5)pkm;
             // Apply to this Save File
             DateTime Date = DateTime.Now;
             if (pk5.Trade(OT, TID, SID, Gender, Date.Day, Date.Month, Date.Year))
@@ -168,7 +168,7 @@ namespace PKHeX.Core
                 SetData(bgdata, CGearDataOffset);
 
                 ushort chk = Checksums.CRC16_CCITT(bgdata);
-                var chkbytes = BitConverter.GetBytes(chk);
+                byte[]? chkbytes = BitConverter.GetBytes(chk);
                 int footer = CGearDataOffset + bgdata.Length;
 
                 BitConverter.GetBytes((ushort)1).CopyTo(Data, footer); // block updated once
@@ -211,7 +211,7 @@ namespace PKHeX.Core
         public Mail GetMail(int i)
         {
             int ofs = GetMailOffset(i);
-            var data = GetMailData(ofs);
+            byte[]? data = GetMailData(ofs);
             return new Mail5(data, ofs);
         }
     }

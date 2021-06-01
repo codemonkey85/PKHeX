@@ -59,11 +59,11 @@ namespace PKHeX.Core.Searching
         /// <returns>Search results that match all criteria</returns>
         public IEnumerable<PKM> Search(IEnumerable<PKM> list)
         {
-            var result = SearchSimple(list);
+            IEnumerable<PKM>? result = SearchSimple(list);
             result = SearchIntermediate(result);
             result = SearchComplex(result);
 
-            foreach (var filter in ExtraFilters)
+            foreach (Func<PKM, bool>? filter in ExtraFilters)
                 result = result.Where(filter);
 
             if (SearchClones != CloneDetectionMethod.None)
@@ -159,7 +159,7 @@ namespace PKHeX.Core.Searching
 
         private static GameVersion GetFallbackVersion(ITrainerInfo sav)
         {
-            var parent = GameUtil.GetMetLocationVersionGroup((GameVersion)sav.Game);
+            GameVersion parent = GameUtil.GetMetLocationVersionGroup((GameVersion)sav.Game);
             if (parent == GameVersion.Invalid)
                 parent = GameUtil.GetMetLocationVersionGroup(GameUtil.GetVersion(sav.Generation));
             return parent;

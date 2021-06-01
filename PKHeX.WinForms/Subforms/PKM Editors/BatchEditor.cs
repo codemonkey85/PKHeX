@@ -39,7 +39,7 @@ namespace PKHeX.WinForms
         private void B_Open_Click(object sender, EventArgs e)
         {
             if (!B_Go.Enabled) return;
-            using var fbd = new FolderBrowserDialog();
+            using FolderBrowserDialog? fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() != DialogResult.OK)
                 return;
 
@@ -63,7 +63,7 @@ namespace PKHeX.WinForms
             if (CB_Property.SelectedIndex < 0)
             { WinFormsUtil.Alert(MsgBEPropertyInvalid); return; }
 
-            var prefix = StringInstruction.Prefixes;
+            IReadOnlyList<char>? prefix = StringInstruction.Prefixes;
             string s = prefix[CB_Require.SelectedIndex] + CB_Property.Items[CB_Property.SelectedIndex].ToString() + StringInstruction.SplitInstruction;
             if (RTB_Instructions.Lines.Length != 0 && RTB_Instructions.Lines.Last().Length > 0)
                 s = Environment.NewLine + s;
@@ -86,7 +86,7 @@ namespace PKHeX.WinForms
         private void CB_Property_SelectedIndexChanged(object sender, EventArgs e)
         {
             L_PropType.Text = BatchEditing.GetPropertyType(CB_Property.Text, CB_Format.SelectedIndex);
-            if (BatchEditing.TryGetHasProperty(pkm, CB_Property.Text, out var pi))
+            if (BatchEditing.TryGetHasProperty(pkm, CB_Property.Text, out System.Reflection.PropertyInfo? pi))
             {
                 L_PropValue.Text = pi.GetValue(pkm)?.ToString();
                 L_PropType.ForeColor = L_PropValue.ForeColor; // reset color
@@ -121,14 +121,14 @@ namespace PKHeX.WinForms
             if (RTB_Instructions.Lines.Any(line => line.Length == 0))
             { WinFormsUtil.Error(MsgBEInstructionInvalid); return; }
 
-            var sets = StringInstructionSet.GetBatchSets(RTB_Instructions.Lines).ToArray();
+            StringInstructionSet[]? sets = StringInstructionSet.GetBatchSets(RTB_Instructions.Lines).ToArray();
             if (sets.Any(s => s.Filters.Any(z => string.IsNullOrWhiteSpace(z.PropertyValue))))
             { WinFormsUtil.Error(MsgBEFilterEmpty); return; }
 
             if (sets.Any(z => z.Instructions.Count == 0))
             { WinFormsUtil.Error(MsgBEInstructionNone); return; }
 
-            var emptyVal = sets.SelectMany(s => s.Instructions.Where(z => string.IsNullOrWhiteSpace(z.PropertyValue))).ToArray();
+            StringInstruction[]? emptyVal = sets.SelectMany(s => s.Instructions.Where(z => string.IsNullOrWhiteSpace(z.PropertyValue))).ToArray();
             if (emptyVal.Length > 0)
             {
                 string props = string.Join(", ", emptyVal.Select(z => z.PropertyName));
@@ -141,8 +141,8 @@ namespace PKHeX.WinForms
             if (RB_Path.Checked)
             {
                 WinFormsUtil.Alert(MsgExportFolder, MsgExportFolderAdvice);
-                using var fbd = new FolderBrowserDialog();
-                var dr = fbd.ShowDialog();
+                using FolderBrowserDialog? fbd = new FolderBrowserDialog();
+                DialogResult dr = fbd.ShowDialog();
                 if (dr != DialogResult.OK)
                     return;
 
@@ -151,7 +151,7 @@ namespace PKHeX.WinForms
 
             FLP_RB.Enabled = RTB_Instructions.Enabled = B_Go.Enabled = false;
 
-            foreach (var set in sets)
+            foreach (StringInstructionSet? set in sets)
             {
                 BatchEditing.ScreenStrings(set.Filters);
                 BatchEditing.ScreenStrings(set.Instructions);
@@ -189,9 +189,9 @@ namespace PKHeX.WinForms
 
         private void RunBatchEditFolder(IReadOnlyCollection<StringInstructionSet> sets, string source, string destination)
         {
-            var files = Directory.GetFiles(source, "*", SearchOption.AllDirectories);
+            string[]? files = Directory.GetFiles(source, "*", SearchOption.AllDirectories);
             SetupProgressBar(files.Length * sets.Count);
-            foreach (var set in sets)
+            foreach (StringInstructionSet? set in sets)
                 ProcessFolder(files, set.Filters, set.Instructions, destination);
         }
 
@@ -205,7 +205,7 @@ namespace PKHeX.WinForms
             bool process(IList<PKM> d)
             {
                 SetupProgressBar(d.Count * sets.Count);
-                foreach (var set in sets)
+                foreach (StringInstructionSet? set in sets)
                     ProcessSAV(d, set.Filters, set.Instructions);
                 return d.Count != 0;
             }
@@ -252,13 +252,13 @@ namespace PKHeX.WinForms
 
         private void TryProcess(IReadOnlyList<StringInstruction> Filters, IReadOnlyList<StringInstruction> Instructions, string source, string dest)
         {
-            var fi = new FileInfo(source);
+            FileInfo? fi = new FileInfo(source);
             if (!PKX.IsPKM(fi.Length))
                 return;
 
             int format = PKX.GetPKMFormatFromExtension(fi.Extension, SAV.Generation);
             byte[] data = File.ReadAllBytes(source);
-            var pk = PKMConverter.GetPKMfromBytes(data, prefer: format);
+            PKM? pk = PKMConverter.GetPKMfromBytes(data, prefer: format);
             if (pk == null)
                 return;
 

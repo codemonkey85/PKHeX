@@ -349,7 +349,7 @@ namespace PKHeX.WinForms.Controls
         // Misc
         private static void CheckTransferPIDValid(PKM pk)
         {
-            var ver = pk.Version;
+            int ver = pk.Version;
             if (ver is 0 or >= (int)GameVersion.X) // Gen6+ ignored
                 return;
 
@@ -379,20 +379,20 @@ namespace PKHeX.WinForms.Controls
 
         private void LoadAbility4(PKM pk)
         {
-            var index = GetAbilityIndex4(pk);
+            int index = GetAbilityIndex4(pk);
             CB_Ability.SelectedIndex = Math.Min(CB_Ability.Items.Count - 1, index);
         }
 
         private static int GetAbilityIndex4(PKM pk)
         {
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             int abilityIndex = pi.GetAbilityIndex(pk.Ability);
             if (abilityIndex < 0)
                 return 0;
             if (abilityIndex >= 2)
                 return 2;
 
-            var abils = pi.Abilities;
+            System.Collections.Generic.IReadOnlyList<int>? abils = pi.Abilities;
             if (abils[0] == abils[1])
                 return pk.PIDAbility;
             return abilityIndex;

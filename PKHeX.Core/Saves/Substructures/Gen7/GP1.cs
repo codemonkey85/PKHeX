@@ -26,7 +26,7 @@ namespace PKHeX.Core
 
         public static GP1 FromData(byte[] data, int offset)
         {
-            var gpkm = new GP1();
+            GP1? gpkm = new GP1();
             Array.Copy(data, offset, gpkm.Data, 0, SIZE);
             return gpkm;
         }
@@ -67,9 +67,9 @@ namespace PKHeX.Core
         {
             get
             {
-                var height = HeightF * 100f;
-                var pi = PersonalTable.GG.GetFormEntry(Species, Form);
-                var avgHeight = pi.Height;
+                float height = HeightF * 100f;
+                PersonalInfo? pi = PersonalTable.GG.GetFormEntry(Species, Form);
+                int avgHeight = pi.Height;
                 return PB7.GetHeightScalar(height, avgHeight);
             }
         }
@@ -78,11 +78,11 @@ namespace PKHeX.Core
         {
             get
             {
-                var height = HeightF * 100f;
-                var weight = WeightF * 10f;
-                var pi = PersonalTable.GG.GetFormEntry(Species, Form);
-                var avgHeight = pi.Height;
-                var avgWeight = pi.Weight;
+                float height = HeightF * 100f;
+                float weight = WeightF * 10f;
+                PersonalInfo? pi = PersonalTable.GG.GetFormEntry(Species, Form);
+                int avgHeight = pi.Height;
+                int avgWeight = pi.Weight;
                 return PB7.GetWeightScalar(height, weight, avgHeight, avgWeight);
             }
         }
@@ -133,7 +133,7 @@ namespace PKHeX.Core
 
         public PB7 ConvertToPB7(ITrainerInfo sav, EncounterCriteria criteria)
         {
-            var pk = new PB7
+            PB7? pk = new PB7
             {
                 Version = (int) GameVersion.GO,
                 Species = Species,
@@ -152,7 +152,7 @@ namespace PKHeX.Core
                 PID = Util.Rand32(),
             };
 
-            var nick = Nickname;
+            string? nick = Nickname;
             if (!string.IsNullOrWhiteSpace(nick))
             {
                 pk.Nickname = nick;
@@ -168,7 +168,7 @@ namespace PKHeX.Core
             pk.IV_HP = (IV_HP * 2) + 1;
             pk.IV_SPE = Util.Rand.Next(32);
 
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             const int av = 3;
             pk.Gender = criteria.GetGender(Gender, pi);
             pk.Nature = (int)criteria.GetNature(Nature.Random);
@@ -180,7 +180,7 @@ namespace PKHeX.Core
             else if (isShiny)
                 pk.PID ^= 0x1000_0000;
 
-            var moves = MoveLevelUp.GetEncounterMoves(pk, Level, GameVersion.GO);
+            int[]? moves = MoveLevelUp.GetEncounterMoves(pk, Level, GameVersion.GO);
             pk.Moves = moves;
             pk.SetMaximumPPCurrent(moves);
             pk.OT_Friendship = pk.PersonalInfo.BaseFriendship;

@@ -22,11 +22,11 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetString3(byte[] data, int offset, int count, bool jp)
         {
-            var s = new StringBuilder(count);
+            StringBuilder? s = new StringBuilder(count);
             for (int i = 0; i < count; i++)
             {
-                var val = data[offset + i];
-                var c = GetG3Char(val, jp); // Convert to Unicode
+                byte val = data[offset + i];
+                char c = GetG3Char(val, jp); // Convert to Unicode
                 if (c == Terminator) // Stop if Terminator/Invalid
                     break;
                 s.Append(c);
@@ -48,11 +48,11 @@ namespace PKHeX.Core
         {
             if (value.Length > maxLength)
                 value = value[..maxLength]; // Hard cap
-            var data = new byte[value.Length + 1]; // +1 for Terminator
+            byte[]? data = new byte[value.Length + 1]; // +1 for Terminator
             for (int i = 0; i < value.Length; i++)
             {
-                var chr = value[i];
-                var val = SetG3Char(chr, jp);
+                char chr = value[i];
+                byte val = SetG3Char(chr, jp);
                 if (val == Terminator) // end
                 {
                     Array.Resize(ref data, i + 1);
@@ -70,7 +70,7 @@ namespace PKHeX.Core
             }
             if (data.Length < padTo)
             {
-                var start = data.Length;
+                int start = data.Length;
                 Array.Resize(ref data, padTo);
                 for (int i = start; i < data.Length; i++)
                     data[i] = (byte)padWith;
@@ -85,8 +85,8 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetBEString3(byte[] data, int offset, int count)
         {
-            var raw = Encoding.BigEndianUnicode.GetString(data, offset, count);
-            var sb = new StringBuilder(raw);
+            string? raw = Encoding.BigEndianUnicode.GetString(data, offset, count);
+            StringBuilder? sb = new StringBuilder(raw);
             Util.TrimFromFirst(sb, TerminatorBigEndian);
             return sb.ToString();
         }
@@ -101,13 +101,13 @@ namespace PKHeX.Core
         {
             if (value.Length > maxLength)
                 value = value[..maxLength]; // Hard cap
-            var sb = new StringBuilder(value);
+            StringBuilder? sb = new StringBuilder(value);
             StringConverter.SanitizeString(sb);
             sb.Append(TerminatorBigEndian);
-            var delta = padTo - value.Length;
+            int delta = padTo - value.Length;
             if (delta > 0)
                 sb.Append((char)padWith, delta);
-            var result = sb.ToString();
+            string? result = sb.ToString();
             return Encoding.BigEndianUnicode.GetBytes(result);
         }
 
@@ -119,7 +119,7 @@ namespace PKHeX.Core
         /// <returns>Generation 3 encoded value.</returns>
         private static char GetG3Char(byte chr, bool jp)
         {
-            var table = jp ? G3_JP : G3_EN;
+            char[]? table = jp ? G3_JP : G3_EN;
             return table[chr];
         }
 
@@ -133,8 +133,8 @@ namespace PKHeX.Core
         {
             if (chr == '\'') // ’
                 return 0xB4;
-            var table = jp ? G3_JP : G3_EN;
-            var index = Array.IndexOf(table, chr);
+            char[]? table = jp ? G3_JP : G3_EN;
+            int index = Array.IndexOf(table, chr);
             if (index == -1)
                 return TerminatorByte;
             return (byte)index;

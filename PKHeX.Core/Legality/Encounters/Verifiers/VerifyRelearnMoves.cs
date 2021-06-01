@@ -48,9 +48,9 @@ namespace PKHeX.Core
         private static CheckResult[] VerifyRelearnDexNav(PKM pkm, CheckResult[] result)
         {
             // DexNav Pokémon can have 1 random egg move as a relearn move.
-            var baseSpec = EvoBase.GetBaseSpecies(pkm);
-            var firstRelearn = pkm.RelearnMove1;
-            var eggMoves = MoveEgg.GetEggMoves(6, baseSpec.Species, baseSpec.Form, GameVersion.OR);
+            EvoCriteria? baseSpec = EvoBase.GetBaseSpecies(pkm);
+            int firstRelearn = pkm.RelearnMove1;
+            int[]? eggMoves = MoveEgg.GetEggMoves(6, baseSpec.Species, baseSpec.Form, GameVersion.OR);
             result[0] = Array.IndexOf(eggMoves, firstRelearn) == -1 // not found
                 ? new CheckResult(Severity.Invalid, LMoveRelearnDexNav, CheckIdentifier.RelearnMove)
                 : DummyValid;
@@ -76,23 +76,23 @@ namespace PKHeX.Core
         internal static CheckResult[] VerifyEggMoveset(EncounterEgg e, CheckResult[] result, int[] moves, CheckIdentifier type = CheckIdentifier.RelearnMove)
         {
             int gen = e.Generation;
-            var origins = MoveBreed.Process(gen, e.Species, e.Form, e.Version, moves, out var valid);
+            object? origins = MoveBreed.Process(gen, e.Species, e.Form, e.Version, moves, out bool valid);
             if (valid)
             {
                 for (int i = 0; i < result.Length; i++)
                 {
-                    var msg = EggSourceUtil.GetSource(origins, gen, i);
+                    string? msg = EggSourceUtil.GetSource(origins, gen, i);
                     result[i] = new CheckMoveResult(MoveSource.EggMove, gen, Severity.Valid, msg, type);
                 }
             }
             else
             {
-                var expected = MoveBreed.GetExpectedMoves(moves, e);
+                int[]? expected = MoveBreed.GetExpectedMoves(moves, e);
                 origins = MoveBreed.Process(gen, e.Species, e.Form, e.Version, expected, out _);
                 for (int i = 0; i < moves.Length; i++)
                 {
-                    var msg = EggSourceUtil.GetSource(origins, gen, i);
-                    var expect = expected[i];
+                    string? msg = EggSourceUtil.GetSource(origins, gen, i);
+                    int expect = expected[i];
                     CheckMoveResult line;
                     if (moves[i] == expect)
                     {
@@ -107,7 +107,7 @@ namespace PKHeX.Core
                 }
             }
 
-            var dupe = IsAnyMoveDuplicate(moves);
+            int dupe = IsAnyMoveDuplicate(moves);
             if (dupe != NO_DUPE)
                 result[dupe] = new CheckMoveResult(MoveSource.EggMove, gen, Severity.Invalid, LMoveSourceDuplicate, type);
             return result;

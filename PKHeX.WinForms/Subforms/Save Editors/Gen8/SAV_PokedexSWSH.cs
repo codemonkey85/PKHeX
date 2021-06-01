@@ -26,8 +26,8 @@ namespace PKHeX.WinForms
             WinFormsUtil.TranslateInterface(this, Main.CurrentLanguage);
             SAV = (SAV8SWSH)(Origin = sav).Clone();
             Dex = SAV.Blocks.Zukan;
-            var indexes = Zukan8.GetRawIndexes(PersonalTable.SWSH, Dex.GetRevision());
-            var speciesNames = GameInfo.Strings.Species;
+            List<Zukan8EntryInfo>? indexes = Zukan8.GetRawIndexes(PersonalTable.SWSH, Dex.GetRevision());
+            IReadOnlyList<string>? speciesNames = GameInfo.Strings.Species;
             Indexes = indexes.OrderBy(z => z.GetEntryName(speciesNames)).ToArray();
             CL = new[] {CHK_L1, CHK_L2, CHK_L3, CHK_L4, CHK_L5, CHK_L6, CHK_L7, CHK_L8, CHK_L9};
             CHK = new[] {CLB_1, CLB_2, CLB_3, CLB_4};
@@ -36,7 +36,7 @@ namespace PKHeX.WinForms
             // Clear Listbox and ComboBox
             LB_Species.Items.Clear();
             CB_Species.Items.Clear();
-            foreach (var c in CHK)
+            foreach (CheckedListBox? c in CHK)
             {
                 c.Items.Clear();
                 for (int j = 0; j < 63; j++)
@@ -46,11 +46,11 @@ namespace PKHeX.WinForms
 
             // Fill List
             CB_Species.InitializeBinding();
-            var species = GameInfo.FilteredSources.Species.Where(z => Dex.DexLookup.ContainsKey(z.Value)).ToArray();
+            ComboItem[]? species = GameInfo.FilteredSources.Species.Where(z => Dex.DexLookup.ContainsKey(z.Value)).ToArray();
             CB_Species.DataSource = new BindingSource(species, null);
 
-            var names = Indexes.Select(z => z.GetEntryName(speciesNames) + (Dex.DexLookup[z.Species].DexType == z.Entry.DexType ? string.Empty : "***"));
-            foreach (var n in names)
+            IEnumerable<string>? names = Indexes.Select(z => z.GetEntryName(speciesNames) + (Dex.DexLookup[z.Species].DexType == z.Entry.DexType ? string.Empty : "***"));
+            foreach (string? n in names)
                 LB_Species.Items.Add(n);
 
             Loading = false;
@@ -64,11 +64,11 @@ namespace PKHeX.WinForms
             if (Loading)
                 return;
 
-            var species = WinFormsUtil.GetIndex(CB_Species);
-            if (!Dex.DexLookup.TryGetValue(species, out var info))
+            int species = WinFormsUtil.GetIndex(CB_Species);
+            if (!Dex.DexLookup.TryGetValue(species, out Zukan8Index info))
                 throw new ArgumentException(nameof(species));
 
-            var index = info.AbsoluteIndex - 1;
+            int index = info.AbsoluteIndex - 1;
             if (LB_Species.SelectedIndex != index)
                 LB_Species.SelectedIndex = index; // trigger event
         }
@@ -85,23 +85,23 @@ namespace PKHeX.WinForms
 
         private void GetEntry(int index)
         {
-            var entry = Indexes[index].Entry;
+            Zukan8Index entry = Indexes[index].Entry;
             if (entry.DexType == Zukan8Type.None)
                 return;
 
-            var species = Indexes[index].Species;
-            var forms = GetFormList(species);
+            int species = Indexes[index].Species;
+            string[]? forms = GetFormList(species);
             if (forms[0].Length == 0)
                 forms[0] = GameInfo.Strings.Types[0];
 
             for (int i = 0; i < CHK.Length; i++)
             {
-                var c = CHK[i];
+                CheckedListBox? c = CHK[i];
                 for (int j = 0; j < 64; j++)
                 {
                     if (j < 63)
                         c.Items[j] = $"{j:00} - {(j < forms.Length ? forms[j] : "N/A")}";
-                    var val = Dex.GetSeenRegion(entry, j, i);
+                    bool val = Dex.GetSeenRegion(entry, j, i);
                     c.SetItemChecked(j, val);
                 }
 
@@ -142,7 +142,7 @@ namespace PKHeX.WinForms
 
         private static string[] GetFormList(in int species)
         {
-            var s = GameInfo.Strings;
+            GameStrings? s = GameInfo.Strings;
             if (species == (int)Species.Alcremie)
                 return FormConverter.GetAlcremieFormList(s.forms);
             return FormConverter.GetFormList(species, s.Types, s.forms, GameInfo.GenderSymbolASCII, 8).ToArray();
@@ -153,16 +153,16 @@ namespace PKHeX.WinForms
             if (!CanSave || Loading || index < 0)
                 return;
 
-            var entry = Indexes[index].Entry;
+            Zukan8Index entry = Indexes[index].Entry;
             if (entry.DexType == Zukan8Type.None)
                 return;
 
             for (int i = 0; i < CHK.Length; i++)
             {
-                var c = CHK[i];
+                CheckedListBox? c = CHK[i];
                 for (int j = 0; j < 64; j++)
                 {
-                    var val = c.GetItemChecked(j);
+                    bool val = c.GetItemChecked(j);
                     Dex.SetSeenRegion(entry, j, i, val);
                 }
             }
@@ -200,7 +200,7 @@ namespace PKHeX.WinForms
         {
             SetEntry(lastIndex);
             bool shiny = ModifierKeys == Keys.Shift;
-            var species = Indexes[lastIndex].Species;
+            int species = Indexes[lastIndex].Species;
             Dex.SetDexEntryAll(species, shiny);
             System.Media.SystemSounds.Asterisk.Play();
             GetEntry(lastIndex);

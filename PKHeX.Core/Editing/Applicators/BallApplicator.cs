@@ -20,8 +20,8 @@ namespace PKHeX.Core
         /// <returns>Enumerable list of <see cref="Ball"/> values that the <see cref="PKM"/> is legal with.</returns>
         public static IEnumerable<Ball> GetLegalBalls(PKM pkm)
         {
-            var clone = pkm.Clone();
-            foreach (var b in BallList)
+            PKM? clone = pkm.Clone();
+            foreach (Ball b in BallList)
             {
                 clone.Ball = (int)b;
                 if (new LegalityAnalysis(clone).Valid)
@@ -38,7 +38,7 @@ namespace PKHeX.Core
         /// <param name="pkm">Pokémon to modify.</param>
         public static int ApplyBallLegalRandom(PKM pkm)
         {
-            var balls = GetBallListFromColor(pkm).ToArray();
+            Ball[]? balls = GetBallListFromColor(pkm).ToArray();
             Util.Shuffle(balls);
             return ApplyFirstLegalBall(pkm, balls);
         }
@@ -52,7 +52,7 @@ namespace PKHeX.Core
         /// <param name="pkm">Pokémon to modify.</param>
         public static int ApplyBallLegalByColor(PKM pkm)
         {
-            var balls = GetBallListFromColor(pkm);
+            IEnumerable<Ball>? balls = GetBallListFromColor(pkm);
             return ApplyFirstLegalBall(pkm, balls);
         }
 
@@ -62,14 +62,14 @@ namespace PKHeX.Core
         /// <param name="pkm">Pokémon to modify.</param>
         public static int ApplyBallNext(PKM pkm)
         {
-            var balls = GetBallList(pkm.Ball);
-            var next = balls.First();
+            IEnumerable<Ball>? balls = GetBallList(pkm.Ball);
+            Ball next = balls.First();
             return pkm.Ball = (int)next;
         }
 
         private static int ApplyFirstLegalBall(PKM pkm, IEnumerable<Ball> balls)
         {
-            foreach (var b in balls)
+            foreach (Ball b in balls)
             {
                 pkm.Ball = (int)b;
                 if (new LegalityAnalysis(pkm).Valid)
@@ -80,24 +80,24 @@ namespace PKHeX.Core
 
         private static IEnumerable<Ball> GetBallList(int ball)
         {
-            var balls = BallList;
-            var currentBall = (Ball)ball;
+            Ball[]? balls = BallList;
+            Ball currentBall = (Ball)ball;
             return GetCircularOnce(balls, currentBall);
         }
 
         private static IEnumerable<Ball> GetBallListFromColor(PKM pkm)
         {
             // Gen1/2 don't store color in personal info
-            var pi = pkm.Format >= 3 ? pkm.PersonalInfo : PersonalTable.USUM.GetFormEntry(pkm.Species, 0);
-            var color = (PersonalColor)pi.Color;
-            var balls = BallColors[color];
-            var currentBall = (Ball)pkm.Ball;
+            PersonalInfo? pi = pkm.Format >= 3 ? pkm.PersonalInfo : PersonalTable.USUM.GetFormEntry(pkm.Species, 0);
+            PersonalColor color = (PersonalColor)pi.Color;
+            Ball[]? balls = BallColors[color];
+            Ball currentBall = (Ball)pkm.Ball;
             return GetCircularOnce(balls, currentBall);
         }
 
         private static IEnumerable<T> GetCircularOnce<T>(T[] items, T current)
         {
-            var currentIndex = Array.IndexOf(items, current);
+            int currentIndex = Array.IndexOf(items, current);
             if (currentIndex < 0)
                 currentIndex = items.Length - 2;
             for (int i = currentIndex + 1; i < items.Length; i++)
@@ -110,14 +110,14 @@ namespace PKHeX.Core
 
         static BallApplicator()
         {
-            var exclude = new[] {None, Poke};
-            var end = new[] {Poke};
-            var allBalls = BallList.Except(exclude).ToArray();
-            var colors = (PersonalColor[])Enum.GetValues(typeof(PersonalColor));
-            foreach (var c in colors)
+            Ball[]? exclude = new[] {None, Poke};
+            Ball[]? end = new[] {Poke};
+            Ball[]? allBalls = BallList.Except(exclude).ToArray();
+            PersonalColor[]? colors = (PersonalColor[])Enum.GetValues(typeof(PersonalColor));
+            foreach (PersonalColor c in colors)
             {
-                var matchingColors = BallColors[c];
-                var extra = allBalls.Except(matchingColors).ToArray();
+                Ball[]? matchingColors = BallColors[c];
+                Ball[]? extra = allBalls.Except(matchingColors).ToArray();
                 Util.Shuffle(extra);
                 BallColors[c] = ArrayUtil.ConcatAll(matchingColors, extra, end);
             }

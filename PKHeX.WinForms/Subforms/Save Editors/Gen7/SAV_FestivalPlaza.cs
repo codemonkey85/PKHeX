@@ -40,8 +40,8 @@ namespace PKHeX.WinForms
                 TB_OTName.Font = FontUtil.GetPKXFont();
             }
 
-            var cc = SAV.Festa.FestaCoins;
-            var cu = SAV.GetRecord(038);
+            int cc = SAV.Festa.FestaCoins;
+            int cu = SAV.GetRecord(038);
             NUD_FC_Current.Value = Math.Min(cc, NUD_FC_Current.Maximum);
             NUD_FC_Used.Value = Math.Min(cu, NUD_FC_Used.Maximum);
             L_FC_CollectedV.Text = (cc + cu).ToString();
@@ -222,7 +222,7 @@ namespace PKHeX.WinForms
         private void LoadFacility()
         {
             editing = true;
-            var facility = f[entry];
+            FestaFacility? facility = f[entry];
             CB_FacilityType.SelectedIndex =
                 CB_FacilityType.Items.Count > facility.Type
                 ? facility.Type
@@ -255,8 +255,8 @@ namespace PKHeX.WinForms
             if (CB_FacilityMessage.SelectedIndex >= 0) LoadFMessage(CB_FacilityMessage.SelectedIndex);
             TB_UsedFlags.Text = f[entry].UsedFlags.ToString("X8");
             TB_UsedStats.Text = f[entry].UsedRandStat.ToString("X8");
-            var bytes = f[entry].TrainerFesID;
-            var str = BitConverter.ToString(bytes).Replace("-", string.Empty);
+            byte[]? bytes = f[entry].TrainerFesID;
+            string? str = BitConverter.ToString(bytes).Replace("-", string.Empty);
             TB_FacilityID.Text = str;
             editing = false;
         }
@@ -303,7 +303,7 @@ namespace PKHeX.WinForms
             for (int i = 0; i < NUD_Trainers.Length; i++)
             {
                 int j = GetSavData16(0x6C56C + (0x14 * i));
-                var m = (int)NUD_Trainers[i].Maximum;
+                int m = (int)NUD_Trainers[i].Maximum;
                 NUD_Trainers[i].Value = (uint)j > m ? m : j;
             }
             B_AgentGlass.Enabled = (SAV.Data[SAV.Fashion.Offset + 0xD0] & 1) == 0;
@@ -383,7 +383,7 @@ namespace PKHeX.WinForms
             if (ModifierKeys != Keys.Control)
                 return;
 
-            var d = new TrashEditor(tb, SAV);
+            TrashEditor? d = new TrashEditor(tb, SAV);
             d.ShowDialog();
             tb.Text = d.FinalString;
         }
@@ -400,7 +400,7 @@ namespace PKHeX.WinForms
         {
             if (entry < 0)
                 return;
-            var b = f[entry].Gender;
+            int b = f[entry].Gender;
             b ^= 1;
             f[entry].Gender = b;
             LoadOTlabel(b);
@@ -469,7 +469,7 @@ namespace PKHeX.WinForms
             {
                 if (t.Length != 12 * 2)
                     t = t.PadLeft(24, '0');
-                var bytes = t.ToByteArray();
+                byte[]? bytes = t.ToByteArray();
                 Array.Resize(ref bytes, 12);
                 f[entry].TrainerFesID = bytes;
             }
@@ -504,7 +504,7 @@ namespace PKHeX.WinForms
             if (typeIndex < 0)
                 return;
 
-            var facility = f[entry];
+            FestaFacility? facility = f[entry];
             facility.Type = typeIndex;
             // reset color
             int type = TypeIndexToType(typeIndex);
@@ -538,7 +538,7 @@ namespace PKHeX.WinForms
         {
             if (entry < 0)
                 return;
-            var facility = f[entry];
+            FestaFacility? facility = f[entry];
             if (CB_FacilityType.SelectedIndex >= 0)
                 facility.Type = CB_FacilityType.SelectedIndex;
             facility.Color = (byte)NUD_FacilityColor.Value;
@@ -657,7 +657,7 @@ namespace PKHeX.WinForms
         private void B_DelVisitor_Click(object sender, EventArgs e)
         {
             if (entry < 0) return;
-            var facility = f[entry];
+            FestaFacility? facility = f[entry];
             // there is a unknown value when not introduced...no reproducibility, just mistake?
             if (facility.IsIntroduced)
                 facility.TrainerFesID = new byte[12];
@@ -674,7 +674,7 @@ namespace PKHeX.WinForms
         private void B_ImportParty_Click(object sender, EventArgs e)
         {
             if (!SAV.HasParty) return;
-            var party = SAV.PartyData;
+            System.Collections.Generic.IList<PKM>? party = SAV.PartyData;
             string msg = string.Empty;
             for (int i = 0; i < 3; i++)
             {
@@ -693,7 +693,7 @@ namespace PKHeX.WinForms
 
         private void MnuSave_Click(object sender, EventArgs e)
         {
-            var pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? pb = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             int i = Array.IndexOf(PBs, pb);
             if (i < 0)
                 return;

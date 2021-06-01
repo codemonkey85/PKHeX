@@ -14,7 +14,7 @@ namespace PKHeX.WinForms
 
         public SaveBlockMetadata(ISaveBlockAccessor<T> accessor)
         {
-            var aType = accessor.GetType();
+            System.Type? aType = accessor.GetType();
             BlockList = aType.GetAllPropertiesOfType<SaveBlock>(accessor);
         }
 

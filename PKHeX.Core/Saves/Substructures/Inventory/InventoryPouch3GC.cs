@@ -11,7 +11,7 @@ namespace PKHeX.Core
 
         public override void GetPouch(byte[] data)
         {
-            var items = new InventoryItem[PouchDataSize];
+            InventoryItem[]? items = new InventoryItem[PouchDataSize];
             for (int i = 0; i < items.Length; i++)
             {
                 items[i] = new InventoryItem

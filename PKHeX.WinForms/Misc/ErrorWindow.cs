@@ -8,14 +8,14 @@ namespace PKHeX.WinForms
     {
         public static DialogResult ShowErrorDialog(string friendlyMessage, Exception ex, bool allowContinue)
         {
-            var lang = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
-            using var dialog = new ErrorWindow(lang)
+            string? lang = System.Threading.Thread.CurrentThread.CurrentUICulture.TwoLetterISOLanguageName;
+            using ErrorWindow? dialog = new ErrorWindow(lang)
             {
                 ShowContinue = allowContinue,
                 Message = friendlyMessage,
                 Error = ex
             };
-            var dialogResult = dialog.ShowDialog();
+            DialogResult dialogResult = dialog.ShowDialog();
             if (dialogResult == DialogResult.Abort)
                 Environment.Exit(1);
             return dialogResult;
@@ -66,7 +66,7 @@ namespace PKHeX.WinForms
 
         private void UpdateExceptionDetailsMessage()
         {
-            var details = new StringBuilder();
+            StringBuilder? details = new StringBuilder();
             details.AppendLine("Exception Details:");
             details.AppendLine(Error.ToString());
             details.AppendLine();
@@ -75,7 +75,7 @@ namespace PKHeX.WinForms
             details.AppendLine("--------------------");
             try
             {
-                foreach (var item in AppDomain.CurrentDomain.GetAssemblies())
+                foreach (System.Reflection.Assembly? item in AppDomain.CurrentDomain.GetAssemblies())
                 {
                     details.AppendLine(item.FullName);
                     details.AppendLine(item.Location);

@@ -52,14 +52,14 @@ namespace PKHeX.Core
 
         public static void RefreshMGDB(params string[] paths)
         {
-            var g4 = GetPCDDB(Util.GetBinaryResource("wc4.pkl"));
-            var g5 = GetPGFDB(Util.GetBinaryResource("pgf.pkl"));
-            var g6 = GetWC6DB(Util.GetBinaryResource("wc6.pkl"), Util.GetBinaryResource("wc6full.pkl"));
-            var g7 = GetWC7DB(Util.GetBinaryResource("wc7.pkl"), Util.GetBinaryResource("wc7full.pkl"));
-            var b7 = GetWB7DB(Util.GetBinaryResource("wb7full.pkl"));
-            var g8 = GetWC8DB(Util.GetBinaryResource("wc8.pkl"));
+            HashSet<PCD>? g4 = GetPCDDB(Util.GetBinaryResource("wc4.pkl"));
+            HashSet<PGF>? g5 = GetPGFDB(Util.GetBinaryResource("pgf.pkl"));
+            HashSet<WC6>? g6 = GetWC6DB(Util.GetBinaryResource("wc6.pkl"), Util.GetBinaryResource("wc6full.pkl"));
+            HashSet<WC7>? g7 = GetWC7DB(Util.GetBinaryResource("wc7.pkl"), Util.GetBinaryResource("wc7full.pkl"));
+            HashSet<WB7>? b7 = GetWB7DB(Util.GetBinaryResource("wb7full.pkl"));
+            HashSet<WC8>? g8 = GetWC8DB(Util.GetBinaryResource("wc8.pkl"));
 
-            foreach (var gift in paths.Where(Directory.Exists).SelectMany(MysteryUtil.GetGiftsFromFolder))
+            foreach (MysteryGift? gift in paths.Where(Directory.Exists).SelectMany(MysteryUtil.GetGiftsFromFolder))
             {
                 switch (gift)
                 {
@@ -83,7 +83,7 @@ namespace PKHeX.Core
 
         public static IEnumerable<MysteryGift> GetAllEvents(bool sorted = true)
         {
-            var regular = new IReadOnlyList<MysteryGift>[]
+            IEnumerable<MysteryGift>? regular = new IReadOnlyList<MysteryGift>[]
             {
                 MGDB_G4,
                 MGDB_G5,
@@ -93,7 +93,7 @@ namespace PKHeX.Core
                 MGDB_G8,
             }.SelectMany(z => z);
             regular = regular.Where(mg => !mg.IsItem && mg.IsPokémon && mg.Species > 0);
-            var result = MGDB_G3.Concat(regular);
+            IEnumerable<MysteryGift>? result = MGDB_G3.Concat(regular);
             if (sorted)
                 result = result.OrderBy(mg => mg.Species);
             return result;

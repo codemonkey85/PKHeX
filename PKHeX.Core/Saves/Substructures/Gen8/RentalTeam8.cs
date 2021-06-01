@@ -32,17 +32,17 @@ namespace PKHeX.Core
 
         public PK8 GetSlot(int slot)
         {
-            var ofs = GetSlotOffset(slot);
-            var data = Data.Slice(ofs, LEN_POKE);
-            var pk8 = new PK8(data);
+            int ofs = GetSlotOffset(slot);
+            byte[]? data = Data.Slice(ofs, LEN_POKE);
+            PK8? pk8 = new PK8(data);
             pk8.ResetPartyStats();
             return pk8;
         }
 
         public void SetSlot(int slot, PK8 pkm)
         {
-            var ofs = GetSlotOffset(slot);
-            var data = pkm.EncryptedPartyData;
+            int ofs = GetSlotOffset(slot);
+            byte[]? data = pkm.EncryptedPartyData;
             // Wipe Party Stats
             Array.Clear(data, LEN_STORED, LEN_PARTYSTAT);
             data.CopyTo(Data, ofs);
@@ -50,7 +50,7 @@ namespace PKHeX.Core
 
         public PK8[] GetTeam()
         {
-            var team = new PK8[COUNT_POKE];
+            PK8[]? team = new PK8[COUNT_POKE];
             for (int i = 0; i < team.Length; i++)
                 team[i] = GetSlot(i);
             return team;
@@ -78,7 +78,7 @@ namespace PKHeX.Core
         {
             if (data.Length != SIZE)
                 return false;
-            var team = new RentalTeam8(data).GetTeam();
+            PK8[]? team = new RentalTeam8(data).GetTeam();
             return team.All(x => x.ChecksumValid);
         }
     }

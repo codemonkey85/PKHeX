@@ -15,7 +15,7 @@ namespace PKHeX.Tests.Saves
         [Fact]
         public void CanMakeBlankSAV8()
         {
-            var sav = SaveUtil.GetBlankSAV(GameVersion.SW, "PKHeX");
+            SaveFile? sav = SaveUtil.GetBlankSAV(GameVersion.SW, "PKHeX");
             sav.Should().NotBeNull();
         }
     }

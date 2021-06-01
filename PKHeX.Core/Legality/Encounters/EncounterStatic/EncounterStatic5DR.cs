@@ -21,7 +21,7 @@
         protected override bool IsMatchLevel(PKM pkm, DexLevel evo)
         {
             // Level from 5->40 depends on the number of badges
-            var met = pkm.Met_Level;
+            int met = pkm.Met_Level;
             if (met % 5 != 0)
                 return false;
             return (uint) (met - 5) <= 35; // 5 <= x <= 40

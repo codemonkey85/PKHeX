@@ -22,7 +22,7 @@ namespace PKHeX.Core
 
         public static int[] GetIndexes(bool[] arr)
         {
-            var list = new List<int>();
+            List<int>? list = new List<int>();
             for (int i = 0; i < arr.Length; i++)
             {
                 if (arr[i])
@@ -33,8 +33,8 @@ namespace PKHeX.Core
 
         public static bool[] SetIndexes(int[] arr)
         {
-            var result = new bool[arr.Max()];
-            foreach (var index in arr)
+            bool[]? result = new bool[arr.Max()];
+            foreach (int index in arr)
                 result[index] = true;
             return result;
         }

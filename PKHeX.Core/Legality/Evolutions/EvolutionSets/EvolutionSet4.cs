@@ -10,7 +10,7 @@ namespace PKHeX.Core
     {
         private static EvolutionMethod GetMethod(byte[] data, int offset)
         {
-            var method = data[offset]; // other byte unnecessary
+            byte method = data[offset]; // other byte unnecessary
             int arg = BitConverter.ToUInt16(data, offset + 2);
             int species = BitConverter.ToUInt16(data, offset + 4);
 
@@ -22,7 +22,7 @@ namespace PKHeX.Core
             if (method > 6)
                 method++;
 
-            var lvl = EvolutionSet6.EvosWithArg.Contains(method) ? 0 : arg;
+            int lvl = EvolutionSet6.EvosWithArg.Contains(method) ? 0 : arg;
             return new EvolutionMethod(method, species, argument: arg, level: lvl);
         }
 
@@ -32,15 +32,15 @@ namespace PKHeX.Core
             const int entries = 7; // amount of entries per species
             const int size = (entries * bpe) + 2; // bytes per species entry, + 2 alignment bytes
 
-            var evos = new EvolutionMethod[data.Length / size][];
+            EvolutionMethod[][]? evos = new EvolutionMethod[data.Length / size][];
             for (int i = 0; i < evos.Length; i++)
             {
                 int offset = i * size;
                 int count = 0;
                 for (; count < entries; count++)
                 {
-                    var methodOffset = offset + (count * bpe);
-                    var method = data[methodOffset];
+                    int methodOffset = offset + (count * bpe);
+                    byte method = data[methodOffset];
                     if (method == 0)
                         break;
                 }
@@ -50,7 +50,7 @@ namespace PKHeX.Core
                     continue;
                 }
 
-                var set = new EvolutionMethod[count];
+                EvolutionMethod[]? set = new EvolutionMethod[count];
                 for (int j = 0; j < set.Length; j++)
                     set[j] = GetMethod(data, offset + (j * bpe));
                 evos[i] = set;

@@ -21,9 +21,9 @@ namespace PKHeX.WinForms
 
         private void PopulateRecords()
         {
-            var trs = Legal.TMHM_SWSH;
-            var names = GameInfo.Strings.Move;
-            var lines = trs.Skip(100).Select((z, i) => $"{i:00} - {names[z]}").ToArray();
+            int[]? trs = Legal.TMHM_SWSH;
+            System.Collections.Generic.IReadOnlyList<string>? names = GameInfo.Strings.Move;
+            string[]? lines = trs.Skip(100).Select((z, i) => $"{i:00} - {names[z]}").ToArray();
             CLB_Flags.Items.AddRange(lines);
         }
 

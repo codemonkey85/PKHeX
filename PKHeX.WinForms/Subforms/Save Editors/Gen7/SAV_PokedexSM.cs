@@ -30,9 +30,9 @@ namespace PKHeX.WinForms
             CB_Species.InitializeBinding();
             CB_Species.DataSource = new BindingSource(GameInfo.FilteredSources.Species.Skip(1).ToList(), null);
 
-            var Species = GameInfo.Strings.Species;
-            var names = Dex.GetEntryNames(Species);
-            foreach (var n in names)
+            System.Collections.Generic.IReadOnlyList<string>? Species = GameInfo.Strings.Species;
+            System.Collections.Generic.IList<string>? names = Dex.GetEntryNames(Species);
+            foreach (string? n in names)
                 LB_Species.Items.Add(n);
 
             editing = false;
@@ -84,7 +84,7 @@ namespace PKHeX.WinForms
 
             editing = true;
             int fspecies = LB_Species.SelectedIndex + 1;
-            var bspecies = Dex.GetBaseSpecies(fspecies);
+            int bspecies = Dex.GetBaseSpecies(fspecies);
             int form = LB_Forms.SelectedIndex;
             if (form > 0)
             {
@@ -119,12 +119,12 @@ namespace PKHeX.WinForms
             LB_Forms.Items.Clear();
 
             int fspecies = LB_Species.SelectedIndex + 1;
-            var bspecies = Dex.GetBaseSpecies(fspecies);
+            int bspecies = Dex.GetBaseSpecies(fspecies);
             bool hasForms = FormInfo.HasFormSelection(SAV.Personal[bspecies], bspecies, 7);
             LB_Forms.Enabled = hasForms;
             if (!hasForms)
                 return false;
-            var ds = FormConverter.GetFormList(bspecies, GameInfo.Strings.types, GameInfo.Strings.forms, Main.GenderSymbols, SAV.Generation).ToList();
+            System.Collections.Generic.List<string>? ds = FormConverter.GetFormList(bspecies, GameInfo.Strings.types, GameInfo.Strings.forms, Main.GenderSymbols, SAV.Generation).ToList();
             if (ds.Count == 1 && string.IsNullOrEmpty(ds[0]))
             {
                 // empty
@@ -152,7 +152,7 @@ namespace PKHeX.WinForms
                 if (f < 0)
                     return true; // bit index valid
 
-                var findex = fspecies - f - 1;
+                int findex = fspecies - f - 1;
                 if (findex < LB_Forms.Items.Count)
                     LB_Forms.SelectedIndex = findex;
                 else
@@ -281,7 +281,7 @@ namespace PKHeX.WinForms
 
             if (ModifierKeys == Keys.Control)
             {
-                foreach (var chk in new[] { CHK_P6, CHK_P7, CHK_P8, CHK_P9 })
+                foreach (CheckBox? chk in new[] { CHK_P6, CHK_P7, CHK_P8, CHK_P9 })
                     chk.Checked = false;
             }
             else if (!(CHK_P6.Checked || CHK_P7.Checked || CHK_P8.Checked || CHK_P9.Checked))
@@ -340,7 +340,7 @@ namespace PKHeX.WinForms
             for (int i = 0; i < SAV.MaxSpeciesID; i++)
             {
                 int species = i + 1;
-                var gt = Dex.GetBaseSpeciesGenderValue(i);
+                int gt = Dex.GetBaseSpeciesGenderValue(i);
 
                 // Set base species flags
                 LB_Species.SelectedIndex = i;
@@ -349,8 +349,8 @@ namespace PKHeX.WinForms
                     SetCaught(sender, gt, lang, false);
 
                 // Set forme flags
-                var entries = Dex.GetAllFormEntries(species).Where(z => z >= SAV.MaxSpeciesID).Distinct();
-                foreach (var f in entries)
+                System.Collections.Generic.IEnumerable<int>? entries = Dex.GetAllFormEntries(species).Where(z => z >= SAV.MaxSpeciesID).Distinct();
+                foreach (int f in entries)
                 {
                     LB_Species.SelectedIndex = f;
                     SetSeen(sender, gt, true);
@@ -382,7 +382,7 @@ namespace PKHeX.WinForms
             if (mnuComplete == sender)
             {
                 // Seen All
-                foreach (var chk in new[] {CHK_P2, CHK_P3, CHK_P4, CHK_P5})
+                foreach (CheckBox? chk in new[] {CHK_P2, CHK_P3, CHK_P4, CHK_P5})
                     chk.Checked = chk.Enabled;
             }
             else

@@ -58,7 +58,7 @@ namespace PKHeX.Core
             int index = Table.GetFormIndex(species, form);
             if (index <= 0)
                 return LearnNONE;
-            var lv = Learn[index].GetLevelLearnMove(move);
+            int lv = Learn[index].GetLevelLearnMove(move);
             if (lv >= 0)
                 return new LearnVersion(lv, Version);
             return LearnNONE;
@@ -69,7 +69,7 @@ namespace PKHeX.Core
             int index = Table.GetFormIndex(species, form);
             if (index <= 0)
                 return LearnNONE;
-            var lv = Learn[index].GetLevelLearnMove(move);
+            int lv = Learn[index].GetLevelLearnMove(move);
             if (lv >= 0 && lv <= max)
                 return new LearnVersion(lv, Version);
             return LearnNONE;
@@ -80,7 +80,7 @@ namespace PKHeX.Core
             int index = Table.GetFormIndex(species, form);
             if (index <= 0)
                 return LearnNONE;
-            var lv = Learn[index].GetLevelLearnMove(move, min);
+            int lv = Learn[index].GetLevelLearnMove(move, min);
             if (lv >= min && lv <= max)
                 return new LearnVersion(lv, Version);
             return LearnNONE;
@@ -93,20 +93,20 @@ namespace PKHeX.Core
                 return LearnNONE;
 
             // No Move re-learner -- have to be learned on level-up
-            var lv = Learn[index].GetLevelLearnMove(move, min);
+            int lv = Learn[index].GetLevelLearnMove(move, min);
             if (lv >= 0 && lv <= max)
                 return new LearnVersion(lv, Version);
 
             if (min >= 1)
                 return LearnNONE;
 
-            var pi = (PersonalInfoG1)Table[index];
-            var i = Array.IndexOf(pi.Moves, move);
+            PersonalInfoG1? pi = (PersonalInfoG1)Table[index];
+            int i = Array.IndexOf(pi.Moves, move);
 
             // Check if move was not overwritten by higher level moves before it was encountered
             if (i >= 0)
             {
-                var unique = Learn[index].GetUniqueMovesLearned(pi.Moves.Where(z => z != 0), max);
+                IList<int>? unique = Learn[index].GetUniqueMovesLearned(pi.Moves.Where(z => z != 0), max);
                 if (unique.Count - i <= 4)
                     return new LearnVersion(0, Version);
             }

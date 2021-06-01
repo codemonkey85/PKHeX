@@ -133,7 +133,7 @@ namespace PKHeX.Core
                 throw new ArgumentException(nameof(IsPokémon));
 
             // we'll just generate something as close as we can, since we must return something!
-            var pk = new PB7();
+            PB7? pk = new PB7();
             sav.ApplyTo(pk);
             if (!GameVersion.GG.Contains((GameVersion) sav.Game))
                 pk.Version = (int) GameVersion.GP;

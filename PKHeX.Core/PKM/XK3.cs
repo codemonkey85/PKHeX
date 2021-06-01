@@ -211,7 +211,7 @@ namespace PKHeX.Core
 
         public PK3 ConvertToPK3()
         {
-            var pk = ConvertTo<PK3>();
+            PK3? pk = ConvertTo<PK3>();
             if (Version == 15)
             {
                 // Transferring XK3 to PK3 when it originates from XD sets the fateful encounter (obedience) flag.

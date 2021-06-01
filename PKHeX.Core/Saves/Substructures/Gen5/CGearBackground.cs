@@ -58,9 +58,9 @@ namespace PKHeX.Core
                 _cgb = data;
             }
 
-            var Region1 = data.AsSpan(0, 0x1FE0);
-            var ColorData = data.Slice(0x1FE0, 0x20);
-            var Region2 = data.Slice(0x2000, 0x600);
+            Span<byte> Region1 = data.AsSpan(0, 0x1FE0);
+            byte[]? ColorData = data.Slice(0x1FE0, 0x20);
+            byte[]? Region2 = data.Slice(0x2000, 0x600);
 
             ColorPalette = new int[ColorCount];
             for (int i = 0; i < ColorPalette.Length; i++)
@@ -128,7 +128,7 @@ namespace PKHeX.Core
             byte[] psk = (byte[])cgb.Clone();
             for (int i = 0x2000; i < 0x2600; i += 2)
             {
-                var tileVal = BitConverter.ToUInt16(cgb, i);
+                ushort tileVal = BitConverter.ToUInt16(cgb, i);
                 int val = GetPSKValue(tileVal);
 
                 psk[i] = (byte)val;
@@ -167,7 +167,7 @@ namespace PKHeX.Core
 
         private static int ValToIndex(int val)
         {
-            var trunc = (val & 0x3FF);
+            int trunc = (val & 0x3FF);
             if (trunc is < 0xA0 or > 0x280)
                 return (val & 0x5C00) | 0xFF;
             return ((val % 0x20) + (17 * ((trunc - 0xA0) / 0x20))) | (val & 0x5C00);
@@ -182,9 +182,9 @@ namespace PKHeX.Core
 
         private static int GetRGB555_32(int val)
         {
-            var R = (val >> 0 >> 3) & 0x1F;
-            var G = (val >> 8 >> 3) & 0x1F;
-            var B = (val >> 16 >> 3) & 0x1F;
+            int R = (val >> 0 >> 3) & 0x1F;
+            int G = (val >> 8 >> 3) & 0x1F;
+            int B = (val >> 16 >> 3) & 0x1F;
             return 0xFF << 24 | R << 16 | G << 8 | B;
         }
 
@@ -203,9 +203,9 @@ namespace PKHeX.Core
 
         private static ushort GetRGB555(int v)
         {
-            var R = (byte)(v >> 16);
-            var G = (byte)(v >> 8);
-            var B = (byte)(v >> 0);
+            byte R = (byte)(v >> 16);
+            byte G = (byte)(v >> 8);
+            byte B = (byte)(v >> 0);
 
             int val = 0;
             val |= Convert8to5(R) << 0;
@@ -229,13 +229,13 @@ namespace PKHeX.Core
         {
             int[] pixels = new int[data.Length / bpp];
             Buffer.BlockCopy(data, 0, pixels, 0, data.Length);
-            var colors = GetColorData(pixels);
+            int[]? colors = GetColorData(pixels);
 
-            var Palette = colors.Distinct().ToArray();
+            int[]? Palette = colors.Distinct().ToArray();
             if (Palette.Length > ColorCount)
                 throw new ArgumentException($"Too many unique colors. Expected <= 16, got {Palette.Length}");
 
-            var tiles = GetTiles(colors, Palette);
+            Tile[]? tiles = GetTiles(colors, Palette);
             GetTileList(tiles, out List<Tile> tilelist, out TileMap tm);
             if (tilelist.Count >= 0xFF)
                 throw new ArgumentException($"Too many unique tiles. Expected < 256, received {tilelist.Count}.");
@@ -254,7 +254,7 @@ namespace PKHeX.Core
 
         private static Tile[] GetTiles(IReadOnlyList<int> colors, int[] palette)
         {
-            var tiles = new Tile[TileCount];
+            Tile[]? tiles = new Tile[TileCount];
             for (int i = 0; i < tiles.Length; i++)
                 tiles[i] = GetTile(colors, palette, i);
             return tiles;
@@ -265,7 +265,7 @@ namespace PKHeX.Core
             int x = (tileIndex * 8) % Width;
             int y = 8 * ((tileIndex * 8) / Width);
 
-            var t = new Tile();
+            Tile? t = new Tile();
             for (uint ix = 0; ix < 8; ix++)
             {
                 for (uint iy = 0; iy < 8; iy++)
@@ -324,9 +324,9 @@ namespace PKHeX.Core
             {
                 int x = (i * 8) % Width;
                 int y = 8 * ((i * 8) / Width);
-                var choice = Map.TileChoices[i] % (Tiles.Length + 1);
-                var tile = Tiles[choice];
-                var tileData = tile.Rotate(Map.Rotations[i]);
+                int choice = Map.TileChoices[i] % (Tiles.Length + 1);
+                Tile? tile = Tiles[choice];
+                byte[]? tileData = tile.Rotate(Map.Rotations[i]);
                 for (int iy = 0; iy < 8; iy++)
                 {
                     int src = iy * (4 * 8);
@@ -358,7 +358,7 @@ namespace PKHeX.Core
             ColorChoices = new int[TileWidth * TileHeight];
             for (int i = 0; i < data.Length; i++)
             {
-                var ofs = i * 2;
+                int ofs = i * 2;
                 ColorChoices[ofs + 0] = data[i] & 0xF;
                 ColorChoices[ofs + 1] = data[i] >> 4;
             }
@@ -373,9 +373,9 @@ namespace PKHeX.Core
             byte[] data = new byte[pixels * 4];
             for (int i = 0; i < pixels; i++)
             {
-                var choice = ColorChoices[i];
-                var val = Palette[choice];
-                var o = 4 * i;
+                int choice = ColorChoices[i];
+                int val = Palette[choice];
+                int o = 4 * i;
                 data[o + 0] = (byte)(val & 0xFF);
                 data[o + 1] = (byte)(val >> 8 & 0xFF);
                 data[o + 2] = (byte)(val >> 16 & 0xFF);
@@ -389,7 +389,7 @@ namespace PKHeX.Core
             byte[] data = new byte[SIZE_TILE];
             for (int i = 0; i < data.Length; i++)
             {
-                var ofs = i * 2;
+                int ofs = i * 2;
                 data[i] |= (byte)(ColorChoices[ofs + 0] & 0xF);
                 data[i] |= (byte)((ColorChoices[ofs + 1] & 0xF) << 4);
             }
@@ -419,7 +419,7 @@ namespace PKHeX.Core
                 x = width - x - 1; // flip x
                 int dest = ((y * width) + x) * bpp;
 
-                var o = 4 * i;
+                int o = 4 * i;
                 result[dest + 0] = data[o + 0];
                 result[dest + 1] = data[o + 1];
                 result[dest + 2] = data[o + 2];
@@ -441,7 +441,7 @@ namespace PKHeX.Core
                 y = height - y - 1; // flip x
                 int dest = ((y * width) + x) * bpp;
 
-                var o = 4 * i;
+                int o = 4 * i;
                 result[dest + 0] = data[o + 0];
                 result[dest + 1] = data[o + 1];
                 result[dest + 2] = data[o + 2];

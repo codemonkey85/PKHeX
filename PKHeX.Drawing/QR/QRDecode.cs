@@ -24,7 +24,7 @@ namespace PKHeX.Drawing
             string data;
             try
             {
-                var str = NetUtil.GetStringFromURL(url);
+                string? str = NetUtil.GetStringFromURL(url);
                 if (str is null)
                     return QRDecodeResult.BadConnection;
 
@@ -65,12 +65,12 @@ namespace PKHeX.Drawing
             string pkstr = data[intro.Length..];
 
             // Remove multiple QR codes in same image
-            var qr = pkstr.IndexOf(qrcode, StringComparison.Ordinal);
+            int qr = pkstr.IndexOf(qrcode, StringComparison.Ordinal);
             if (qr != -1)
                 pkstr = pkstr[..qr];
 
             // Trim outro
-            var outroIndex = pkstr.IndexOf(cap, StringComparison.Ordinal);
+            int outroIndex = pkstr.IndexOf(cap, StringComparison.Ordinal);
             if (outroIndex == -1)
                 throw new FormatException();
 

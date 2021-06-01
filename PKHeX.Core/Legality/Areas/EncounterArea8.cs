@@ -27,7 +27,7 @@ namespace PKHeX.Core
                 return false;
 
             // Get all other areas that the Location can bleed encounters to
-            if (!ConnectingArea8.TryGetValue(Location, out var others))
+            if (!ConnectingArea8.TryGetValue(Location, out IReadOnlyList<byte>? others))
                 return false;
 
             // Check if any of the other areas are the met location
@@ -37,7 +37,7 @@ namespace PKHeX.Core
         public override IEnumerable<EncounterSlot> GetMatchingSlots(PKM pkm, IReadOnlyList<EvoCriteria> chain)
         {
             // wild area gets boosted up to level 60 post-game
-            var met = pkm.Met_Level;
+            int met = pkm.Met_Level;
             bool isBoosted = met == 60 && IsBoostedArea60(Location);
             if (isBoosted)
                 return GetBoostedMatches(chain);
@@ -46,9 +46,9 @@ namespace PKHeX.Core
 
         private IEnumerable<EncounterSlot> GetUnboostedMatches(IReadOnlyList<EvoCriteria> chain, int met)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;
@@ -67,9 +67,9 @@ namespace PKHeX.Core
 
         private IEnumerable<EncounterSlot> GetBoostedMatches(IReadOnlyList<EvoCriteria> chain)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;
@@ -221,7 +221,7 @@ namespace PKHeX.Core
 
         public static EncounterArea8[] GetAreas(byte[][] input, GameVersion game, bool symbol = false)
         {
-            var result = new EncounterArea8[input.Length];
+            EncounterArea8[]? result = new EncounterArea8[input.Length];
             for (int i = 0; i < input.Length; i++)
                 result[i] = new EncounterArea8(input[i], symbol, game);
             return result;
@@ -236,23 +236,23 @@ namespace PKHeX.Core
 
         private EncounterSlot[] ReadSlots(byte[] areaData, byte slotCount)
         {
-            var slots = new EncounterSlot[slotCount];
+            EncounterSlot[]? slots = new EncounterSlot[slotCount];
 
             int ctr = 0;
             int ofs = 2;
             do
             {
-                var flags = (AreaWeather8) BitConverter.ToUInt16(areaData, ofs);
-                var min = areaData[ofs + 2];
-                var max = areaData[ofs + 3];
-                var count = areaData[ofs + 4];
+                AreaWeather8 flags = (AreaWeather8) BitConverter.ToUInt16(areaData, ofs);
+                byte min = areaData[ofs + 2];
+                byte max = areaData[ofs + 3];
+                byte count = areaData[ofs + 4];
                 // ofs+5 reserved
                 ofs += 6;
                 for (int i = 0; i < count; i++, ctr++, ofs += 2)
                 {
-                    var specForm = BitConverter.ToUInt16(areaData, ofs);
-                    var species = specForm & 0x7FF;
-                    var form = specForm >> 11;
+                    ushort specForm = BitConverter.ToUInt16(areaData, ofs);
+                    int species = specForm & 0x7FF;
+                    int form = specForm >> 11;
                     slots[ctr] = new EncounterSlot8(this, species, form, min, max, flags);
                 }
             } while (ctr != slots.Length);

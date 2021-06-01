@@ -14,7 +14,7 @@ namespace PKHeX.Core
 
         protected override void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             pk.PID = Util.Rand32();
             pk.Nature = (int)criteria.GetNature(Nature.Random); 
             pk.Gender = criteria.GetGender(-1, pi);
@@ -23,7 +23,7 @@ namespace PKHeX.Core
             int num = Ability;
             if (Area.Type == SlotType.SOS && pk.FlawlessIVCount < 2)
                 num = 0; // let's fake it as an insufficient chain, no HA possible.
-            var ability = criteria.GetAbilityFromNumber(num);
+            int ability = criteria.GetAbilityFromNumber(num);
             pk.RefreshAbility(ability);
             pk.SetRandomEC();
         }

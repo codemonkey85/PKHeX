@@ -13,15 +13,15 @@ namespace PKHeX.Core
 
         private static EvolutionMethod[] GetMethods(byte[] data)
         {
-            var evos = new EvolutionMethod[data.Length / SIZE];
+            EvolutionMethod[]? evos = new EvolutionMethod[data.Length / SIZE];
             for (int i = 0; i < data.Length; i += SIZE)
             {
-                var method = BitConverter.ToUInt16(data, i + 0);
-                var arg = BitConverter.ToUInt16(data, i + 2);
-                var species = BitConverter.ToUInt16(data, i + 4);
+                ushort method = BitConverter.ToUInt16(data, i + 0);
+                ushort arg = BitConverter.ToUInt16(data, i + 2);
+                ushort species = BitConverter.ToUInt16(data, i + 4);
 
                 // Argument is used by both Level argument and Item/Move/etc. Clear if appropriate.
-                var lvl = EvosWithArg.Contains(method) ? 0 : arg;
+                int lvl = EvosWithArg.Contains(method) ? 0 : arg;
 
                 evos[i/SIZE] = new EvolutionMethod(method, species, argument: arg, level: lvl);
             }
@@ -30,7 +30,7 @@ namespace PKHeX.Core
 
         public static IReadOnlyList<EvolutionMethod[]> GetArray(IReadOnlyList<byte[]> data)
         {
-            var evos = new EvolutionMethod[data.Count][];
+            EvolutionMethod[][]? evos = new EvolutionMethod[data.Count][];
             for (int i = 0; i < evos.Length; i++)
                 evos[i] = GetMethods(data[i]);
             return evos;

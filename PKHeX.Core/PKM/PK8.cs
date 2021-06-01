@@ -348,7 +348,7 @@ namespace PKHeX.Core
 
         public bool HasMark()
         {
-            var d = Data;
+            byte[]? d = Data;
             if ((BitConverter.ToUInt16(d, 0x3A) & 0xFFE0) != 0)
                 return true;
             if (BitConverter.ToUInt32(d, 0x40) != 0)

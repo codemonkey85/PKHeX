@@ -29,9 +29,9 @@ namespace PKHeX.WinForms.Controls
 
         internal bool InitializeGrid()
         {
-            var count = SAV.BoxSlotCount;
-            var width = count / 5;
-            var height = count / width;
+            int count = SAV.BoxSlotCount;
+            int width = count / 5;
+            int height = count / width;
             if (!BoxPokeGrid.InitializeGrid(width, height, SpriteUtil.Spriter))
                 return false;
             RecenterControls();
@@ -58,7 +58,7 @@ namespace PKHeX.WinForms.Controls
         {
             SlotPictureBoxes = BoxPokeGrid.Entries;
             BoxSlotCount = SlotPictureBoxes.Count;
-            foreach (var pb in SlotPictureBoxes)
+            foreach (PictureBox? pb in SlotPictureBoxes)
             {
                 pb.MouseEnter += (o, args) => BoxSlot_MouseEnter(pb, args);
                 pb.MouseLeave += (o, args) => BoxSlot_MouseLeave(pb, args);
@@ -80,7 +80,7 @@ namespace PKHeX.WinForms.Controls
             if (previous is not SlotInfoBox b || b.Box != CurrentBox)
                 return;
 
-            var pb = SlotPictureBoxes[previous.Slot];
+            PictureBox? pb = SlotPictureBoxes[previous.Slot];
             pb.BackgroundImage = null;
         }
 
@@ -90,7 +90,7 @@ namespace PKHeX.WinForms.Controls
             if (index < 0)
                 return;
 
-            var pb = SlotPictureBoxes[index];
+            PictureBox? pb = SlotPictureBoxes[index];
             SlotUtil.UpdateSlot(pb, slot, pkm, SAV, FlagIllegal, type);
         }
 
@@ -167,7 +167,7 @@ namespace PKHeX.WinForms.Controls
             int index = box * SAV.BoxSlotCount;
             for (int i = 0; i < BoxSlotCount; i++)
             {
-                var pb = SlotPictureBoxes[i];
+                PictureBox? pb = SlotPictureBoxes[i];
                 if (i >= SAV.BoxSlotCount || index + i >= SAV.SlotCount)
                 {
                     pb.Visible = false;
@@ -183,14 +183,14 @@ namespace PKHeX.WinForms.Controls
 
         public bool SaveBoxBinary()
         {
-            var dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNoCancel,
+            DialogResult dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNoCancel,
                 MsgSaveBoxExportYes + Environment.NewLine +
                 string.Format(MsgSaveBoxExportNo, CurrentBoxName, CurrentBox + 1) + Environment.NewLine +
                 MsgSaveBoxExportCancel);
 
             if (dr == DialogResult.Yes)
             {
-                using var sfd = new SaveFileDialog { Filter = "Box Data|*.bin", FileName = "pcdata.bin" };
+                using SaveFileDialog? sfd = new SaveFileDialog { Filter = "Box Data|*.bin", FileName = "pcdata.bin" };
                 if (sfd.ShowDialog() != DialogResult.OK)
                     return false;
                 File.WriteAllBytes(sfd.FileName, SAV.GetPCBinary());
@@ -198,7 +198,7 @@ namespace PKHeX.WinForms.Controls
             }
             if (dr == DialogResult.No)
             {
-                using var sfd = new SaveFileDialog { Filter = "Box Data|*.bin", FileName = $"boxdata {CurrentBoxName}.bin" };
+                using SaveFileDialog? sfd = new SaveFileDialog { Filter = "Box Data|*.bin", FileName = $"boxdata {CurrentBoxName}.bin" };
                 if (sfd.ShowDialog() != DialogResult.OK)
                     return false;
                 File.WriteAllBytes(sfd.FileName, SAV.GetBoxBinary(CurrentBox));

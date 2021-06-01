@@ -91,7 +91,7 @@ namespace PKHeX.Core
                 return new CheckResult(Severity.Invalid, string.Format(LEggFMetLevel_0, 0), CheckIdentifier.Encounter);
 
             // Only EncounterEgg should reach here.
-            var loc = pkm.FRLG ? Locations.HatchLocationFRLG : Locations.HatchLocationRSE;
+            int loc = pkm.FRLG ? Locations.HatchLocationFRLG : Locations.HatchLocationRSE;
             if (pkm.Met_Location != loc)
                 return new CheckResult(Severity.Invalid, LEggMetLocationFail, CheckIdentifier.Encounter);
 
@@ -107,8 +107,8 @@ namespace PKHeX.Core
                 return new CheckResult(Severity.Invalid, string.Format(LEggFMetLevel_0, 0), CheckIdentifier.Encounter);
 
             // Check the origin game list.
-            var met = pkm.Met_Location;
-            var locs = pkm.FRLG ? Legal.ValidMet_FRLG : pkm.E ? Legal.ValidMet_E : Legal.ValidMet_RS;
+            int met = pkm.Met_Location;
+            HashSet<int>? locs = pkm.FRLG ? Legal.ValidMet_FRLG : pkm.E ? Legal.ValidMet_E : Legal.ValidMet_RS;
             if (locs.Contains(met))
                 return new CheckResult(Severity.Valid, LEggLocation, CheckIdentifier.Encounter);
 
@@ -146,7 +146,7 @@ namespace PKHeX.Core
             if (pkm.Format == 4)
             {
                 // Traded eggs don't update Version, like in future games.
-                var locations = pkm.WasTradedEgg ? Legal.ValidMet_4 :
+                HashSet<int>? locations = pkm.WasTradedEgg ? Legal.ValidMet_4 :
                     pkm.HGSS ? Legal.ValidMet_HGSS :
                     pkm.Pt ? Legal.ValidMet_Pt :
                     Legal.ValidMet_DP;
@@ -210,13 +210,13 @@ namespace PKHeX.Core
 
         private static CheckResult VerifyUnhatchedEgg(PKM pkm, int tradeLoc)
         {
-            var eggLevel = pkm.Format < 5 ? 0 : 1;
+            int eggLevel = pkm.Format < 5 ? 0 : 1;
             if (pkm.Met_Level != eggLevel)
                 return new CheckResult(Severity.Invalid, string.Format(LEggFMetLevel_0, eggLevel), CheckIdentifier.Encounter);
             if (pkm.Egg_Location == tradeLoc)
                 return new CheckResult(Severity.Invalid, LEggLocationTradeFail, CheckIdentifier.Encounter);
 
-            var met = pkm.Met_Location;
+            int met = pkm.Met_Location;
             if (met == tradeLoc)
                 return new CheckResult(Severity.Valid, LEggLocationTrade, CheckIdentifier.Encounter);
             return met == 0
@@ -236,7 +236,7 @@ namespace PKHeX.Core
                     break;
             }
 
-            var summary = slot.GetConditionString(out bool valid);
+            string? summary = slot.GetConditionString(out bool valid);
             return new CheckResult(valid ? Severity.Valid : Severity.Invalid, summary, CheckIdentifier.Encounter);
         }
 
@@ -278,7 +278,7 @@ namespace PKHeX.Core
             }
             if (s.EggEncounter && !pkm.IsEgg) // hatched
             {
-                var hatchCheck = VerifyEncounterEgg(pkm, s.Generation);
+                CheckResult? hatchCheck = VerifyEncounterEgg(pkm, s.Generation);
                 if (!hatchCheck.Valid)
                     return hatchCheck;
             }
@@ -292,9 +292,9 @@ namespace PKHeX.Core
             {
                 // Pokemon that evolve on trade can not be in the phase evolution after the trade
                 // If the trade holds an everstone EvolveOnTrade will be false for the encounter
-                var species = ParseSettings.SpeciesStrings;
-                var unevolved = species[pkm.Species];
-                var evolved = species[pkm.Species + 1];
+                IReadOnlyList<string>? species = ParseSettings.SpeciesStrings;
+                string? unevolved = species[pkm.Species];
+                string? evolved = species[pkm.Species + 1];
                 return new CheckResult(Severity.Invalid, string.Format(LEvoTradeReq, unevolved, evolved), CheckIdentifier.Encounter);
             }
             return new CheckResult(Severity.Valid, LEncTradeMatch, CheckIdentifier.Encounter);
@@ -311,7 +311,7 @@ namespace PKHeX.Core
             }
             if (!pkm.IsEgg && gift.IsEgg) // hatched
             {
-                var hatchCheck = VerifyEncounterEgg(pkm, gift.Generation);
+                CheckResult? hatchCheck = VerifyEncounterEgg(pkm, gift.Generation);
                 if (!hatchCheck.Valid)
                     return hatchCheck;
             }

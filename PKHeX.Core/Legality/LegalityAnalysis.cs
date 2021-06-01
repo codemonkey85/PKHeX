@@ -242,13 +242,13 @@ namespace PKHeX.Core
 
         private void UpdateVCTransferInfo()
         {
-            var enc = (Info.EncounterOriginalGB = EncounterMatch);
+            IEncounterable? enc = (Info.EncounterOriginalGB = EncounterMatch);
             if (enc is EncounterInvalid)
                 return;
-            var vc = EncounterStaticGenerator.GetVCStaticTransferEncounter(pkm, enc, Info.EvoChainsAllGens[7]);
+            EncounterStatic7? vc = EncounterStaticGenerator.GetVCStaticTransferEncounter(pkm, enc, Info.EvoChainsAllGens[7]);
             Info.EncounterMatch = vc;
 
-            foreach (var z in Transfer.VerifyVCEncounter(pkm, enc, vc, Info.Moves))
+            foreach (CheckResult? z in Transfer.VerifyVCEncounter(pkm, enc, vc, Info.Moves))
                 AddLine(z);
 
             Transfer.VerifyTransferLegalityG12(this);
@@ -277,7 +277,7 @@ namespace PKHeX.Core
             Item.Verify(this);
             Contest.Verify(this);
 
-            var format = pkm.Format;
+            int format = pkm.Format;
             if (format is 4 or 5 or 6)
                 Gen4EncounterType.Verify(this); // Gen 6->7 transfer deletes encounter type data
 

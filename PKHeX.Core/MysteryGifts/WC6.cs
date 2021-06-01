@@ -25,8 +25,8 @@ namespace PKHeX.Core
                 return false;
             if (RestrictVersion == 0)
                 return true; // no data
-            var bitIndex = v - (int) GameVersion.X;
-            var bit = 1 << bitIndex;
+            int bitIndex = v - (int) GameVersion.X;
+            int bit = 1 << bitIndex;
             return (RestrictVersion & bit) != 0;
         }
 
@@ -269,10 +269,10 @@ namespace PKHeX.Core
             if (!IsPokémon)
                 throw new ArgumentException(nameof(IsPokémon));
 
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
 
             int currentLevel = Level > 0 ? Level : rnd.Next(1, 101);
-            var pi = PersonalTable.AO.GetFormEntry(Species, Form);
+            PersonalInfo? pi = PersonalTable.AO.GetFormEntry(Species, Form);
             PK6 pk = new()
             {
                 Species = Species,
@@ -398,10 +398,10 @@ namespace PKHeX.Core
 
         private void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = PersonalTable.AO.GetFormEntry(Species, Form);
+            PersonalInfo? pi = PersonalTable.AO.GetFormEntry(Species, Form);
             pk.Nature = (int)criteria.GetNature((Nature)Nature);
             pk.Gender = criteria.GetGender(Gender, pi);
-            var av = GetAbilityIndex(criteria);
+            int av = GetAbilityIndex(criteria);
             pk.RefreshAbility(av);
             SetPID(pk);
             SetIVs(pk);
@@ -438,8 +438,8 @@ namespace PKHeX.Core
         private void SetIVs(PKM pk)
         {
             int[] finalIVs = new int[6];
-            var ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
-            var rnd = Util.Rand;
+            int ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
+            Random? rnd = Util.Rand;
             if (ivflag == 0) // Random IVs
             {
                 for (int i = 0; i < 6; i++)

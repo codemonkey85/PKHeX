@@ -18,7 +18,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var pouch = new InventoryPouch[]
+                InventoryPouch[]? pouch = new InventoryPouch[]
                 {
                     new InventoryPouch7b(InventoryType.Medicine, Legal.Pouch_Medicine_GG, 999, Medicine, PouchSize7b.Medicine),
                     new InventoryPouch7b(InventoryType.TMHMs, Legal.Pouch_TM_GG, 1, TM, PouchSize7b.TM),
@@ -32,7 +32,7 @@ namespace PKHeX.Core
             }
             set
             {
-                foreach (var p in value)
+                foreach (InventoryPouch? p in value)
                     ((InventoryPouch7b)p).SanitizeCounts();
                 value.SaveAll(Data);
             }

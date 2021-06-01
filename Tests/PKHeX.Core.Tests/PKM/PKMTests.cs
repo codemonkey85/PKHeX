@@ -10,7 +10,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void MetDateNullWhenDateComponentsAreAllZero()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Met_Day = 0,
                 Met_Month = 0,
@@ -23,7 +23,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void MetDateReturnsCorrectDate()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Met_Day = 10,
                 Met_Month = 8,
@@ -36,7 +36,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void MetDateCalculatesYear0Correctly()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Met_Day = 1,
                 Met_Month = 1,
@@ -49,7 +49,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void SettingToNullZerosComponents()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Met_Day = 12,
                 Met_Month = 12,
@@ -70,7 +70,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void SettingMetDateSetsComponents()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Met_Day = 12,
                 Met_Month = 12,
@@ -94,7 +94,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void EggMetDateNullWhenDateComponentsAreAllZero()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Egg_Day = 0,
                 Egg_Month = 0,
@@ -107,7 +107,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void EggMetDateReturnsCorrectDate()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Egg_Day = 10,
                 Egg_Month = 8,
@@ -120,7 +120,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void EggMetDateCalculatesYear0Correctly()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Egg_Day = 1,
                 Egg_Month = 1,
@@ -133,7 +133,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void SettingEggMetDateToNullZerosComponents()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Egg_Day = 12,
                 Egg_Month = 12,
@@ -154,7 +154,7 @@ namespace PKHeX.Tests.PKM
         [Fact]
         public void SettingEggMetDateSetsComponents()
         {
-            var pk = new PK7
+            PK7? pk = new PK7
             {
                 Egg_Day = 12,
                 Egg_Month = 12,

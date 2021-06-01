@@ -99,7 +99,7 @@ namespace PKHeX.Core
         public override string GetDaycareRNGSeed(int loc)
         {
             int ofs = DaycareOffset;
-            var data = Data.AsSpan(ofs + 0x1E8, DaycareSeedSize / 2).ToArray();
+            byte[]? data = Data.AsSpan(ofs + 0x1E8, DaycareSeedSize / 2).ToArray();
             Array.Reverse(data);
             return BitConverter.ToString(data).Replace("-", string.Empty);
         }

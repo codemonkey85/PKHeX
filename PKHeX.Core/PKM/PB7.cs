@@ -446,14 +446,14 @@ namespace PKHeX.Core
         {
             get
             {
-                var p = PersonalInfo;
+                PersonalInfo? p = PersonalInfo;
                 int level = CurrentLevel;
                 int nature = Nature;
                 int scalar = CPScalar;
 
                 // Calculate stats for all, then sum together.
                 // HP is not overriden to 1 like a regular stat calc for Shedinja.
-                var statSum =
+                int statSum =
                     (ushort)GetStat(p.HP, HT_HP ? 31 : IV_HP, level) + 10 + level
                     + (ushort)(GetStat(p.ATK, HT_ATK ? 31 : IV_ATK, level, nature, 0) * scalar / 100)
                     + (ushort)(GetStat(p.DEF, HT_DEF ? 31 : IV_DEF, level, nature, 1) * scalar / 100)
@@ -485,10 +485,10 @@ namespace PKHeX.Core
         {
             get
             {
-                var sum = this.AwakeningSum();
+                int sum = this.AwakeningSum();
                 if (sum == 0)
                     return 0;
-                var lvl = CurrentLevel;
+                int lvl = CurrentLevel;
                 float scalar = lvl * 4f;
                 scalar /= 100f;
                 scalar += 2f;
@@ -517,16 +517,16 @@ namespace PKHeX.Core
 
         public void ResetHeight()
         {
-            var current = HeightAbsolute;
-            var updated = CalcHeightAbsolute;
+            float current = HeightAbsolute;
+            float updated = CalcHeightAbsolute;
             if (Math.Abs(current - updated) > 0.0001f)
                 HeightAbsolute = updated;
         }
 
         public void ResetWeight()
         {
-            var current = WeightAbsolute;
-            var updated = CalcWeightAbsolute;
+            float current = WeightAbsolute;
+            float updated = CalcWeightAbsolute;
             if (Math.Abs(current - updated) > 0.0001f)
                 WeightAbsolute = updated;
         }
@@ -601,7 +601,7 @@ namespace PKHeX.Core
 
         public PK8 ConvertToPK8()
         {
-            var pk8 = new PK8
+            PK8? pk8 = new PK8
             {
                 EncryptionConstant = EncryptionConstant,
                 Species = Species,

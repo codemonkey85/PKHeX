@@ -17,9 +17,9 @@
 #if NET5
             var pop_count = System.Numerics.BitOperations.PopCount(seed);
 #else
-            var pop_count = PopCount(seed);
+            uint pop_count = PopCount(seed);
 #endif
-            for (var i = 0; i < pop_count; i++)
+            for (int i = 0; i < pop_count; i++)
                 XorshiftAdvance(ref seed);
 
             Counter = 0;
@@ -31,8 +31,8 @@
         /// </summary>
         public uint Next()
         {
-            var c = Counter;
-            var val = (Seed >> (c << 3)) & 0xFF;
+            int c = Counter;
+            uint val = (Seed >> (c << 3)) & 0xFF;
             if (c == 3)
             {
                 XorshiftAdvance(ref Seed);

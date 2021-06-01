@@ -22,13 +22,13 @@ namespace PKHeX.Core
 
         public void DeleteAll()
         {
-            foreach (var b in Blocks)
+            foreach (PokeBlock3? b in Blocks)
                 b.Delete();
         }
 
         public void MaximizeAll(bool createMissing = false)
         {
-            foreach (var b in Blocks)
+            foreach (PokeBlock3? b in Blocks)
                 b.Maximize(createMissing);
         }
     }

@@ -30,12 +30,12 @@ namespace PKHeX.Core
         /// <returns>Remapped string</returns>
         public static string TransferGlyphs56(string str)
         {
-            var result = new char[str.Length];
-            var table = Glyph56;
+            char[]? result = new char[str.Length];
+            Dictionary<char, char>? table = Glyph56;
             for (int i = 0; i < str.Length; i++)
             {
-                var c = str[i];
-                result[i] = table.TryGetValue(c, out var translated) ? translated : c;
+                char c = str[i];
+                result[i] = table.TryGetValue(c, out char translated) ? translated : c;
             }
             return new string(result);
         }

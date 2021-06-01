@@ -15,8 +15,8 @@ namespace PKHeX.Core
         internal static EvoCriteria GetBaseSpecies(PKM pkm, int maxSpeciesOrigin, int generation, int skipOption = 0)
         {
             int tree = generation;
-            var table = EvolutionTree.GetEvolutionTree(pkm, tree);
-            var evos = table.GetValidPreEvolutions(pkm, maxLevel: 100, maxSpeciesOrigin: maxSpeciesOrigin, skipChecks: true);
+            EvolutionTree? table = EvolutionTree.GetEvolutionTree(pkm, tree);
+            List<EvoCriteria>? evos = table.GetValidPreEvolutions(pkm, maxLevel: 100, maxSpeciesOrigin: maxSpeciesOrigin, skipChecks: true);
             return GetBaseSpecies(evos, skipOption);
         }
 

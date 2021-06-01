@@ -32,7 +32,7 @@ namespace PKHeX.Core
 
         public GP1[] GetAllEntities()
         {
-            var value = new GP1[Count];
+            GP1[]? value = new GP1[Count];
             for (int i = 0; i < value.Length; i++)
                 value[i] = this[i];
             return value;
@@ -52,7 +52,7 @@ namespace PKHeX.Core
 
         public void DeleteAll()
         {
-            var blank = new GP1();
+            GP1? blank = new GP1();
             for (int i = 0; i < Count; i++)
                 this[i] = blank;
         }

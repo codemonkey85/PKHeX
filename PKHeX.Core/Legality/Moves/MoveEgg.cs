@@ -40,7 +40,7 @@ namespace PKHeX.Core
 
         private static int[] GetFormEggMoves(int species, int form, IReadOnlyList<EggMoves7> table)
         {
-            var entry = table[species];
+            EggMoves7? entry = table[species];
             if (form > 0 && entry.FormTableIndex > species)
                 entry = table[entry.FormTableIndex + form - 1];
             return entry.Moves;
@@ -69,7 +69,7 @@ namespace PKHeX.Core
         {
             if (gen < 8 || pkm.IsEgg)
                 return false;
-            var egg = GetSharedEggMoves(pkm, gen);
+            int[]? egg = GetSharedEggMoves(pkm, gen);
             return Array.IndexOf(egg, move) >= 0;
         }
 
@@ -77,10 +77,10 @@ namespace PKHeX.Core
         {
             if (gen < 8 || pkm.IsEgg)
                 return Array.Empty<int>();
-            var table = PersonalTable.SWSH;
-            var entry = (PersonalInfoSWSH)table.GetFormEntry(pkm.Species, pkm.Form);
-            var baseSpecies = entry.HatchSpecies;
-            var baseForm = entry.HatchFormIndexEverstone;
+            PersonalTable? table = PersonalTable.SWSH;
+            PersonalInfoSWSH? entry = (PersonalInfoSWSH)table.GetFormEntry(pkm.Species, pkm.Form);
+            int baseSpecies = entry.HatchSpecies;
+            int baseForm = entry.HatchFormIndexEverstone;
             return GetEggMoves(8, baseSpecies, baseForm, SW);
         }
     }

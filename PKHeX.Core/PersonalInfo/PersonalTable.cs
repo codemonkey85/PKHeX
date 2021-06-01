@@ -161,9 +161,9 @@ namespace PKHeX.Core
         private static void PopulateGen3Tutors()
         {
             // Update Gen3 data with Emerald's data, FR/LG is a subset of Emerald's compatibility.
-            var machine = BinLinker.Unpack(Util.GetBinaryResource("hmtm_g3.pkl"), "g3");
-            var tutors = BinLinker.Unpack(Util.GetBinaryResource("tutors_g3.pkl"), "g3");
-            var table = E.Table;
+            byte[][]? machine = BinLinker.Unpack(Util.GetBinaryResource("hmtm_g3.pkl"), "g3");
+            byte[][]? tutors = BinLinker.Unpack(Util.GetBinaryResource("tutors_g3.pkl"), "g3");
+            PersonalInfo[]? table = E.Table;
             for (int i = 0; i <= Legal.MaxSpeciesID_3; i++)
             {
                 table[i].AddTMHM(machine[i]);
@@ -173,8 +173,8 @@ namespace PKHeX.Core
 
         private static void PopulateGen4Tutors()
         {
-            var tutors = BinLinker.Unpack(Util.GetBinaryResource("tutors_g4.pkl"), "g4");
-            var table = HGSS.Table;
+            byte[][]? tutors = BinLinker.Unpack(Util.GetBinaryResource("tutors_g4.pkl"), "g4");
+            PersonalInfo[]? table = HGSS.Table;
             for (int i = 0; i < tutors.Length; i++)
                 table[i].AddTypeTutors(tutors[i]);
         }
@@ -185,12 +185,12 @@ namespace PKHeX.Core
         /// </summary>
         private static void CopyDexitGenders()
         {
-            var swsh = SWSH.Table;
-            var usum = USUM.Table;
+            PersonalInfo[]? swsh = SWSH.Table;
+            PersonalInfo[]? usum = USUM.Table;
 
             for (int i = 1; i <= Legal.MaxSpeciesID_7_USUM; i++)
             {
-                var ss = swsh[i];
+                PersonalInfo? ss = swsh[i];
                 if (ss.HP == 0)
                     ss.Gender = usum[i].Gender;
             }
@@ -198,10 +198,10 @@ namespace PKHeX.Core
 
         public PersonalTable(byte[] data, GameVersion format)
         {
-            var get = GetConstructor(format);
+            Func<byte[], PersonalInfo>? get = GetConstructor(format);
             int size = GetEntrySize(format);
             byte[][] entries = data.Split(size);
-            var table = new PersonalInfo[entries.Length];
+            PersonalInfo[]? table = new PersonalInfo[entries.Length];
             for (int i = 0; i < table.Length; i++)
                 table[i] = get(entries[i]);
 
@@ -222,14 +222,14 @@ namespace PKHeX.Core
         {
             get
             {
-                var table = Table;
+                PersonalInfo[]? table = Table;
                 if ((uint)index >= table.Length)
                     return table[0];
                 return table[index];
             }
             set
             {
-                var table = Table;
+                PersonalInfo[]? table = Table;
                 if ((uint)index >= table.Length)
                     return;
                 table[index] = value;

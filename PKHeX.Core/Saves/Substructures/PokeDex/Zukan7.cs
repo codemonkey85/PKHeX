@@ -140,7 +140,7 @@ namespace PKHeX.Core
             int shift = (pkm.Gender & 1) | (pkm.IsShiny ? 2 : 0);
             if (alreadySeen) // update?
             {
-                var flag1 = (1 << (shift + 4));
+                int flag1 = (1 << (shift + 4));
                 if ((SAV.Data[PokeDex + 0x84] & flag1) != 0) // Already showing this one
                     return;
                 BitConverter.GetBytes(pkm.EncryptionConstant).CopyTo(SAV.Data, PokeDex + 0x8E8 + (shift * 4));
@@ -167,7 +167,7 @@ namespace PKHeX.Core
 
         public IEnumerable<int> GetAllFormEntries(int species)
         {
-            var fc = SAV.Personal[species].FormCount;
+            int fc = SAV.Personal[species].FormCount;
             for (int j = 1; j < fc; j++)
             {
                 int start = j;
@@ -189,7 +189,7 @@ namespace PKHeX.Core
 
         public int GetDexFormIndex(int species, int fc, int f)
         {
-            var index = DexFormIndexFetcher(species, fc, f);
+            int index = DexFormIndexFetcher(species, fc, f);
             if (index < 0)
                 return index;
             return index + SAV.MaxSpeciesID - 1;
@@ -197,8 +197,8 @@ namespace PKHeX.Core
 
         public IList<string> GetEntryNames(IReadOnlyList<string> speciesNames)
         {
-            var names = new List<string>();
-            var max = SAV.MaxSpeciesID;
+            List<string>? names = new List<string>();
+            int max = SAV.MaxSpeciesID;
             for (int i = 1; i <= max; i++)
                 names.Add($"{i:000} - {speciesNames[i]}");
 
@@ -223,7 +223,7 @@ namespace PKHeX.Core
         /// <returns></returns>
         private List<int> GetFormIndexBaseSpeciesList()
         {
-            var baseSpecies = new List<int>();
+            List<int>? baseSpecies = new List<int>();
             for (int species = 1; species <= SAV.MaxSpeciesID; species++)
             {
                 int c = SAV.Personal[species].FormCount;
@@ -273,7 +273,7 @@ namespace PKHeX.Core
 
         public bool[] GetLanguageBitflags(int species)
         {
-            var result = new bool[DexLangIDCount];
+            bool[]? result = new bool[DexLangIDCount];
             int bit = species - 1;
             for (int i = 0; i < DexLangIDCount; i++)
             {
@@ -295,20 +295,20 @@ namespace PKHeX.Core
 
         public void ToggleLanguageFlagsAll(bool value)
         {
-            var arr = GetBlankLanguageBits(value);
+            bool[]? arr = GetBlankLanguageBits(value);
             for (int i = 1; i <= SAV.MaxSpeciesID; i++)
                 SetLanguageBitflags(i, arr);
         }
 
         public void ToggleLanguageFlagsSingle(int species, bool value)
         {
-            var arr = GetBlankLanguageBits(value);
+            bool[]? arr = GetBlankLanguageBits(value);
             SetLanguageBitflags(species, arr);
         }
 
         private bool[] GetBlankLanguageBits(bool value)
         {
-            var result = new bool[DexLangIDCount];
+            bool[]? result = new bool[DexLangIDCount];
             for (int i = 0; i < DexLangIDCount; i++)
                 result[i] = value;
             return result;

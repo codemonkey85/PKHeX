@@ -22,7 +22,7 @@ namespace PKHeX.Core
         /// <returns>Decoded <see cref="PKM"/> object, null if invalid.</returns>
         public static PKM? GetPKM(string message, int format)
         {
-            var data = DecodeMessagePKM(message);
+            byte[]? data = DecodeMessagePKM(message);
             if (data == null)
                 return null;
             return PKMConverter.GetPKMfromBytes(data, format);
@@ -41,8 +41,8 @@ namespace PKHeX.Core
                 return GetMessage(payload);
             }
 
-            var server = GetExploitURLPrefixPKM(pkm.Format);
-            var data = pkm.EncryptedBoxData;
+            string? server = GetExploitURLPrefixPKM(pkm.Format);
+            byte[]? data = pkm.EncryptedBoxData;
             return GetMessageBase64(data, server);
         }
 
@@ -60,8 +60,8 @@ namespace PKHeX.Core
         /// <returns>QR Message</returns>
         public static string GetMessage(DataMysteryGift mg)
         {
-            var server = GetExploitURLPrefixWC(mg.Generation);
-            var data = mg.Write();
+            string? server = GetExploitURLPrefixWC(mg.Generation);
+            byte[]? data = mg.Write();
             return GetMessageBase64(data, server);
         }
 

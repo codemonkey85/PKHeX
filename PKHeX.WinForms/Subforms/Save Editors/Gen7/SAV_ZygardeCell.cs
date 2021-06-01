@@ -19,7 +19,7 @@ namespace PKHeX.WinForms
             // Cell Data @ 0x1D8C
             // Use constants 0x18C/2 = 198 thru +95
             ushort[] constants = SAV.GetEventConsts();
-            var cells = constants.AsSpan(celloffset, CellCount);
+            Span<ushort> cells = constants.AsSpan(celloffset, CellCount);
 
             int cellCount = constants[cellstotal];
             int cellCollected = constants[cellscollected];
@@ -27,14 +27,14 @@ namespace PKHeX.WinForms
             NUD_Cells.Value = cellCount;
             NUD_Collected.Value = cellCollected;
 
-            var combo = (DataGridViewComboBoxColumn)dgv.Columns[2];
+            DataGridViewComboBoxColumn? combo = (DataGridViewComboBoxColumn)dgv.Columns[2];
             foreach (string t in states)
                 combo.Items.Add(t); // add only the Names
             dgv.Columns[0].ValueType = typeof(int);
 
             // Populate Grid
             dgv.Rows.Add(CellCount);
-            var locations = SAV is SAV7SM ? locationsSM : locationsUSUM;
+            string[]? locations = SAV is SAV7SM ? locationsSM : locationsUSUM;
             for (int i = 0; i < CellCount; i++)
             {
                 if (cells[i] > 2)

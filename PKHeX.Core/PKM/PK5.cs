@@ -519,7 +519,7 @@ namespace PKHeX.Core
 
         private int CalculateAbilityIndex()
         {
-            var pi = (PersonalInfoB2W2) PersonalInfo;
+            PersonalInfoB2W2? pi = (PersonalInfoB2W2) PersonalInfo;
             if (HiddenAbility)
                 return 2;
             if (pi.Ability1 == Ability)
@@ -527,7 +527,7 @@ namespace PKHeX.Core
             if (pi.Ability2 == Ability)
                 return 1;
             // reset ability, invalid
-            var pid = PID;
+            uint pid = PID;
             if (Gen5)
                 pid >>= 16;
             return (int)(pid & 1);

@@ -14,7 +14,7 @@ namespace PKHeX.Core
             if (battletype > 3)
                 throw new ArgumentException(nameof(battletype));
 
-            var offset = GetStreakOffset(battletype, super, max);
+            int offset = GetStreakOffset(battletype, super, max);
             return BitConverter.ToUInt16(Data, Offset + offset);
         }
 
@@ -26,7 +26,7 @@ namespace PKHeX.Core
             if (value > ushort.MaxValue)
                 value = ushort.MaxValue;
 
-            var offset = GetStreakOffset(battletype, super, max);
+            int offset = GetStreakOffset(battletype, super, max);
             BitConverter.GetBytes((ushort)value).CopyTo(Data, Offset + offset);
         }
 
@@ -47,15 +47,15 @@ namespace PKHeX.Core
             if ((uint)index >= ScoutCount)
                 throw new ArgumentException(nameof(index));
 
-            var id = BitConverter.ToInt16(Data, Offset + 0x24 + (index * 2));
-            var p1 = BitConverter.ToInt16(Data, Offset + 0x88 + (index * 2));
-            var p2 = BitConverter.ToInt16(Data, Offset + 0xEC + (index * 2));
+            short id = BitConverter.ToInt16(Data, Offset + 0x24 + (index * 2));
+            short p1 = BitConverter.ToInt16(Data, Offset + 0x88 + (index * 2));
+            short p2 = BitConverter.ToInt16(Data, Offset + 0xEC + (index * 2));
 
-            var a1 = (sbyte)Data[Offset + 0x154 + index];
-            var a2 = (sbyte)Data[Offset + 0x186 + index];
+            sbyte a1 = (sbyte)Data[Offset + 0x154 + index];
+            sbyte a2 = (sbyte)Data[Offset + 0x186 + index];
 
-            var poke1 = new BattleTreePokemon(p1, a1);
-            var poke2 = new BattleTreePokemon(p2, a2);
+            BattleTreePokemon? poke1 = new BattleTreePokemon(p1, a1);
+            BattleTreePokemon? poke2 = new BattleTreePokemon(p2, a2);
             return new BattleTreeTrainer(id, poke1, poke2);
         }
 
@@ -82,7 +82,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var result = new BattleTreeTrainer[ScoutCount];
+                BattleTreeTrainer[]? result = new BattleTreeTrainer[ScoutCount];
                 for (int i = 0; i < result.Length; i++)
                     result[i] = GetTrainer(i);
                 return result;

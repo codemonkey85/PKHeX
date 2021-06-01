@@ -49,7 +49,7 @@ namespace PKHeX.Core
         /// <returns>True if compatible, false if incompatible.</returns>
         public bool IsIVsCompatible(int[] encounterIVs, int generation)
         {
-            var IVs = encounterIVs;
+            int[]? IVs = encounterIVs;
             if (!ivCanMatch(IV_HP , IVs[0])) return false;
             if (!ivCanMatch(IV_ATK, IVs[1])) return false;
             if (!ivCanMatch(IV_DEF, IVs[2])) return false;
@@ -76,7 +76,7 @@ namespace PKHeX.Core
         /// <param name="t">Personal table the end result will exist with.</param>
         public static EncounterCriteria GetCriteria(IBattleTemplate s, PersonalTable t)
         {
-            var pi = t.GetFormEntry(s.Species, s.Form);
+            PersonalInfo? pi = t.GetFormEntry(s.Species, s.Form);
             return GetCriteria(s, pi);
         }
 
@@ -108,10 +108,10 @@ namespace PKHeX.Core
 
         private static AbilityPermission GetAbilityNumber(int ability, PersonalInfo pi)
         {
-            var abilities = pi.Abilities;
+            IReadOnlyList<int>? abilities = pi.Abilities;
             if (abilities.Count < 2)
                 return 0;
-            var dual = GetAbilityValueDual(ability, abilities);
+            AbilityPermission dual = GetAbilityValueDual(ability, abilities);
             if (abilities.Count == 2) // prior to gen5
                 return dual;
             if (abilities[2] == ability)

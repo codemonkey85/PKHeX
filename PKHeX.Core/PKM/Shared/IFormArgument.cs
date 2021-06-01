@@ -50,7 +50,7 @@ namespace PKHeX.Core
                 return;
             if (!IsFormArgumentTypeDatePair(pkm.Species, pkm.Form))
             {
-                var suggest = originalSpecies switch
+                uint suggest = originalSpecies switch
                 {
                     (int) Yamask when pkm.Species == (int) Runerigus => 49u,
                     _ => 0u,
@@ -58,7 +58,7 @@ namespace PKHeX.Core
                 pkm.ChangeFormArgument(suggest);
                 return;
             }
-            var max = GetFormArgumentMax(pkm.Species, pkm.Form, pkm.Format);
+            uint max = GetFormArgumentMax(pkm.Species, pkm.Form, pkm.Format);
             pkm.ChangeFormArgument(max);
         }
 
@@ -88,7 +88,7 @@ namespace PKHeX.Core
                 return;
             }
 
-            var max = GetFormArgumentMax(species, form, generation);
+            uint max = GetFormArgumentMax(species, form, generation);
             f.FormArgumentRemain = (byte)value;
             if (value == max)
             {

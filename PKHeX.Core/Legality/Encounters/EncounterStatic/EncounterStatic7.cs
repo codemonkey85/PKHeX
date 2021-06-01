@@ -25,7 +25,7 @@ namespace PKHeX.Core
 
         protected override bool IsMatchEggLocation(PKM pkm)
         {
-            var eggloc = pkm.Egg_Location;
+            int eggloc = pkm.Egg_Location;
             if (!EggEncounter)
                 return eggloc == EggLocation;
 
@@ -47,7 +47,7 @@ namespace PKHeX.Core
 
             if (IsTotem)
             {
-                var expectForm = pkm.Format == 7 ? Form : FormInfo.GetTotemBaseForm(Species, Form);
+                int expectForm = pkm.Format == 7 ? Form : FormInfo.GetTotemBaseForm(Species, Form);
                 return expectForm == evo.Form;
             }
 

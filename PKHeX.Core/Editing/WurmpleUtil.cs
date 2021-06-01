@@ -9,7 +9,7 @@
         /// <returns>Wurmple Evolution Value</returns>
         public static uint GetWurmpleEvoVal(uint encryptionConstant)
         {
-            var evoVal = encryptionConstant >> 16;
+            uint evoVal = encryptionConstant >> 16;
             return evoVal % 10 / 5;
         }
 

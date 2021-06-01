@@ -167,9 +167,9 @@ namespace PKHeX.Core
             if (!IsPokémon)
                 throw new ArgumentException(nameof(IsPokémon));
 
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
 
-            var dt = DateTime.Now;
+            DateTime dt = DateTime.Now;
             if (Day == 0)
             {
                 Day = (byte)dt.Day;
@@ -178,7 +178,7 @@ namespace PKHeX.Core
             }
 
             int currentLevel = Level > 0 ? Level : rnd.Next(1, 101);
-            var pi = PersonalTable.B2W2.GetFormEntry(Species, Form);
+            PersonalInfo? pi = PersonalTable.B2W2.GetFormEntry(Species, Form);
             PK5 pk = new()
             {
                 Species = Species,
@@ -272,10 +272,10 @@ namespace PKHeX.Core
 
         private void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = PersonalTable.B2W2.GetFormEntry(Species, Form);
+            PersonalInfo? pi = PersonalTable.B2W2.GetFormEntry(Species, Form);
             pk.Nature = (int)criteria.GetNature((Nature)Nature);
             pk.Gender = pi.Genderless ? 2 : Gender != 2 ? Gender : criteria.GetGender(-1, pi);
-            var av = GetAbilityIndex(criteria);
+            int av = GetAbilityIndex(criteria);
             SetPID(pk, av);
             pk.RefreshAbility(av);
             SetIVs(pk);
@@ -298,7 +298,7 @@ namespace PKHeX.Core
 
             pk.PID = Util.Rand32();
             // Force Gender
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             do { pk.PID = (pk.PID & 0xFFFFFF00) | (uint)rnd.Next(0x100); }
             while (!pk.IsGenderValid());
 
@@ -322,7 +322,7 @@ namespace PKHeX.Core
         private void SetIVs(PKM pk)
         {
             int[] finalIVs = new int[6];
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             for (int i = 0; i < IVs.Length; i++)
                 finalIVs[i] = IVs[i] == 0xFF ? rnd.Next(32) : IVs[i];
             pk.IVs = finalIVs;

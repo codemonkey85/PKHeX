@@ -99,8 +99,8 @@ namespace PKHeX.Tests.Legality.Shadow
         [MemberData(nameof(Lock5))]
         public static void Verify(TeamLock[] teams, uint pid, int[] ivs)
         {
-            var pk3 = new PK3 { PID = pid, IVs = ivs };
-            var info = MethodFinder.Analyze(pk3);
+            PK3? pk3 = new PK3 { PID = pid, IVs = ivs };
+            PIDIV? info = MethodFinder.Analyze(pk3);
             info.Type.Should().Be(PIDType.CXD, "because the PID should match the CXD spread");
             bool match = LockFinder.IsAllShadowLockValid(info, teams);
             match.Should().BeTrue($"because the lock conditions for {teams[0].Species} should have been verified");
@@ -151,16 +151,16 @@ namespace PKHeX.Tests.Legality.Shadow
         [MemberData(nameof(TestData))]
         public static void VerifyResults(IReadOnlyList<uint[]> results, TeamLock[] team)
         {
-            var pkm = new PK3();
+            PK3? pkm = new PK3();
             for (int i = 0; i < results.Count; i++)
             {
-                var result = results[i];
-                var seeds = getSeeds(result[^1]);
+                uint[]? result = results[i];
+                IEnumerable<uint>? seeds = getSeeds(result[^1]);
                 bool match = false;
-                foreach (var seed in seeds)
+                foreach (uint seed in seeds)
                 {
                     PIDGenerator.SetValuesFromSeed(pkm, PIDType.CXD, seed);
-                    var info = MethodFinder.Analyze(pkm);
+                    PIDIV? info = MethodFinder.Analyze(pkm);
                     info.OriginSeed.Should().Be(seed);
                     info.Type.Should().Be(PIDType.CXD, "because the PID should have matched the CXD spread");
                     if (!LockFinder.IsAllShadowLockValid(info, team))
@@ -173,11 +173,11 @@ namespace PKHeX.Tests.Legality.Shadow
 
             static IEnumerable<uint> getSeeds(uint PID)
             {
-                var top = PID >> 16;
-                var bot = PID & 0xFFFF;
+                uint top = PID >> 16;
+                uint bot = PID & 0xFFFF;
 
-                var seeds = MethodFinder.GetSeedsFromPIDEuclid(RNG.XDRNG, top, bot);
-                foreach (var s in seeds)
+                IEnumerable<uint>? seeds = MethodFinder.GetSeedsFromPIDEuclid(RNG.XDRNG, top, bot);
+                foreach (uint s in seeds)
                     yield return RNG.XDRNG.Reverse(s, 3);
             }
         }
@@ -197,7 +197,7 @@ namespace PKHeX.Tests.Legality.Shadow
 
         private static void VerifyResultsAntiShiny(uint[] results, TeamLock[] team, int tid, int sid, int[] ivs)
         {
-            var pk3 = new PK3
+            PK3? pk3 = new PK3
             {
                 PID = results[^1],
                 TID = tid,
@@ -205,7 +205,7 @@ namespace PKHeX.Tests.Legality.Shadow
                 IVs = ivs,
             };
 
-            var info = MethodFinder.Analyze(pk3);
+            PIDIV? info = MethodFinder.Analyze(pk3);
             info.Type.Should().Be(PIDType.CXD, "because the PID should have matched the CXD spread");
             bool result = LockFinder.IsAllShadowLockValid(info, team, pk3.TSV);
             result.Should().BeTrue();

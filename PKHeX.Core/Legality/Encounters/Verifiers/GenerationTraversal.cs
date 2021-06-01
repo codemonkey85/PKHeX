@@ -44,7 +44,7 @@ namespace PKHeX.Core
                 return Array.Empty<int>();
             if (start <= end)
                 return new[] { start };
-            var order = new int[start - end + 1];
+            int[]? order = new int[start - end + 1];
             for (int i = 0; i < order.Length; i++)
                 order[i] = start - i;
             return order;

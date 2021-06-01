@@ -32,7 +32,7 @@ namespace PKHeX.Core
         {
             // Don't use the byte[] constructor, the DecryptIfEncrypted call is based on checksum.
             // An invalid checksum will shuffle the data; we already know it's un-shuffled. Set up manually.
-            var pk = new PK3 {Identifier = Identifier};
+            PK3? pk = new PK3 {Identifier = Identifier};
             Data.CopyTo(pk.Data, 0);
             return pk;
         }
@@ -298,7 +298,7 @@ namespace PKHeX.Core
 
             // Yay for reusing string buffers! The game allocates a buffer and reuses it when creating strings.
             // Trash from the {unknown source} is currently in buffer. Set it to the Nickname region.
-            var trash = StringConverter345.G4TransferTrashBytes;
+            byte[][]? trash = StringConverter345.G4TransferTrashBytes;
             if (pk4.Language < trash.Length)
                 trash[pk4.Language].CopyTo(pk4.Data, 0x48 + 4);
             pk4.Nickname = IsEgg ? SpeciesName.GetSpeciesNameGeneration(pk4.Species, pk4.Language, 4) : Nickname;
@@ -333,14 +333,14 @@ namespace PKHeX.Core
 
         public XK3 ConvertToXK3()
         {
-            var pk = ConvertTo<XK3>();
+            XK3? pk = ConvertTo<XK3>();
             pk.ResetPartyStats();
             return pk;
         }
 
         public CK3 ConvertToCK3()
         {
-            var pk = ConvertTo<CK3>();
+            CK3? pk = ConvertTo<CK3>();
             pk.ResetPartyStats();
             return pk;
         }

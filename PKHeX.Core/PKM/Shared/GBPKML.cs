@@ -47,9 +47,9 @@ namespace PKHeX.Core
 
         protected override byte[] GetNonNickname(int language)
         {
-            var name = SpeciesName.GetSpeciesNameGeneration(Species, language, Format);
-            var len = Nickname_Trash.Length;
-            var data = SetString(name, len, len, 0x50);
+            string? name = SpeciesName.GetSpeciesNameGeneration(Species, language, Format);
+            int len = Nickname_Trash.Length;
+            byte[]? data = SetString(name, len, len, 0x50);
             if (!Korean)
             {
                 // Decimal point<->period fix

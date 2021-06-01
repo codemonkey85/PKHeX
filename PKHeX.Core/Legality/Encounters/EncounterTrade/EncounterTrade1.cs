@@ -30,20 +30,20 @@ namespace PKHeX.Core
 
         public byte GetInitialCatchRate()
         {
-            var pt = Version == GameVersion.YW ? PersonalTable.Y : PersonalTable.RB;
+            PersonalTable? pt = Version == GameVersion.YW ? PersonalTable.Y : PersonalTable.RB;
             return (byte)pt[Species].CatchRate;
         }
 
         protected override void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
             base.ApplyDetails(sav, criteria, pk);
-            var pk1 = (PK1)pk;
+            PK1? pk1 = (PK1)pk;
             pk1.Catch_Rate = GetInitialCatchRate();
         }
 
         internal bool IsNicknameValid(PKM pkm)
         {
-            var nick = pkm.Nickname;
+            string? nick = pkm.Nickname;
             if (pkm.Format <= 2)
                 return Nicknames.Contains(nick);
 
@@ -69,13 +69,13 @@ namespace PKHeX.Core
 
             // Converted string 1/2->7 to language specific value
             int lang = pkm.Language;
-            var tr = GetOT(lang);
+            string? tr = GetOT(lang);
             return ot == tr;
         }
 
         private int GetNicknameIndex(string nickname)
         {
-            var nn = Nicknames;
+            System.Collections.Generic.IReadOnlyList<string>? nn = Nicknames;
             for (int i = 0; i < nn.Count; i++)
             {
                 if (nn[i] == nickname)
@@ -130,7 +130,7 @@ namespace PKHeX.Core
             if (pkm is not PK1 pk1)
                 return false;
 
-            var req = GetInitialCatchRate();
+            byte req = GetInitialCatchRate();
             return req != pk1.Catch_Rate;
         }
     }

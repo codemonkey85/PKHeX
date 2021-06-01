@@ -17,7 +17,7 @@ namespace PKHeX.Core
         {
             static string AfterSplit(string l)
             {
-                var split = l.IndexOf(TranslationSplitter, StringComparison.Ordinal);
+                int split = l.IndexOf(TranslationSplitter, StringComparison.Ordinal);
                 return l[..split];
             }
             return input.Select(AfterSplit).ToArray();
@@ -25,7 +25,7 @@ namespace PKHeX.Core
 
         private static IEnumerable<string> DumpStrings(Type t)
         {
-            var props = ReflectUtil.GetPropertiesStartWithPrefix(t, string.Empty);
+            IEnumerable<string>? props = ReflectUtil.GetPropertiesStartWithPrefix(t, string.Empty);
             return props.Select(p => $"{p}{TranslationSplitter}{ReflectUtil.GetValue(t, p)}");
         }
 
@@ -42,11 +42,11 @@ namespace PKHeX.Core
         /// <param name="existingLines">Existing localization lines (if provided)</param>
         public static string[] GetLocalization(Type t, string[] existingLines)
         {
-            var currentLines = GetLocalization(t);
-            var existing = GetProperties(existingLines);
-            var current = GetProperties(currentLines);
+            string[]? currentLines = GetLocalization(t);
+            string[]? existing = GetProperties(existingLines);
+            string[]? current = GetProperties(currentLines);
 
-            var result = new string[currentLines.Length];
+            string[]? result = new string[currentLines.Length];
             for (int i = 0; i < current.Length; i++)
             {
                 int index = Array.IndexOf(existing, current[i]);
@@ -64,13 +64,13 @@ namespace PKHeX.Core
         {
             if (lines.Count == 0)
                 return;
-            foreach (var line in lines)
+            foreach (string? line in lines)
             {
-                var index = line.IndexOf(TranslationSplitter, StringComparison.Ordinal);
+                int index = line.IndexOf(TranslationSplitter, StringComparison.Ordinal);
                 if (index < 0)
                     continue;
-                var prop = line[..index];
-                var value = line[(index + TranslationSplitter.Length)..];
+                string? prop = line[..index];
+                string? value = line[(index + TranslationSplitter.Length)..];
 
                 try
                 {
@@ -95,7 +95,7 @@ namespace PKHeX.Core
         /// <param name="currentCultureCode">Culture information</param>
         private static void SetLocalization(Type t, string languageFilePrefix, string currentCultureCode)
         {
-            var lines = Util.GetStringList($"{languageFilePrefix}_{currentCultureCode}");
+            string[]? lines = Util.GetStringList($"{languageFilePrefix}_{currentCultureCode}");
             SetLocalization(t, lines);
         }
 

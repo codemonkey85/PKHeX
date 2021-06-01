@@ -99,7 +99,7 @@ namespace PKHeX.Core
             {
                 while (true)
                 {
-                    var result = EvolutionMethod.GetAmpLowKeyResult(pk.Nature);
+                    int result = EvolutionMethod.GetAmpLowKeyResult(pk.Nature);
                     if (result == pk.Form)
                         break;
                     pk.Nature = Util.Rand.Next(25);

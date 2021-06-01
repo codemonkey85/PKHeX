@@ -115,8 +115,8 @@ namespace PKHeX.WinForms
 
         private void SaveMiscValues()
         {
-            var singles = Math.Min(9_999_999u, Util.ToUInt32(MT_BattleTowerSinglesWin.Text));
-            var doubles = Math.Min(9_999_999u, Util.ToUInt32(MT_BattleTowerDoublesWin.Text));
+            uint singles = Math.Min(9_999_999u, Util.ToUInt32(MT_BattleTowerSinglesWin.Text));
+            uint doubles = Math.Min(9_999_999u, Util.ToUInt32(MT_BattleTowerDoublesWin.Text));
             SAV.SetValue(SaveBlockAccessor8SWSH.KBattleTowerSinglesVictory, singles);
             SAV.SetValue(SaveBlockAccessor8SWSH.KBattleTowerDoublesVictory, doubles);
             SAV.SetValue(SaveBlockAccessor8SWSH.KBattleTowerSinglesStreak, (ushort)Math.Min(300, Util.ToUInt32(MT_BattleTowerSinglesStreak.Text)));
@@ -145,7 +145,7 @@ namespace PKHeX.WinForms
             SAV.Blocks.TrainerCard.TrainerID = Util.ToInt32(MT_TrainerCardID.Text);
             SAV.Blocks.TrainerCard.RotoRallyScore = Util.ToInt32(MT_RotoRally.Text);
 
-            var watt = Util.ToUInt32(MT_Watt.Text);
+            uint watt = Util.ToUInt32(MT_Watt.Text);
             SAV.MyStatus.Watt = watt;
             if (SAV.GetRecord(Record8.WattTotal) < watt)
                 SAV.SetRecord(Record8.WattTotal, (int)watt);
@@ -182,7 +182,7 @@ namespace PKHeX.WinForms
             if (ModifierKeys != Keys.Control)
                 return;
 
-            var d = new TrashEditor(tb, SAV);
+            TrashEditor? d = new TrashEditor(tb, SAV);
             d.ShowDialog();
             tb.Text = d.FinalString;
         }
@@ -214,13 +214,13 @@ namespace PKHeX.WinForms
 
         private void ChangeTrainerCardIndex(object sender, EventArgs e)
         {
-            var index = (int)NUD_ShowTrainerCard.Value - 1;
+            int index = (int)NUD_ShowTrainerCard.Value - 1;
             PG_ShowTrainerCard.SelectedObject = SAV.Blocks.TrainerCard.ViewPoke(index);
         }
 
         private void ChangeTitleScreenIndex(object sender, EventArgs e)
         {
-            var index = (int)NUD_ShowTitleScreen.Value - 1;
+            int index = (int)NUD_ShowTitleScreen.Value - 1;
             PG_ShowTitleScreen.SelectedObject = SAV.Blocks.TitleScreen.ViewPoke(index);
         }
 

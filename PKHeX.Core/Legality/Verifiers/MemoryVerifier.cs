@@ -20,7 +20,7 @@ namespace PKHeX.Core
 
         private CheckResult VerifyCommonMemory(PKM pkm, int handler, int gen, LegalInfo info)
         {
-            var memory = MemoryVariableSet.Read((ITrainerMemories)pkm, handler);
+            MemoryVariableSet memory = MemoryVariableSet.Read((ITrainerMemories)pkm, handler);
 
             // Actionable HM moves
             int matchingMoveMemory = Array.IndexOf(Memories.MoveSpecificMemories[0], memory.MemoryID);
@@ -107,7 +107,7 @@ namespace PKHeX.Core
         /// <param name="f">Feeling</param>
         private void VerifyOTMemoryIs(LegalityAnalysis data, int m, int i, int t, int f)
         {
-            var pkm = (ITrainerMemories)data.pkm;
+            ITrainerMemories? pkm = (ITrainerMemories)data.pkm;
             if (pkm.OT_Memory != m)
                 data.AddLine(GetInvalid(string.Format(LMemoryIndexID, L_XOT, m)));
             if (pkm.OT_Intensity != i)
@@ -126,9 +126,9 @@ namespace PKHeX.Core
 
         private void VerifyOTMemory(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var mem = (ITrainerMemories)pkm;
-            var Info = data.Info;
+            PKM? pkm = data.pkm;
+            ITrainerMemories? mem = (ITrainerMemories)pkm;
+            LegalInfo? Info = data.Info;
 
             switch (data.EncounterMatch)
             {
@@ -205,7 +205,7 @@ namespace PKHeX.Core
 
                 // {0} was with {1} when {1} caught {2}. {4} that {3}.
                 case 14:
-                    var result = GetCanBeCaptured(mem.OT_TextVar, Info.Generation, (GameVersion)pkm.Version) // Any Game in the Handling Trainer's generation
+                    CheckResult? result = GetCanBeCaptured(mem.OT_TextVar, Info.Generation, (GameVersion)pkm.Version) // Any Game in the Handling Trainer's generation
                         ? GetValid(string.Format(LMemoryArgSpecies, L_XOT))
                         : GetInvalid(string.Format(LMemoryArgBadSpecies, L_XOT));
                     data.AddLine(result);
@@ -237,11 +237,11 @@ namespace PKHeX.Core
 
         private void VerifyHTMemory(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var mem = (ITrainerMemories)pkm;
-            var Info = data.Info;
+            PKM? pkm = data.pkm;
+            ITrainerMemories? mem = (ITrainerMemories)pkm;
+            LegalInfo? Info = data.Info;
 
-            var memory = mem.HT_Memory;
+            int memory = mem.HT_Memory;
 
             if (pkm.IsUntraded)
             {
@@ -263,7 +263,7 @@ namespace PKHeX.Core
                 return;
             }
 
-            var memoryGen = pkm.Format >= 8 ? 8 : 6;
+            int memoryGen = pkm.Format >= 8 ? 8 : 6;
 
             // Bounds checking
             switch (memoryGen)
@@ -303,14 +303,14 @@ namespace PKHeX.Core
 
                 // {0} was with {1} when {1} caught {2}. {4} that {3}.
                 case 14:
-                    var result = GetCanBeCaptured(mem.HT_TextVar, memoryGen, GameVersion.Any) // Any Game in the Handling Trainer's generation
+                    CheckResult? result = GetCanBeCaptured(mem.HT_TextVar, memoryGen, GameVersion.Any) // Any Game in the Handling Trainer's generation
                         ? GetValid(string.Format(LMemoryArgSpecies, L_XHT))
                         : GetInvalid(string.Format(LMemoryArgBadSpecies, L_XHT));
                     data.AddLine(result);
                     return;
             }
 
-            var commonResult = VerifyCommonMemory(pkm, 1, memoryGen, Info);
+            CheckResult? commonResult = VerifyCommonMemory(pkm, 1, memoryGen, Info);
             data.AddLine(commonResult);
         }
 
@@ -318,7 +318,7 @@ namespace PKHeX.Core
 
         private void VerifyHTMemoryTransferTo7(LegalityAnalysis data, PKM pkm, LegalInfo Info)
         {
-            var mem = (ITrainerMemories)pkm;
+            ITrainerMemories? mem = (ITrainerMemories)pkm;
             // Bank Transfer adds in the Link Trade Memory.
             // Trading 7<->7 between games (not Bank) clears this data.
             if (mem.HT_Memory == 0)

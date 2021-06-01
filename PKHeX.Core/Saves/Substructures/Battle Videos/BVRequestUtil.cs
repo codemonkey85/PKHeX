@@ -9,7 +9,7 @@ namespace PKHeX.Core
         {
             code = code.Replace("-", string.Empty);
             Debug.Assert(code.Length == 16);
-            var video_id = StrToU64(code, out bool valid);
+            ulong video_id = StrToU64(code, out bool valid);
             if (!valid)
                 return string.Empty;
             return $"https://ctr-bnda-live.s3.amazonaws.com/10.CTR_BNDA_datastore/ds/1/data/{video_id:D11}-00001"; // Sun datastore
@@ -17,9 +17,9 @@ namespace PKHeX.Core
 
         public static ulong StrToU64(string input, out bool valid)
         {
-            var chk = Pull(0, 4) >> 4; // first four chars are checksum bits
-            var result = Pull(4, input.Length); // next 12 chars are the 70 value bits
-            var actual = Checksums.CRC16_CCITT(BitConverter.GetBytes(result));
+            ulong chk = Pull(0, 4) >> 4; // first four chars are checksum bits
+            ulong result = Pull(4, input.Length); // next 12 chars are the 70 value bits
+            ushort actual = Checksums.CRC16_CCITT(BitConverter.GetBytes(result));
             valid = chk == actual;
             return result;
 
@@ -28,7 +28,7 @@ namespace PKHeX.Core
                 ulong val = 0;
                 for (int i = start; i < count; i++)
                 {
-                    var c = input[i];
+                    char c = input[i];
                     if (c == '-')
                         continue;
 
@@ -42,7 +42,7 @@ namespace PKHeX.Core
         public static string U64ToStr(ulong input, bool insertDash)
         {
             uint chk = Checksums.CRC16_CCITT(BitConverter.GetBytes(input));
-            var buff = new char[16];
+            char[]? buff = new char[16];
             int ctr = 15;
             Push(input, 12); // store value bits
             Push(chk << 4, 4); // store checksum bits
@@ -60,7 +60,7 @@ namespace PKHeX.Core
 
         private static string GetStringWithDashesEvery(char[] buff, int spacer)
         {
-            var buff2 = new char[buff.Length + ((buff.Length / spacer) - 1)];
+            char[]? buff2 = new char[buff.Length + ((buff.Length / spacer) - 1)];
             for (int i = 0, ctr = 0; i < buff.Length; i++)
             {
                 buff2[ctr++] = buff[i];
@@ -72,7 +72,7 @@ namespace PKHeX.Core
 
         private static char Set5BitToChar(char c)
         {
-            var shift = c > 9 ? '7' : '0';
+            char shift = c > 9 ? '7' : '0';
             c += shift;
             return MapToChar(c);
         }
@@ -80,7 +80,7 @@ namespace PKHeX.Core
         private static uint Get5BitFromChar(char c)
         {
             c = MapFromChar(c);
-            var shift = c >= 'A' ? '7' : '0';
+            char shift = c >= 'A' ? '7' : '0';
             return (uint)(c - shift);
         }
 

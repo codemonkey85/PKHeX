@@ -50,7 +50,7 @@ namespace PKHeX.WinForms
             CB_Move3.InitializeBinding();
             CB_Move4.InitializeBinding();
 
-            var MoveList = GameInfo.MoveDataSource;
+            IReadOnlyList<ComboItem>? MoveList = GameInfo.MoveDataSource;
             CB_Move1.DataSource = new BindingSource(MoveList, null);
             CB_Move2.DataSource = new BindingSource(MoveList, null);
             CB_Move3.DataSource = new BindingSource(MoveList, null);
@@ -79,7 +79,7 @@ namespace PKHeX.WinForms
             uint vnd = BitConverter.ToUInt32(data, offset + 0x1B0);
             uint vn = vnd & 0xFF;
             TB_VN.Text = vn.ToString("000");
-            var s = new List<string> {$"Entry #{vn}"};
+            List<string>? s = new List<string> {$"Entry #{vn}"};
             uint date = vnd >> 14 & 0x1FFFF;
             uint year = (date & 0xFF) + 2000;
             uint month = date >> 8 & 0xF;
@@ -95,7 +95,7 @@ namespace PKHeX.WinForms
             else
             {
                 groupBox1.Enabled = true;
-                var moncount = AddEntries(offset, s, year, month, day);
+                int moncount = AddEntries(offset, s, year, month, day);
 
                 if (sender != this)
                 {
@@ -158,7 +158,7 @@ namespace PKHeX.WinForms
             string genderstr = gendersymbols[(int)gender];
             string shinystr = shiny == 1 ? "Yes" : "No";
 
-            var str = GameInfo.Strings;
+            GameStrings? str = GameInfo.Strings;
             s.Add($"Name: {nickname}");
             s.Add($" ({str.Species[species]} - {genderstr})");
             s.Add($"Level: {level}");
@@ -282,10 +282,10 @@ namespace PKHeX.WinForms
             vnd |= rawvnd & 0x80000000;
             Array.Copy(BitConverter.GetBytes(vnd), 0, data, offset + 0x1B0, 4);
 
-            var species = WinFormsUtil.GetIndex(CB_Species);
-            var form = CB_Form.SelectedIndex & 0x1F;
-            var gender = PKX.GetGenderFromString(Label_Gender.Text);
-            var item = WinFormsUtil.GetIndex(CB_HeldItem);
+            int species = WinFormsUtil.GetIndex(CB_Species);
+            int form = CB_Form.SelectedIndex & 0x1F;
+            int gender = PKX.GetGenderFromString(Label_Gender.Text);
+            int item = WinFormsUtil.GetIndex(CB_HeldItem);
             bpkx.Image = SpriteUtil.GetSprite(species, form, gender, 0, item, false, CHK_Shiny.Checked);
             DisplayEntry(this, EventArgs.Empty); // refresh text view
         }
@@ -322,7 +322,7 @@ namespace PKHeX.WinForms
         private void SetForms()
         {
             int species = WinFormsUtil.GetIndex(CB_Species);
-            var pi = PersonalTable.AO[species];
+            PersonalInfo? pi = PersonalTable.AO[species];
             bool hasForms = FormInfo.HasFormSelection(pi, species, 6);
             CB_Form.Enabled = CB_Form.Visible = hasForms;
 
@@ -341,10 +341,10 @@ namespace PKHeX.WinForms
             if (!editing)
                 return; //Don't do writing until loaded
 
-            var species = WinFormsUtil.GetIndex(CB_Species);
-            var form = CB_Form.SelectedIndex & 0x1F;
-            var gender = PKX.GetGenderFromString(Label_Gender.Text);
-            var item = WinFormsUtil.GetIndex(CB_HeldItem);
+            int species = WinFormsUtil.GetIndex(CB_Species);
+            int form = CB_Form.SelectedIndex & 0x1F;
+            int gender = PKX.GetGenderFromString(Label_Gender.Text);
+            int item = WinFormsUtil.GetIndex(CB_HeldItem);
             bpkx.Image = SpriteUtil.GetSprite(species, form, gender, 0, item, false, CHK_Shiny.Checked);
 
             Write_Entry(this, EventArgs.Empty);
@@ -354,21 +354,21 @@ namespace PKHeX.WinForms
         {
             // Get Gender Threshold
             int species = WinFormsUtil.GetIndex(CB_Species);
-            var pi = SAV.Personal[species];
+            PersonalInfo? pi = SAV.Personal[species];
             if (pi.IsDualGender)
             {
-                var fg = PKX.GetGenderFromString(Label_Gender.Text);
+                int fg = PKX.GetGenderFromString(Label_Gender.Text);
                 fg = (fg ^ 1) & 1;
                 Label_Gender.Text = Main.GenderSymbols[fg];
             }
             else
             {
-                var fg = pi.FixedGender;
+                int fg = pi.FixedGender;
                 Label_Gender.Text = Main.GenderSymbols[fg];
                 return;
             }
 
-            var g = PKX.GetGenderFromString(CB_Form.Text);
+            int g = PKX.GetGenderFromString(CB_Form.Text);
             if (g == 0 && Label_Gender.Text != gendersymbols[0])
                 CB_Form.SelectedIndex = 1;
             else if (g == 1 && Label_Gender.Text != gendersymbols[1])
@@ -419,9 +419,9 @@ namespace PKHeX.WinForms
                 return;
 
             int offset = LB_DataEntry.SelectedIndex * 0x1B4;
-            var nicktrash = data.Slice(offset + 0x18, 24);
+            byte[]? nicktrash = data.Slice(offset + 0x18, 24);
             SAV.SetString(TB_Nickname.Text, 12).CopyTo(nicktrash, 0);
-            var d = new TrashEditor(tb, nicktrash, SAV);
+            TrashEditor? d = new TrashEditor(tb, nicktrash, SAV);
             d.ShowDialog();
             tb.Text = d.FinalString;
             d.FinalBytes.CopyTo(data, offset + 0x18);

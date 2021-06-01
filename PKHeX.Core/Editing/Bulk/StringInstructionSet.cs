@@ -30,7 +30,7 @@ namespace PKHeX.Core
             int start = 0;
             while (start < lines.Count)
             {
-                var list = lines.Skip(start).TakeWhile(_ => !lines[start++].StartsWith(SetSeparator)).ToList();
+                List<string>? list = lines.Skip(start).TakeWhile(_ => !lines[start++].StartsWith(SetSeparator)).ToList();
                 yield return new StringInstructionSet(list);
             }
         }

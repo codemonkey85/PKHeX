@@ -70,22 +70,22 @@ namespace PKHeX.WinForms
             TLP.RowCount = 0;
 
             // Add Regimens
-            foreach (var reg in list)
+            foreach (RegimenInfo? reg in list)
                 AddRegimenChoice(reg, TLP);
 
             // Force auto-size
-            foreach (var style in TLP.RowStyles.OfType<RowStyle>())
+            foreach (RowStyle? style in TLP.RowStyles.OfType<RowStyle>())
                 style.SizeType = SizeType.AutoSize;
-            foreach (var style in TLP.ColumnStyles.OfType<ColumnStyle>())
+            foreach (ColumnStyle? style in TLP.ColumnStyles.OfType<ColumnStyle>())
                 style.SizeType = SizeType.AutoSize;
         }
 
         private static IEnumerable<RegimenInfo> GetBooleanRegimenNames(ISuperTrain pkm, string propertyPrefix)
         {
-            var names = ReflectUtil.GetPropertiesStartWithPrefix(pkm.GetType(), propertyPrefix);
-            foreach (var name in names)
+            IEnumerable<string>? names = ReflectUtil.GetPropertiesStartWithPrefix(pkm.GetType(), propertyPrefix);
+            foreach (string? name in names)
             {
-                var value = ReflectUtil.GetValue(pkm, name);
+                object? value = ReflectUtil.GetValue(pkm, name);
                 if (value is bool state)
                     yield return new RegimenInfo(name, state);
             }
@@ -97,7 +97,7 @@ namespace PKHeX.WinForms
             int row = TLP.RowCount;
             TLP.RowCount++;
 
-            var chk = new CheckBox
+            CheckBox? chk = new CheckBox
             {
                 Anchor = AnchorStyles.Left,
                 Name = PrefixCHK + reg.Name,
@@ -113,9 +113,9 @@ namespace PKHeX.WinForms
 
         private void Save()
         {
-            foreach (var reg in reglist)
+            foreach (RegimenInfo? reg in reglist)
                 ReflectUtil.SetValue(pkm, reg.Name, reg.CompletedRegimen);
-            foreach (var reg in distlist)
+            foreach (RegimenInfo? reg in distlist)
                 ReflectUtil.SetValue(pkm, reg.Name, reg.CompletedRegimen);
 
             if (pkm is PK6 pk6)
@@ -148,7 +148,7 @@ namespace PKHeX.WinForms
         {
             if (CHK_SecretUnlocked.Checked) // only give dist if Secret is Unlocked (None -> All -> All*)
             {
-                foreach (var c in TLP_DistSuperTrain.Controls.OfType<CheckBox>())
+                foreach (CheckBox? c in TLP_DistSuperTrain.Controls.OfType<CheckBox>())
                     c.Checked = true;
             }
 
@@ -157,7 +157,7 @@ namespace PKHeX.WinForms
                 CHK_SecretUnlocked.Checked = true;
                 CHK_SecretComplete.Checked = true;
             }
-            foreach (var c in TLP_SuperTrain.Controls.OfType<CheckBox>())
+            foreach (CheckBox? c in TLP_SuperTrain.Controls.OfType<CheckBox>())
                 c.Checked = true;
         }
 
@@ -165,9 +165,9 @@ namespace PKHeX.WinForms
         {
             CHK_SecretUnlocked.Checked = false;
             CHK_SecretComplete.Checked = false;
-            foreach (var c in TLP_SuperTrain.Controls.OfType<CheckBox>())
+            foreach (CheckBox? c in TLP_SuperTrain.Controls.OfType<CheckBox>())
                 c.Checked = false;
-            foreach (var c in TLP_DistSuperTrain.Controls.OfType<CheckBox>())
+            foreach (CheckBox? c in TLP_DistSuperTrain.Controls.OfType<CheckBox>())
                 c.Checked = false;
         }
 
@@ -177,7 +177,7 @@ namespace PKHeX.WinForms
                 return;
             CHK_SecretComplete.Checked &= CHK_SecretUnlocked.Checked;
             CHK_SecretComplete.Enabled = CHK_SecretUnlocked.Checked;
-            foreach (var c in TLP_SuperTrain.Controls.OfType<CheckBox>().Where(chk => Convert.ToInt16(chk.Name[14]+"") >= 4))
+            foreach (CheckBox? c in TLP_SuperTrain.Controls.OfType<CheckBox>().Where(chk => Convert.ToInt16(chk.Name[14]+"") >= 4))
             {
                 c.Enabled = CHK_SecretUnlocked.Checked;
                 if (!CHK_SecretUnlocked.Checked)

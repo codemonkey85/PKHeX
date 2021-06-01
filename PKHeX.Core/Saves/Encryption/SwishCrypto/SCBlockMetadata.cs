@@ -20,7 +20,7 @@ namespace PKHeX.Core
         /// </summary>
         public SCBlockMetadata(SCBlockAccessor accessor, IEnumerable<string> extraKeyNames)
         {
-            var aType = accessor.GetType();
+            Type? aType = accessor.GetType();
 
             BlockList = aType.GetAllPropertiesOfType<SaveBlock>(accessor);
             ValueList = aType.GetAllConstantsOfType<uint>();
@@ -33,7 +33,7 @@ namespace PKHeX.Core
         /// </summary>
         public IEnumerable<ComboItem> GetSortedBlockKeyList()
         {
-            var list = Accessor.BlockInfo
+            IOrderedEnumerable<ComboItem>? list = Accessor.BlockInfo
                 .Select((z, i) => new ComboItem(GetBlockHint(z, i), (int)z.Key))
                 .OrderBy(z => !z.Text.StartsWith("*"))
                 .ThenBy(z => GetSortKey(z));
@@ -48,16 +48,16 @@ namespace PKHeX.Core
         /// <param name="lines">Tab separated key-value pair list of block names.</param>
         public static void AddExtraKeyNames(IDictionary<uint, string> names, IEnumerable<string> lines)
         {
-            foreach (var line in lines)
+            foreach (string? line in lines)
             {
-                var split = line.IndexOf('\t');
+                int split = line.IndexOf('\t');
                 if (split < 0)
                     continue;
-                var hex = line[..split];
-                if (!ulong.TryParse(hex, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out var value))
+                string? hex = line[..split];
+                if (!ulong.TryParse(hex, NumberStyles.HexNumber, CultureInfo.CurrentCulture, out ulong value))
                     continue;
 
-                var name = line[(split + 1)..];
+                string? name = line[(split + 1)..];
                 if (!names.ContainsKey((uint) value))
                     names[(uint) value] = name;
             }
@@ -65,7 +65,7 @@ namespace PKHeX.Core
 
         private static string GetSortKey(in ComboItem item)
         {
-            var text = item.Text;
+            string? text = item.Text;
             if (text.StartsWith("*"))
                 return text;
             // key:X8, " - ", "####", " ", type
@@ -74,12 +74,12 @@ namespace PKHeX.Core
 
         private string GetBlockHint(SCBlock z, int i)
         {
-            var blockName = GetBlockName(z, out _);
-            var isBool = z.Type.IsBoolean();
-            var type = (isBool ? "Bool" : z.Type.ToString());
+            string? blockName = GetBlockName(z, out _);
+            bool isBool = z.Type.IsBoolean();
+            string? type = (isBool ? "Bool" : z.Type.ToString());
             if (blockName != null)
                 return $"*{type} {blockName}";
-            var result = $"{z.Key:X8} - {i:0000} {type}";
+            string? result = $"{z.Key:X8} - {i:0000} {type}";
             if (z.Type is SCTypeCode.Object or SCTypeCode.Array)
                 result += $" 0x{z.Data.Length:X3}";
             else if (!isBool)
@@ -98,7 +98,7 @@ namespace PKHeX.Core
             // See if we have a Block object for this block
             if (block.Data.Length != 0)
             {
-                var obj = BlockList.FirstOrDefault(z => ReferenceEquals(z.Key.Data, block.Data));
+                KeyValuePair<SaveBlock, string> obj = BlockList.FirstOrDefault(z => ReferenceEquals(z.Key.Data, block.Data));
                 if (obj.Key != null)
                 {
                     saveBlock = obj.Key;
@@ -107,7 +107,7 @@ namespace PKHeX.Core
             }
 
             // See if it's a single-value declaration
-            if (ValueList.TryGetValue(block.Key, out var blockName))
+            if (ValueList.TryGetValue(block.Key, out string? blockName))
             {
                 saveBlock = null;
                 return blockName;

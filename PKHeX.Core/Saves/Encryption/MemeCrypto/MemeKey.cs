@@ -27,8 +27,8 @@ namespace PKHeX.Core
         public MemeKey(MemeKeyIndex key)
         {
             DER = GetMemeData(key);
-            var _N = new byte[0x61];
-            var _E = new byte[0x3];
+            byte[]? _N = new byte[0x61];
+            byte[]? _E = new byte[0x3];
             Array.Copy(DER, 0x18, _N, 0, 0x61);
             Array.Copy(DER, 0x7B, _E, 0, 3);
             Array.Reverse(_N);
@@ -38,7 +38,7 @@ namespace PKHeX.Core
 
             if (key == MemeKeyIndex.PokedexAndSaveFile)
             {
-                var _D = (byte[])D_3.Clone();
+                byte[]? _D = (byte[])D_3.Clone();
                 Array.Reverse(_D);
                 D = new BigInteger(_D);
             }
@@ -61,13 +61,13 @@ namespace PKHeX.Core
             if (data.Length < 0x60)
                 throw new ArgumentException("Memebuffers must be atleast 0x60 bytes long!");
 
-            var buffer = new byte[DER.Length + data.Length - 0x60];
+            byte[]? buffer = new byte[DER.Length + data.Length - 0x60];
             Array.Copy(DER, 0, buffer, 0, DER.Length);
             Array.Copy(data, 0, buffer, DER.Length, buffer.Length - DER.Length);
 
-            using var sha1 = SHA1.Create();
-            var result = sha1.ComputeHash(buffer);
-            var key = new byte[0x10];
+            using SHA1? sha1 = SHA1.Create();
+            byte[]? result = sha1.ComputeHash(buffer);
+            byte[]? key = new byte[0x10];
             Array.Copy(result, 0, key, 0, 0x10);
             return key;
         }
@@ -77,17 +77,17 @@ namespace PKHeX.Core
         /// </summary>
         internal byte[] AesDecrypt(byte[] input)
         {
-            var key = GetAesKey(input);
-            var data = new byte[0x60];
+            byte[]? key = GetAesKey(input);
+            byte[]? data = new byte[0x60];
             Array.Copy(input, input.Length - 0x60, data, 0, 0x60);
-            var temp = new byte[0x10];
-            var curblock = new byte[0x10];
-            var outdata = new byte[data.Length];
-            for (var i = 0; i < data.Length / 0x10; i++) // Reverse Phase 2
+            byte[]? temp = new byte[0x10];
+            byte[]? curblock = new byte[0x10];
+            byte[]? outdata = new byte[data.Length];
+            for (int i = 0; i < data.Length / 0x10; i++) // Reverse Phase 2
             {
-                var ofs = ((data.Length / 0x10) - 1 - i) * 0x10;
+                int ofs = ((data.Length / 0x10) - 1 - i) * 0x10;
                 Array.Copy(data, ofs, curblock, 0, 0x10);
-                var temp1 = Xor(temp, curblock);
+                byte[]? temp1 = Xor(temp, curblock);
                 temp = AesEcbDecrypt(key, temp1);
                 temp.CopyTo(outdata, ofs);
             }
@@ -100,26 +100,26 @@ namespace PKHeX.Core
             // = block first ^ block last ;)
             Array.Copy(outdata, ((data.Length / 0x10) - 1) * 0x10, temp, 0, 0x10);
             temp = Xor(temp, outdata.AsSpan(0, 0x10));
-            var subkey = GetSubKey(temp);
-            for (var i = 0; i < data.Length / 0x10; i++)
+            byte[]? subkey = GetSubKey(temp);
+            for (int i = 0; i < data.Length / 0x10; i++)
             {
                 Array.Copy(outdata, 0x10 * i, curblock, 0, 0x10);
-                var temp1 = Xor(curblock, subkey);
+                byte[]? temp1 = Xor(curblock, subkey);
                 Array.Copy(temp1, 0, outdata, 0x10 * i, 0x10);
             }
 
             // Now we have Phase1Encrypt(buf).
             Array.Clear(temp, 0, 0x10); // Clear to all zero
-            for (var i = 0; i < data.Length / 0x10; i++) // Phase 1: CBC Encryption.
+            for (int i = 0; i < data.Length / 0x10; i++) // Phase 1: CBC Encryption.
             {
                 Array.Copy(outdata, i * 0x10, curblock, 0, 0x10);
-                var temp1 = AesEcbDecrypt(key, curblock);
-                var temp2 = Xor(temp1, temp);
+                byte[]? temp1 = AesEcbDecrypt(key, curblock);
+                byte[]? temp2 = Xor(temp1, temp);
                 temp2.CopyTo(outdata, i * 0x10);
                 curblock.CopyTo(temp, 0);
             }
 
-            var outbuf = (byte[]) input.Clone();
+            byte[]? outbuf = (byte[]) input.Clone();
             Array.Copy(outdata, 0, outbuf, outbuf.Length - 0x60, 0x60);
 
             return outbuf;
@@ -130,29 +130,29 @@ namespace PKHeX.Core
         /// </summary>
         internal byte[] AesEncrypt(byte[] input)
         {
-            var key = GetAesKey(input);
-            var data = new byte[0x60];
+            byte[]? key = GetAesKey(input);
+            byte[]? data = new byte[0x60];
             Array.Copy(input, input.Length - 0x60, data, 0, 0x60);
-            var temp = new byte[0x10];
-            var curblock = new byte[0x10];
-            var outdata = new byte[data.Length];
-            for (var i = 0; i < data.Length / 0x10; i++) // Phase 1: CBC Encryption.
+            byte[]? temp = new byte[0x10];
+            byte[]? curblock = new byte[0x10];
+            byte[]? outdata = new byte[data.Length];
+            for (int i = 0; i < data.Length / 0x10; i++) // Phase 1: CBC Encryption.
             {
                 Array.Copy(data, i * 0x10, curblock, 0, 0x10);
-                var temp1 = Xor(temp, curblock);
+                byte[]? temp1 = Xor(temp, curblock);
                 temp = AesEcbEncrypt(key, temp1);
                 temp.CopyTo(outdata, i * 0x10);
             }
 
             // In between - CMAC stuff
-            var inbet = outdata.AsSpan(0, 0x10);
+            Span<byte> inbet = outdata.AsSpan(0, 0x10);
             temp = Xor(temp, inbet);
-            var subkey = GetSubKey(temp);
+            byte[]? subkey = GetSubKey(temp);
 
             Array.Clear(temp, 0, temp.Length); // Memcpy from an all-zero buffer
-            for (var i = 0; i < data.Length / 0x10; i++)
+            for (int i = 0; i < data.Length / 0x10; i++)
             {
-                var ofs = ((data.Length / 0x10) - 1 - i) * 0x10;
+                int ofs = ((data.Length / 0x10) - 1 - i) * 0x10;
                 Array.Copy(outdata, ofs, curblock, 0, 0x10);
                 byte[] temp2 = Xor(curblock, subkey);
                 byte[] temp3 = AesEcbEncrypt(key, temp2);
@@ -161,7 +161,7 @@ namespace PKHeX.Core
                 temp = temp2;
             }
 
-            var outbuf = (byte[])input.Clone();
+            byte[]? outbuf = (byte[])input.Clone();
             Array.Copy(outdata, 0, outbuf, outbuf.Length - 0x60, 0x60);
 
             return outbuf;
@@ -169,8 +169,8 @@ namespace PKHeX.Core
 
         private static byte[] GetSubKey(byte[] temp)
         {
-            var subkey = new byte[0x10];
-            for (var ofs = 0; ofs < 0x10; ofs += 2) // Imperfect ROL implementation
+            byte[]? subkey = new byte[0x10];
+            for (int ofs = 0; ofs < 0x10; ofs += 2) // Imperfect ROL implementation
             {
                 byte b1 = temp[ofs + 0], b2 = temp[ofs + 1];
                 subkey[ofs + 0] = (byte)((2 * b1) + (b2 >> 7));
@@ -186,8 +186,8 @@ namespace PKHeX.Core
         private static byte[] Xor(byte[] b1, ReadOnlySpan<byte> b2)
         {
             Debug.Assert(b1.Length == b2.Length);
-            var x = new byte[b1.Length];
-            for (var i = 0; i < b1.Length; i++)
+            byte[]? x = new byte[b1.Length];
+            for (int i = 0; i < b1.Length; i++)
                 x[i] = (byte)(b1[i] ^ b2[i]);
             return x;
         }
@@ -197,10 +197,10 @@ namespace PKHeX.Core
         /// </summary>
         internal byte[] RsaPrivate(byte[] data)
         {
-            var _M = new byte[data.Length + 1];
+            byte[]? _M = new byte[data.Length + 1];
             data.CopyTo(_M, 1);
             Array.Reverse(_M);
-            var M = new BigInteger(_M);
+            BigInteger M = new BigInteger(_M);
 
             return Exponentiate(M, D);
         }
@@ -210,10 +210,10 @@ namespace PKHeX.Core
         /// </summary>
         internal byte[] RsaPublic(ReadOnlySpan<byte> data)
         {
-            var _M = new byte[data.Length + 1];
+            byte[]? _M = new byte[data.Length + 1];
             data.CopyTo(_M.AsSpan(1));
             Array.Reverse(_M);
-            var M = new BigInteger(_M);
+            BigInteger M = new BigInteger(_M);
 
             return Exponentiate(M, E);
         }
@@ -225,9 +225,9 @@ namespace PKHeX.Core
         // Helper method for Modular Exponentiation
         private byte[] Exponentiate(BigInteger M, BigInteger Power)
         {
-            var rawSig = BigInteger.ModPow(M, Power, N).ToByteArray();
+            byte[]? rawSig = BigInteger.ModPow(M, Power, N).ToByteArray();
             Array.Reverse(rawSig);
-            var outSig = new byte[0x60];
+            byte[]? outSig = new byte[0x60];
             if (rawSig.Length < 0x60)
                 Array.Copy(rawSig, 0, outSig, 0x60 - rawSig.Length, rawSig.Length);
             else if (rawSig.Length > 0x60)
@@ -262,12 +262,12 @@ namespace PKHeX.Core
         // Helper Method to perform AES ECB Encryption
         private static byte[] AesEcbEncrypt(byte[] key, byte[] data)
         {
-            using var ms = new MemoryStream();
-            using var aes = Aes.Create();
+            using MemoryStream? ms = new MemoryStream();
+            using Aes? aes = Aes.Create();
             aes.Mode = CipherMode.ECB;
             aes.Padding = PaddingMode.None;
 
-            using var cs = new CryptoStream(ms, aes.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write);
+            using CryptoStream? cs = new CryptoStream(ms, aes.CreateEncryptor(key, rgbIV), CryptoStreamMode.Write);
             cs.Write(data, 0, data.Length);
             cs.FlushFinalBlock();
 
@@ -277,12 +277,12 @@ namespace PKHeX.Core
         // Helper Method to perform AES ECB Decryption
         private static byte[] AesEcbDecrypt(byte[] key, byte[] data)
         {
-            using var ms = new MemoryStream();
-            using var aes = Aes.Create();
+            using MemoryStream? ms = new MemoryStream();
+            using Aes? aes = Aes.Create();
             aes.Mode = CipherMode.ECB;
             aes.Padding = PaddingMode.None;
 
-            using var cs = new CryptoStream(ms, aes.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write);
+            using CryptoStream? cs = new CryptoStream(ms, aes.CreateDecryptor(key, rgbIV), CryptoStreamMode.Write);
             cs.Write(data, 0, data.Length);
             cs.FlushFinalBlock();
 

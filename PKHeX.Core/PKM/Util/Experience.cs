@@ -53,8 +53,8 @@
         {
             if (level >= 100)
                 return 0;
-            var current = ExpTable[level - 1, growth];
-            var next = ExpTable[level, growth];
+            uint current = ExpTable[level - 1, growth];
+            uint next = ExpTable[level, growth];
             return next - current;
         }
 
@@ -69,9 +69,9 @@
         {
             if (level >= 100)
                 return 0;
-            var current = ExpTable[level - 1, growth];
-            var next = ExpTable[level, growth];
-            var amount = next - current;
+            uint current = ExpTable[level - 1, growth];
+            uint next = ExpTable[level, growth];
+            uint amount = next - current;
             double progress = exp - current;
             return progress / amount;
         }

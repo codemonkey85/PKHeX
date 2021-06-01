@@ -26,28 +26,28 @@ namespace PKHeX.Core
 
         private void VerifyVCOTGender(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.OT_Gender == 1 && pkm.Version != (int)GameVersion.C)
                 data.AddLine(GetInvalid(LG2OTGender));
         }
 
         private void VerifyVCNatureEXP(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var met = pkm.Met_Level;
+            PKM? pkm = data.pkm;
+            int met = pkm.Met_Level;
 
             if (met == 100) // check for precise match, can't receive EXP after transfer.
             {
-                var nature = Experience.GetNatureVC(pkm.EXP);
+                int nature = Experience.GetNatureVC(pkm.EXP);
                 if (nature != pkm.Nature)
                     data.AddLine(GetInvalid(LTransferNature));
                 return;
             }
             if (met <= 2) // Not enough EXP to have every nature -- check for exclusions!
             {
-                var pi = pkm.PersonalInfo;
-                var growth = pi.EXPGrowth;
-                var nature = pkm.Nature;
+                PersonalInfo? pi = pkm.PersonalInfo;
+                int growth = pi.EXPGrowth;
+                int nature = pkm.Nature;
                 bool valid = VerifyVCNature(growth, nature);
                 if (!valid)
                     data.AddLine(GetInvalid(LTransferNature));
@@ -67,7 +67,7 @@ namespace PKHeX.Core
         {
             // Star, not square. Requires transferring a shiny and having the initially random PID to already be a Star shiny.
             // (15:65536, ~1:4096) odds on a given shiny transfer!
-            var xor = data.pkm.ShinyXor;
+            uint xor = data.pkm.ShinyXor;
             if (xor is <= 15 and not 0)
                 data.AddLine(Get(LEncStaticPIDShiny, ParseSettings.Gen7TransferStarPID, CheckIdentifier.PID));
         }
@@ -78,14 +78,14 @@ namespace PKHeX.Core
                 return;
 
             // VC Games were region locked to the Console, meaning not all language games are available.
-            var within = Locale3DS.IsRegionLockedLanguageValidVC(pk7.ConsoleRegion, pk7.Language);
+            bool within = Locale3DS.IsRegionLockedLanguageValidVC(pk7.ConsoleRegion, pk7.Language);
             if (!within)
                 data.AddLine(GetInvalid(string.Format(LOTLanguage, $"!={(LanguageID)pk7.Language}", ((LanguageID)pk7.Language).ToString()), CheckIdentifier.Language));
         }
 
         public void VerifyTransferLegalityG3(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.Format == 4) // Pal Park (3->4)
             {
                 if (pkm.Met_Location != Locations.Transfer3)
@@ -100,7 +100,7 @@ namespace PKHeX.Core
 
         public void VerifyTransferLegalityG4(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             int loc = pkm.Met_Location;
             if (loc == Locations.Transfer4)
                 return;
@@ -124,16 +124,16 @@ namespace PKHeX.Core
 
         public void VerifyTransferLegalityG8(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             int species = pkm.Species;
-            var pi = (PersonalInfoSWSH)PersonalTable.SWSH.GetFormEntry(species, pkm.Form);
+            PersonalInfoSWSH? pi = (PersonalInfoSWSH)PersonalTable.SWSH.GetFormEntry(species, pkm.Form);
             if (!pi.IsPresentInGame) // Can't transfer
             {
                 data.AddLine(GetInvalid(LTransferBad));
                 return;
             }
 
-            var enc = data.EncounterMatch;
+            IEncounterable? enc = data.EncounterMatch;
             if (enc.Version == GameVersion.GO || enc is WC8 {IsHOMEGift: true})
             {
                 VerifyHOMETracker(data, pkm);
@@ -212,7 +212,7 @@ namespace PKHeX.Core
             if (index < 0)
                 return; // doesn't have move
 
-            var chk = Moves[index];
+            CheckMoveResult? chk = Moves[index];
             if (chk.Generation == gen) // not obtained from a future gen
                 Moves[index] = new CheckMoveResult(chk.Source, chk.Generation, Severity.Invalid, LTransferMove, CheckIdentifier.CurrentMove);
         }

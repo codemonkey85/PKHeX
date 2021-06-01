@@ -26,7 +26,7 @@ namespace PKHeX.WinForms
         {
             dgv.Rows.Clear();
 
-            var beans = Pouch.Beans;
+            int[]? beans = Pouch.Beans;
             dgv.Rows.Add(beans.Length);
             for (int i = 0; i < beans.Length; i++)
             {
@@ -37,7 +37,7 @@ namespace PKHeX.WinForms
 
         private void InitializeGrid()
         {
-            var dgvBean = new DataGridViewTextBoxColumn
+            DataGridViewTextBoxColumn? dgvBean = new DataGridViewTextBoxColumn
             {
                 HeaderText = "Slot",
                 DisplayIndex = 0,
@@ -45,7 +45,7 @@ namespace PKHeX.WinForms
                 ReadOnly = true,
                 DefaultCellStyle = {Alignment = DataGridViewContentAlignment.MiddleCenter}
             };
-            var dgvCount = new DataGridViewComboBoxColumn
+            DataGridViewComboBoxColumn? dgvCount = new DataGridViewComboBoxColumn
             {
                 DisplayStyle = DataGridViewComboBoxDisplayStyle.Nothing,
                 FlatStyle = FlatStyle.Flat,
@@ -53,7 +53,7 @@ namespace PKHeX.WinForms
                 DisplayIndex = 1,
                 Width = 45
             };
-            for (var i = 0; i < 256; i++)
+            for (int i = 0; i < 256; i++)
                 dgvCount.Items.Add(i);
 
             dgv.Columns.Add(dgvBean);
@@ -87,7 +87,7 @@ namespace PKHeX.WinForms
 
         private void B_Save_Click(object sender, EventArgs e)
         {
-            var beans = Pouch.Beans;
+            int[]? beans = Pouch.Beans;
             for (int i = 0; i < beans.Length; i++)
                 beans[i] = (int)dgv.Rows[i].Cells[1].Value;
             Pouch.Beans = beans;

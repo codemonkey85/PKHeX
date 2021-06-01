@@ -30,7 +30,7 @@ namespace PKHeX.WinForms
             LB_Favorite.SelectedIndex = 0;
             MT_Flags.Text = SAV.Records.GetRecord(080).ToString(); // read counter; also present in the Secret Base data block
 
-            var offset = GetSecretBaseOffset(0);
+            int offset = GetSecretBaseOffset(0);
             objdata = LoadObjectArray(offset);
             pkmdata = LoadPKMData(0, offset);
             B_SAV2FAV(this, EventArgs.Empty);
@@ -58,7 +58,7 @@ namespace PKHeX.WinForms
             CB_Move3.InitializeBinding();
             CB_Move4.InitializeBinding();
 
-            var MoveList = GameInfo.MoveDataSource;
+            System.Collections.Generic.IReadOnlyList<ComboItem>? MoveList = GameInfo.MoveDataSource;
             CB_Move1.DataSource = new BindingSource(MoveList, null);
             CB_Move2.DataSource = new BindingSource(MoveList, null);
             CB_Move3.DataSource = new BindingSource(MoveList, null);
@@ -89,9 +89,9 @@ namespace PKHeX.WinForms
             int index = LB_Favorite.SelectedIndex;
             if (index < 0)
                 return;
-            var offset = GetSecretBaseOffset(index);
+            int offset = GetSecretBaseOffset(index);
 
-            var bdata = new SecretBase6(SAV.Data, offset);
+            SecretBase6? bdata = new SecretBase6(SAV.Data, offset);
 
             NUD_FBaseLocation.Value = bdata.BaseLocation;
 
@@ -125,7 +125,7 @@ namespace PKHeX.WinForms
 
         private byte[,] LoadPKMData(int index, int offset)
         {
-            var result = new byte[3, 0x34];
+            byte[,]? result = new byte[3, 0x34];
             if (index <= 0)
                 return result;
             for (int i = 0; i < 3; i++)
@@ -139,7 +139,7 @@ namespace PKHeX.WinForms
         private byte[,] LoadObjectArray(int offset)
         {
             byte[] data = SAV.Data;
-            var result = new byte[25, 12];
+            byte[,]? result = new byte[25, 12];
             for (int i = 0; i < 25; i++)
             {
                 for (int z = 0; z < 12; z++)
@@ -169,14 +169,14 @@ namespace PKHeX.WinForms
             if (GB_PKM.Enabled && index == 0)
             { WinFormsUtil.Error("Sorry, no overwriting of your own base with someone else's."); return; }
 
-            var name = LB_Favorite.Items[index].ToString();
+            string? name = LB_Favorite.Items[index].ToString();
             if (name == "* " || name == $"{index} Empty")
             { WinFormsUtil.Error("Sorry, no overwriting an empty base with someone else's."); return; }
             if (index < 0)
                 return;
             int offset = GetSecretBaseOffset(index);
 
-            var bdata = new SecretBase6(SAV.Data, offset);
+            SecretBase6? bdata = new SecretBase6(SAV.Data, offset);
 
             int baseloc = (int)NUD_FBaseLocation.Value;
             if (baseloc < 3)
@@ -448,7 +448,7 @@ namespace PKHeX.WinForms
             int abilityIndex = Convert.ToInt16(MT_AbilNo.Text) >> 1;
             int species = WinFormsUtil.GetIndex(CB_Species);
             int form = CB_Form.SelectedIndex;
-            var abilities = PersonalTable.AO.GetFormEntry(species, form).Abilities;
+            System.Collections.Generic.IReadOnlyList<int>? abilities = PersonalTable.AO.GetFormEntry(species, form).Abilities;
 
             CB_Ability.DataSource = GameInfo.FilteredSources.GetAbilityList(abilities, 6);
             CB_Ability.SelectedIndex = abilityIndex < 3 ? abilityIndex : 0;
@@ -497,9 +497,9 @@ namespace PKHeX.WinForms
 
         private void Label_Gender_Click(object sender, EventArgs e)
         {
-            var species = WinFormsUtil.GetIndex(CB_Species);
-            var pi = SAV.Personal[species];
-            var fg = pi.FixedGender;
+            int species = WinFormsUtil.GetIndex(CB_Species);
+            PersonalInfo? pi = SAV.Personal[species];
+            int fg = pi.FixedGender;
             if (fg == -1) // dual gender
             {
                 fg = PKX.GetGenderFromString(Label_Gender.Text);
@@ -537,14 +537,14 @@ namespace PKHeX.WinForms
 
         private void B_Import_Click(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog();
+            using OpenFileDialog? ofd = new OpenFileDialog();
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
-            var path = ofd.FileName;
+            string? path = ofd.FileName;
             if (new FileInfo(path).Length != SecretBase6.SIZE)
                 return;
-            var ofs = GetSecretBaseOffset(currentIndex);
-            var data = File.ReadAllBytes(path);
+            int ofs = GetSecretBaseOffset(currentIndex);
+            byte[]? data = File.ReadAllBytes(path);
             SAV.SetData(data, ofs);
             PopFavorite();
             LB_Favorite.SelectedIndex = currentIndex;
@@ -555,17 +555,17 @@ namespace PKHeX.WinForms
         {
             LB_Favorite.SelectedIndex = currentIndex;
             B_FAV2SAV(sender, e); // save back to current index
-            var ofs = GetSecretBaseOffset(currentIndex);
-            var sb = new SecretBase6(SAV.Data, ofs);
-            var tr = sb.TrainerName;
+            int ofs = GetSecretBaseOffset(currentIndex);
+            SecretBase6? sb = new SecretBase6(SAV.Data, ofs);
+            string? tr = sb.TrainerName;
             if (string.IsNullOrWhiteSpace(tr))
                 tr = "Trainer";
-            using var sfd = new SaveFileDialog {Filter = "Secret Base Data|*.sb6", FileName = $"{sb.BaseLocation:D2} - {Util.CleanFileName(tr)}.sb6"};
+            using SaveFileDialog? sfd = new SaveFileDialog {Filter = "Secret Base Data|*.sb6", FileName = $"{sb.BaseLocation:D2} - {Util.CleanFileName(tr)}.sb6"};
             if (sfd.ShowDialog() != DialogResult.OK)
                 return;
 
-            var path = sfd.FileName;
-            var data = SAV.GetData(ofs, SecretBase6.SIZE);
+            string? path = sfd.FileName;
+            byte[]? data = SAV.GetData(ofs, SecretBase6.SIZE);
             File.WriteAllBytes(path, data);
         }
     }

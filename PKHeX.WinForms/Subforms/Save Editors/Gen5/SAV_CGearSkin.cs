@@ -29,7 +29,7 @@ namespace PKHeX.WinForms
 
         private void B_ImportPNG_Click(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog
+            using OpenFileDialog? ofd = new OpenFileDialog
             {
                 Filter = "PNG File|*.png",
                 FileName = "Background.png",
@@ -56,7 +56,7 @@ namespace PKHeX.WinForms
         private void B_ExportPNG_Click(object sender, EventArgs e)
         {
             Image png = PB_Background.Image;
-            using var sfd = new SaveFileDialog
+            using SaveFileDialog? sfd = new SaveFileDialog
             {
                 Filter = "PNG File|*.png",
                 FileName = "Background.png",
@@ -70,7 +70,7 @@ namespace PKHeX.WinForms
 
         private void B_ImportCGB_Click(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog
+            using OpenFileDialog? ofd = new OpenFileDialog
             {
                 Filter = CGearBackground.Filter + "|PokeStock C-Gear Skin|*.psk"
             };
@@ -78,8 +78,8 @@ namespace PKHeX.WinForms
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
-            var path = ofd.FileName;
-            var len = new FileInfo(path).Length;
+            string? path = ofd.FileName;
+            long len = new FileInfo(path).Length;
             if (len != CGearBackground.SIZE_CGB)
             {
                 WinFormsUtil.Error($"Incorrect size, got {len} bytes, expected {CGearBackground.SIZE_CGB} bytes.");
@@ -93,7 +93,7 @@ namespace PKHeX.WinForms
 
         private void B_ExportCGB_Click(object sender, EventArgs e)
         {
-            using var sfd = new SaveFileDialog
+            using SaveFileDialog? sfd = new SaveFileDialog
             {
                 Filter = CGearBackground.Filter,
             };

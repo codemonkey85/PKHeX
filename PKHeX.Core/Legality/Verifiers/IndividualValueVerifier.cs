@@ -25,9 +25,9 @@ namespace PKHeX.Core
                     break;
             }
 
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             {
-                var hpiv = pkm.IV_HP;
+                int hpiv = pkm.IV_HP;
                 if (hpiv < 30 && AllIVsEqual(pkm, hpiv))
                     data.AddLine(Get(string.Format(LIVAllEqual_0, hpiv), Severity.Fishy));
             }
@@ -42,11 +42,11 @@ namespace PKHeX.Core
 
         private void VerifyIVsMystery(LegalityAnalysis data, MysteryGift g)
         {
-            var IVs = g.IVs;
+            int[]? IVs = g.IVs;
             if (IVs.Length == 0)
                 return;
 
-            var ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
+            int ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
             if (ivflag == 0) // Random IVs
             {
                 bool valid = Legal.GetIsFixedIVSequenceValidSkipRand(IVs, data.pkm);
@@ -72,7 +72,7 @@ namespace PKHeX.Core
 
         private void VerifyIVsGen7(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.GO)
                 VerifyIVsGoTransfer(data);
             else if (pkm.AbilityNumber == 4 && !AbilityVerifier.CanAbilityPatch(pkm.Format, pkm.PersonalInfo.Abilities, pkm.Species))
@@ -81,14 +81,14 @@ namespace PKHeX.Core
 
         private void VerifyIVsGen8(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.GO)
                 VerifyIVsGoTransfer(data);
         }
 
         private void VerifyIVsGen6(LegalityAnalysis data, EncounterSlot w)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.XY && PersonalTable.XY[data.EncounterMatch.Species].IsEggGroup(15)) // Undiscovered
                 VerifyIVsFlawless(data, 3);
             else if (w.Area.Type == SlotType.FriendSafari)

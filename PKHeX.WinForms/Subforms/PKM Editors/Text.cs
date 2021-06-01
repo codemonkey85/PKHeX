@@ -25,7 +25,7 @@ namespace PKHeX.WinForms
             if (raw.Length != 0)
                 AddTrashEditing(raw.Length);
 
-            var f = FontUtil.GetPKXFont();
+            Font? f = FontUtil.GetPKXFont();
             AddCharEditing(f);
             TB_Text.MaxLength = TB_NN.MaxLength;
             TB_Text.Text = TB_NN.Text;
@@ -70,7 +70,7 @@ namespace PKHeX.WinForms
             FLP_Characters.Visible = true;
             foreach (ushort c in chars)
             {
-                var l = GetLabel(((char)c).ToString());
+                Label? l = GetLabel(((char)c).ToString());
                 l.Font = f;
                 l.AutoSize = false;
                 l.Size = new Size(20, 20);
@@ -86,9 +86,9 @@ namespace PKHeX.WinForms
             NUD_Generation.Value = SAV.Generation;
             for (int i = 0; i < count; i++)
             {
-                var l = GetLabel($"${i:X2}");
+                Label? l = GetLabel($"${i:X2}");
                 l.Font = NUD_Generation.Font;
-                var n = GetNUD(min: 0, max: 255, hex: true);
+                NumericUpDown? n = GetNUD(min: 0, max: 255, hex: true);
                 n.Click += (s, e) =>
                 {
                     switch (ModifierKeys)

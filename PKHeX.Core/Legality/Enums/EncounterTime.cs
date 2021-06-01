@@ -20,7 +20,7 @@ namespace PKHeX.Core
 
         internal static int RandomValidTime(this EncounterTime t1)
         {
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             int val = rnd.Next(1, 4);
             if (t1 == EncounterTime.Any)
                 return val;

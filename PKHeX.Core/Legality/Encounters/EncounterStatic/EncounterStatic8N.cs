@@ -40,9 +40,9 @@ namespace PKHeX.Core
 
         protected override bool IsMatchLevel(PKM pkm, DexLevel evo)
         {
-            var met = pkm.Met_Level;
-            var metLevel = met - 15;
-            var rank = ((uint)metLevel) / 10;
+            int met = pkm.Met_Level;
+            int metLevel = met - 15;
+            uint rank = ((uint)metLevel) / 10;
             if (rank > 4)
                 return false;
             if (rank > MaxRank)
@@ -50,7 +50,7 @@ namespace PKHeX.Core
 
             if (rank <= 1)
             {
-                if (InaccessibleRank12Nests.TryGetValue(pkm.Met_Location, out var nests) && nests.Contains(NestID))
+                if (InaccessibleRank12Nests.TryGetValue(pkm.Met_Location, out byte[]? nests) && nests.Contains(NestID))
                     return false;
             }
 
@@ -62,8 +62,8 @@ namespace PKHeX.Core
 
         public bool IsDownLeveled(PKM pkm)
         {
-            var met = pkm.Met_Level;
-            var metLevel = met - 15;
+            int met = pkm.Met_Level;
+            int metLevel = met - 15;
             return met != LevelMax && IsDownLeveled(pkm, metLevel, met);
         }
 
@@ -83,7 +83,7 @@ namespace PKHeX.Core
 
         protected override bool IsMatchLocation(PKM pkm)
         {
-            var loc = pkm.Met_Location;
+            int loc = pkm.Met_Location;
             return loc == SharedNest || (loc <= 255 && NestLocations.Contains((byte)loc));
         }
 

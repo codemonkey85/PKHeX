@@ -20,7 +20,7 @@ namespace PKHeX.Core
                 return result;
 
             bool negative = false;
-            foreach (var c in value)
+            foreach (char c in value)
             {
                 if (IsNum(c))
                 {
@@ -47,7 +47,7 @@ namespace PKHeX.Core
             if (string.IsNullOrEmpty(value))
                 return result;
 
-            foreach (var c in value)
+            foreach (char c in value)
             {
                 if (!IsNum(c))
                     continue;
@@ -68,7 +68,7 @@ namespace PKHeX.Core
             if (string.IsNullOrEmpty(value))
                 return result;
 
-            foreach (var c in value)
+            foreach (char c in value)
             {
                 if (IsNum(c))
                 {
@@ -100,7 +100,7 @@ namespace PKHeX.Core
             if (string.IsNullOrEmpty(value))
                 return result;
 
-            foreach (var c in value)
+            foreach (char c in value)
             {
                 if (IsNum(c))
                 {
@@ -126,7 +126,7 @@ namespace PKHeX.Core
             byte[] result = new byte[seed.Length / 2];
             for (int i = 0; i < result.Length; i++)
             {
-                var slice = seed.Substring(i * 2, 2);
+                string? slice = seed.Substring(i * 2, 2);
                 result[^(i+1)] = Convert.ToByte(slice, 16);
             }
             return result;
@@ -134,8 +134,8 @@ namespace PKHeX.Core
 
         public static string GetHexStringFromBytes(byte[] data, int offset, int length)
         {
-            var arr = data.AsSpan(offset, length);
-            var sb = new StringBuilder(arr.Length * 2);
+            Span<byte> arr = data.AsSpan(offset, length);
+            StringBuilder? sb = new StringBuilder(arr.Length * 2);
             for (int i = arr.Length - 1; i >= 0; i--)
                 sb.AppendFormat("{0:X2}", arr[i]);
             return sb.ToString();
@@ -187,11 +187,11 @@ namespace PKHeX.Core
 
         public static Dictionary<string, int>[] GetMultiDictionary(IReadOnlyList<IReadOnlyList<string>> nameArray)
         {
-            var result = new Dictionary<string, int>[nameArray.Count];
+            Dictionary<string, int>[]? result = new Dictionary<string, int>[nameArray.Count];
             for (int i = 0; i < result.Length; i++)
             {
-                var dict = result[i] = new Dictionary<string, int>();
-                var names = nameArray[i];
+                Dictionary<string, int>? dict = result[i] = new Dictionary<string, int>();
+                IReadOnlyList<string>? names = nameArray[i];
                 for (int j = 0; j < names.Count; j++)
                     dict.Add(names[j], j);
             }

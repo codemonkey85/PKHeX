@@ -25,7 +25,7 @@ namespace PKHeX.Core
 
         private static IEnumerable<WC3> GetIngameCXDData()
         {
-            var langs = new[]{LanguageID.Japanese, LanguageID.English, LanguageID.French, LanguageID.Italian, LanguageID.German, LanguageID.Spanish};
+            LanguageID[]? langs = new[]{LanguageID.Japanese, LanguageID.English, LanguageID.French, LanguageID.Italian, LanguageID.German, LanguageID.Spanish};
             string[] h = {string.Empty, "ダニー", "HORDEL", "VOLKER", "ODINO", "HORAZ", string.Empty, "HORDEL"};
             string[] d = {string.Empty, "ギンザル", "DUKING", "DOKING", "RODRIGO", "GRAND", string.Empty, "GERMÁN"};
             string[] m = {string.Empty, "バトルやま", "MATTLE", "MT BATAILL", "MONTE LOTT", "DUELLBERG﻿", string.Empty, "ERNESTO"}; // truncated on ck3->pk3 transfer
@@ -33,7 +33,7 @@ namespace PKHeX.Core
             return langs.SelectMany(l => GetIngame((int)l));
             IEnumerable<WC3> GetIngame(int l)
             {
-                var id = (LanguageID) l;
+                LanguageID id = (LanguageID) l;
                 return new WC3[]
                 {
                     new() { Species = 239, Level = 20, Language = l, Location = 164, TID = 41400, SID = -1, OT_Gender = 0, OT_Name = h[l], Version = GameVersion.XD,   CardTitle = $"Trade Togepi ({id})",     Method = PIDType.CXD, Moves = new[] { 008, 007, 009, 238 }, Fateful = true }, // Elekid @ Snagem Hideout

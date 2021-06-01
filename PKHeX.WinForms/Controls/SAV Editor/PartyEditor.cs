@@ -36,7 +36,7 @@ namespace PKHeX.WinForms.Controls
         {
             SlotPictureBoxes = PartyPokeGrid.Entries;
             BoxSlotCount = SlotPictureBoxes.Count;
-            foreach (var pb in SlotPictureBoxes)
+            foreach (PictureBox? pb in SlotPictureBoxes)
             {
                 pb.MouseEnter += (o, args) => BoxSlot_MouseEnter(pb, args);
                 pb.MouseLeave += (o, args) => BoxSlot_MouseLeave(pb, args);
@@ -58,7 +58,7 @@ namespace PKHeX.WinForms.Controls
             if (previous is not SlotInfoParty p)
                 return;
 
-            var pb = SlotPictureBoxes[p.Slot];
+            PictureBox? pb = SlotPictureBoxes[p.Slot];
             pb.BackgroundImage = null;
         }
 
@@ -74,7 +74,7 @@ namespace PKHeX.WinForms.Controls
                 return;
             }
 
-            var pb = SlotPictureBoxes[index];
+            PictureBox? pb = SlotPictureBoxes[index];
             SlotUtil.UpdateSlot(pb, slot, pkm, SAV, FlagIllegal, type);
         }
 
@@ -105,9 +105,9 @@ namespace PKHeX.WinForms.Controls
             //pokeGrid1.SetBackground(SAV.WallpaperImage(0));
             M?.Hover.Stop();
 
-            foreach (var pb in SlotPictureBoxes)
+            foreach (PictureBox? pb in SlotPictureBoxes)
             {
-                var slot = (SlotInfoParty) GetSlotData(pb);
+                SlotInfoParty? slot = (SlotInfoParty) GetSlotData(pb);
                 SlotUtil.UpdateSlot(pb, slot, slot.Read(SAV), SAV, FlagIllegal);
             }
 

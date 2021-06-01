@@ -12,7 +12,7 @@ namespace PKHeX.Core
     {
         public static void ExportAllBlocksAsSingleFile(IReadOnlyList<SCBlock> blocks, string path, SCBlockExportOption option = SCBlockExportOption.All)
         {
-            var data = ExportAllBlocks(blocks, option);
+            byte[]? data = ExportAllBlocks(blocks, option);
             File.WriteAllBytes(path, data);
         }
 
@@ -21,9 +21,9 @@ namespace PKHeX.Core
             if (option == SCBlockExportOption.None)
                 return SwishCrypto.GetDecryptedRawData(blocks);
 
-            using var stream = new MemoryStream();
-            using var bw = new BinaryWriter(stream);
-            for (var i = 0; i < blocks.Count; i++)
+            using MemoryStream? stream = new MemoryStream();
+            using BinaryWriter? bw = new BinaryWriter(stream);
+            for (int i = 0; i < blocks.Count; i++)
                 ExportBlock(blocks[i], bw, i, option);
             return stream.ToArray();
         }
@@ -50,8 +50,8 @@ namespace PKHeX.Core
 
         public static string GetBlockFileNameWithoutExtension(SCBlock block)
         {
-            var key = block.Key;
-            var name = $"{key:X8}";
+            uint key = block.Key;
+            string? name = $"{key:X8}";
             if (block.HasValue())
                 name += $" {block.GetValue()}";
             return name;
@@ -59,7 +59,7 @@ namespace PKHeX.Core
 
         public static string GetBlockSummary(SCBlock b)
         {
-            var sb = new StringBuilder(64);
+            StringBuilder? sb = new StringBuilder(64);
             sb.Append("Key: ").AppendFormat("{0:X8}", b.Key).AppendLine();
             sb.Append("Type: ").Append(b.Type).AppendLine();
             if (b.Data.Length != 0)
@@ -75,30 +75,30 @@ namespace PKHeX.Core
 
         public static List<string> ImportBlocksFromFolder(string path, SAV8SWSH sav)
         {
-            var failed = new List<string>();
-            var files = Directory.EnumerateFiles(path);
-            foreach (var f in files)
+            List<string>? failed = new List<string>();
+            IEnumerable<string>? files = Directory.EnumerateFiles(path);
+            foreach (string? f in files)
             {
-                var fn = Path.GetFileNameWithoutExtension(f);
+                string? fn = Path.GetFileNameWithoutExtension(f);
 
                 // Trim off Value summary if present
-                var space = fn.IndexOf(' ');
+                int space = fn.IndexOf(' ');
                 if (space != -1)
                     fn = fn[..space];
 
-                var hex = Util.GetHexValue(fn);
+                uint hex = Util.GetHexValue(fn);
                 try
                 {
-                    var block = sav.Blocks.GetBlock(hex);
-                    var len = block.Data.Length;
-                    var fi = new FileInfo(f);
+                    SCBlock? block = sav.Blocks.GetBlock(hex);
+                    int len = block.Data.Length;
+                    FileInfo? fi = new FileInfo(f);
                     if (fi.Length != len)
                     {
                         failed.Add(fn);
                         continue;
                     }
 
-                    var data = File.ReadAllBytes(f);
+                    byte[]? data = File.ReadAllBytes(f);
                     data.CopyTo(block.Data, 0);
                 }
 #pragma warning disable CA1031 // Do not catch general exception types

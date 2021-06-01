@@ -35,7 +35,7 @@ namespace PKHeX.Core
         /// <returns>Object containing search criteria to be passed by reference to search/filter methods.</returns>
         public FrameGenerator(PKM pk)
         {
-            var ver = (GameVersion)pk.Version;
+            GameVersion ver = (GameVersion)pk.Version;
             switch (ver)
             {
                 // Method H
@@ -50,12 +50,12 @@ namespace PKHeX.Core
                     AllowLeads = true;
 
                     // Cute Charm waits for gender too!
-                    var gender = pk.Gender;
+                    int gender = pk.Gender;
                     bool gendered = gender != 2;
                     if (!gendered)
                         return;
 
-                    var gr = pk.PersonalInfo.Gender;
+                    int gr = pk.PersonalInfo.Gender;
                     Gendered = true;
                     GenderLow = GetGenderMinMax(gender, gr, false);
                     GenderHigh = GetGenderMinMax(gender, gr, true);

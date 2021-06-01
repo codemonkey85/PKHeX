@@ -12,15 +12,15 @@ namespace PKHeX.Drawing
         public static Image GenerateQRCode7(PK7 pk7, int box = 0, int slot = 0, int copies = 1)
         {
             byte[] data = QR7.GenerateQRData(pk7, box, slot, copies);
-            var msg = QRMessageUtil.GetMessage(data);
+            string? msg = QRMessageUtil.GetMessage(data);
             return GenerateQRCode(msg, ppm: 4);
         }
 
         private static Image GenerateQRCode(string msg, int ppm = 4)
         {
-            using var generator = new QRCodeGenerator();
-            using var data = generator.CreateQrCode(msg, QRCodeGenerator.ECCLevel.Q);
-            using var code = new QRCode(data);
+            using QRCodeGenerator? generator = new QRCodeGenerator();
+            using QRCodeData? data = generator.CreateQrCode(msg, QRCodeGenerator.ECCLevel.Q);
+            using QRCode? code = new QRCode(data);
             return code.GetGraphic(ppm);
         }
     }

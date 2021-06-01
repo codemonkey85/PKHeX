@@ -104,7 +104,7 @@ namespace PKHeX.Core
             if (value.Length > maxlen)
                 value = value[..maxlen]; // Hard cap
             int offset = GetBoxNameOffset(box);
-            var str = SetString(value, maxlen);
+            byte[]? str = SetString(value, maxlen);
             SetData(Storage, str, offset);
         }
 
@@ -172,7 +172,7 @@ namespace PKHeX.Core
 
         public PokegearNumber[] GetPokeGearRoloDex()
         {
-            var arr = new PokegearNumber[GearMaxCallers];
+            PokegearNumber[]? arr = new PokegearNumber[GearMaxCallers];
             for (int i = 0; i < arr.Length; i++)
                 arr[i] = GetCallerAtIndex(i);
             return arr;
@@ -198,7 +198,7 @@ namespace PKHeX.Core
 
         public void PokeGearUnlockAllCallersNoTrainers()
         {
-            var nonTrainers = new[]
+            PokegearNumber[]? nonTrainers = new[]
             {
                 PokegearNumber.Mother,
                 PokegearNumber.Professor_Elm,

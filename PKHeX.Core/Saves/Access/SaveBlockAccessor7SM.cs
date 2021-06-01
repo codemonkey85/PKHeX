@@ -53,7 +53,7 @@ namespace PKHeX.Core
 
         public SaveBlockAccessor7SM(SAV7SM sav)
         {
-            var bi = BlockInfo;
+            IReadOnlyList<BlockInfo7>? bi = BlockInfo;
 
             Items = new MyItem7SM(sav, 0);
             Situation = new Situation7(sav, bi[01].Offset);

@@ -12,7 +12,7 @@ namespace PKHeX.Tests.Saves
         [InlineData(Species.Genesect)]
         public static void Gen5(Species species)
         {
-            var bw = new SAV5B2W2();
+            SAV5B2W2? bw = new SAV5B2W2();
             SetDexSpecies(bw, (int)species, 0x54);
         }
 
@@ -20,14 +20,14 @@ namespace PKHeX.Tests.Saves
         [InlineData(Species.Landorus)]
         public static void Gen5Form(Species species)
         {
-            var bw = new SAV5B2W2();
+            SAV5B2W2? bw = new SAV5B2W2();
             SetDexSpecies(bw, (int)species, 0x54);
             CheckDexFlags5(bw, (int)species, 0, 0x54, 0xB);
         }
 
         private static void SetDexSpecies(SaveFile sav, int species, int regionSize)
         {
-            var pk5 = new PK5 {Species = species, TID = 1337}; // non-shiny
+            PK5? pk5 = new PK5 {Species = species, TID = 1337}; // non-shiny
             pk5.Gender = pk5.GetSaneGender();
 
             sav.SetBoxSlotAtIndex(pk5, 0);
@@ -37,12 +37,12 @@ namespace PKHeX.Tests.Saves
 
         private static void CheckFlags(SaveFile sav, int species, int regionSize)
         {
-            var dex = sav.PokeDex;
-            var data = sav.Data;
+            int dex = sav.PokeDex;
+            byte[]? data = sav.Data;
 
-            var bit = species - 1;
-            var val = (byte) (1 << (bit & 7));
-            var ofs = bit >> 3;
+            int bit = species - 1;
+            byte val = (byte) (1 << (bit & 7));
+            int ofs = bit >> 3;
             data[dex + 0x08 + ofs].Should().Be(val, "caught flag");
             data[dex + 0x08 + regionSize + ofs].Should().Be(val, "seen flag");
             data[dex + 0x08 + regionSize + (regionSize * 4) + ofs].Should().Be(val, "displayed flag");
@@ -50,18 +50,18 @@ namespace PKHeX.Tests.Saves
 
         private static void CheckDexFlags5(SaveFile sav, int species, int form, int regionSize, int formRegionSize)
         {
-            var dex = sav.PokeDex;
-            var data = sav.Data;
+            int dex = sav.PokeDex;
+            byte[]? data = sav.Data;
 
-            var formDex = dex + 8 + (regionSize * 9);
+            int formDex = dex + 8 + (regionSize * 9);
 
             int fc = sav.Personal[species].FormCount;
-            var bit = ((SAV5)sav).Zukan.DexFormIndexFetcher(species, fc);
+            int bit = ((SAV5)sav).Zukan.DexFormIndexFetcher(species, fc);
             if (bit < 0)
                 return;
             bit += form;
-            var val = (byte)(1 << (bit & 7));
-            var ofs = bit >> 3;
+            byte val = (byte)(1 << (bit & 7));
+            int ofs = bit >> 3;
             data[formDex + ofs].Should().Be(val, "seen flag");
             data[formDex + ofs + (formRegionSize * 2)].Should().Be(val, "displayed flag");
         }

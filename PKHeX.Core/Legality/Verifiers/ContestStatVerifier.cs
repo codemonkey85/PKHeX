@@ -8,7 +8,7 @@
         protected override CheckIdentifier Identifier => CheckIdentifier.Memory;
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.Format <= 4)
                 return; // legal || not present
 

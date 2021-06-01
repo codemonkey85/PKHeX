@@ -29,7 +29,7 @@ namespace PKHeX.Core
             if (currentSpecies is (int)Species.Meowth or (int)Species.Pikachu)
                 return currentForm == 0;
 
-            var soup = CanEatMaxSoup;
+            HashSet<int>? soup = CanEatMaxSoup;
             return soup.Contains(currentSpecies) || (currentSpecies != originSpecies && soup.Contains(originSpecies));
         }
 
@@ -44,7 +44,7 @@ namespace PKHeX.Core
         {
             if (currentSpecies is (int)Species.Meowth or (int)Species.Pikachu)
                 return currentForm == 0;
-            var soup = CanEatMaxSoup;
+            HashSet<int>? soup = CanEatMaxSoup;
             return soup.Contains(currentSpecies);
         }
 

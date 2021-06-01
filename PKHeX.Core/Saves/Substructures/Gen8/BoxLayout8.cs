@@ -17,8 +17,8 @@
 
         public void SetBoxName(int box, string value)
         {
-            var data = SAV.SetString(value, StringMaxLength, StringMaxLength, 0);
-            var offset = GetBoxNameOffset(box);
+            byte[]? data = SAV.SetString(value, StringMaxLength, StringMaxLength, 0);
+            int offset = GetBoxNameOffset(box);
             SAV.SetData(Data, data, offset);
         }
 

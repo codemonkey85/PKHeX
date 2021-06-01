@@ -57,7 +57,7 @@ namespace PKHeX.Core
                     continue;
                 }
 
-                SAV.GetBoxSlotFromIndex(index, out var box, out var slot);
+                SAV.GetBoxSlotFromIndex(index, out int box, out int slot);
                 int val = (box << 8) | slot;
                 BitConverter.GetBytes((short)val).CopyTo(Data, Offset + (i * 2));
             }

@@ -11,7 +11,7 @@ namespace PKHeX.Core
     {
         public static EncounterArea6XY[] GetAreas(byte[][] input, GameVersion game, EncounterArea6XY safari)
         {
-            var result = new EncounterArea6XY[input.Length + 1];
+            EncounterArea6XY[]? result = new EncounterArea6XY[input.Length + 1];
             for (int i = 0; i < input.Length; i++)
                 result[i] = new EncounterArea6XY(input[i], game);
             result[^1] = safari;
@@ -63,7 +63,7 @@ namespace PKHeX.Core
                 712, 714
             };
 
-            var slots = new EncounterSlot6XY[species.Length + SpeciesFormSlots];
+            EncounterSlot6XY[]? slots = new EncounterSlot6XY[species.Length + SpeciesFormSlots];
             int i = 0;
             for (; i < species.Length; i++)
                 slots[i] = new EncounterSlot6XY(this, species[i], 0, 30, 30);
@@ -82,7 +82,7 @@ namespace PKHeX.Core
         {
             const int size = 4;
             int count = (data.Length - 4) / size;
-            var slots = new EncounterSlot6XY[count];
+            EncounterSlot6XY[]? slots = new EncounterSlot6XY[count];
             for (int i = 0; i < slots.Length; i++)
             {
                 int offset = 4 + (size * i);
@@ -102,9 +102,9 @@ namespace PKHeX.Core
 
         public override IEnumerable<EncounterSlot> GetMatchingSlots(PKM pkm, IReadOnlyList<EvoCriteria> chain)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;
@@ -117,7 +117,7 @@ namespace PKHeX.Core
                         if (slot.Species != (int)Species.Flabébé)
                             break;
 
-                        var maxLevel = slot.LevelMax;
+                        int maxLevel = slot.LevelMax;
                         if (!ExistsPressureSlot(evo, ref maxLevel))
                             break;
 
@@ -137,7 +137,7 @@ namespace PKHeX.Core
         private bool ExistsPressureSlot(DexLevel evo, ref int level)
         {
             bool existsForm = false;
-            foreach (var z in Slots)
+            foreach (EncounterSlot? z in Slots)
             {
                 if (z.Species != evo.Species)
                     continue;

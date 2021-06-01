@@ -16,8 +16,8 @@ namespace PKHeX.Core
 
         public static EggMoves2[] GetArray(byte[] data, int count)
         {
-            var entries = new EggMoves2[count + 1];
-            var empty = entries[0] = new EggMoves2(Array.Empty<int>());
+            EggMoves2[]? entries = new EggMoves2[count + 1];
+            EggMoves2? empty = entries[0] = new EggMoves2(Array.Empty<int>());
 
             int baseOffset = BitConverter.ToInt16(data, 0) - (count * 2);
             for (int i = 1; i < entries.Length; i++)
@@ -53,7 +53,7 @@ namespace PKHeX.Core
                 return None;
 
             int count = BitConverter.ToInt16(data, 0);
-            var moves = new int[count];
+            int[]? moves = new int[count];
             for (int i = 0; i < moves.Length; i++)
                 moves[i] = BitConverter.ToInt16(data, 2 + (i * 2));
             return new EggMoves6(moves);
@@ -82,7 +82,7 @@ namespace PKHeX.Core
 
             int formIndex = BitConverter.ToInt16(data, 0);
             int count = BitConverter.ToInt16(data, 2);
-            var moves = new int[count];
+            int[]? moves = new int[count];
             for (int i = 0; i < moves.Length; i++)
                 moves[i] = BitConverter.ToInt16(data, 4 + (i * 2));
             return new EggMoves7(moves, formIndex);

@@ -32,13 +32,13 @@ namespace PKHeX.Core
 
         public ushort GetBadgeVictorySpecies(uint badge, uint slot)
         {
-            var ofs = GetBadgeVictorySpeciesOffset(badge, slot);
+            int ofs = GetBadgeVictorySpeciesOffset(badge, slot);
             return BitConverter.ToUInt16(Data, ofs);
         }
 
         public void SetBadgeVictorySpecies(uint badge, uint slot, ushort species)
         {
-            var ofs = GetBadgeVictorySpeciesOffset(badge, slot);
+            int ofs = GetBadgeVictorySpeciesOffset(badge, slot);
             SAV.SetData(BitConverter.GetBytes(species), ofs);
         }
     }

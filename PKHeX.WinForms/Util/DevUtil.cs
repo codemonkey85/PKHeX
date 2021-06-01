@@ -35,7 +35,7 @@ namespace PKHeX.WinForms
 
         private static ToolStripMenuItem GetTranslationUpdater()
         {
-            var ti = new ToolStripMenuItem
+            ToolStripMenuItem? ti = new ToolStripMenuItem
             {
                 ShortcutKeys = Keys.Control | Keys.Alt | Keys.D,
                 Visible = false
@@ -60,17 +60,17 @@ namespace PKHeX.WinForms
             WinFormsTranslator.RemoveAll(DefaultLanguage, PurgeBanlist); // remove all lines from above generated files that still remain
 
             // Move translated files from the debug exe loc to their project location
-            var files = Directory.GetFiles(Application.StartupPath);
-            var dir = GetResourcePath().Replace("PKHeX.Core", "PKHeX.WinForms");
-            foreach (var f in files)
+            string[]? files = Directory.GetFiles(Application.StartupPath);
+            string? dir = GetResourcePath().Replace("PKHeX.Core", "PKHeX.WinForms");
+            foreach (string? f in files)
             {
-                var fn = Path.GetFileName(f);
+                string? fn = Path.GetFileName(f);
                 if (!fn.EndsWith(".txt"))
                     continue;
                 if (!fn.StartsWith("lang_"))
                     continue;
 
-                var loc = Path.Combine(dir, fn);
+                string? loc = Path.Combine(dir, fn);
                 if (File.Exists(loc))
                     File.Delete(loc);
                 File.Move(f, loc);
@@ -114,20 +114,20 @@ namespace PKHeX.WinForms
 
         private static void DumpStrings(Type t, bool sorted = true)
         {
-            var dir = GetResourcePath();
-            var langs = new[] {DefaultLanguage}.Concat(Languages);
-            foreach (var lang in langs)
+            string? dir = GetResourcePath();
+            System.Collections.Generic.IEnumerable<string>? langs = new[] {DefaultLanguage}.Concat(Languages);
+            foreach (string? lang in langs)
             {
                 LocalizationUtil.SetLocalization(t, lang);
-                var entries = LocalizationUtil.GetLocalization(t);
-                var export = entries.Select(z => new {Variable = z.Split('=')[0], Line = z})
+                string[]? entries = LocalizationUtil.GetLocalization(t);
+                System.Collections.Generic.IEnumerable<string>? export = entries.Select(z => new {Variable = z.Split('=')[0], Line = z})
                     .OrderBy(z => z.Variable) // sort by length (V1 = 2, V100 = 4)
                     .Select(z => z.Line); // sorted lines
 
                 if (!sorted)
                     export = entries;
 
-                var location = GetFileLocationInText(t.Name, dir, lang);
+                string? location = GetFileLocationInText(t.Name, dir, lang);
                 File.WriteAllLines(location, export);
                 LocalizationUtil.SetLocalization(t, DefaultLanguage);
             }
@@ -135,21 +135,21 @@ namespace PKHeX.WinForms
 
         private static string GetFileLocationInText(string fileType, string dir, string lang)
         {
-            var path = Path.Combine(dir, lang);
+            string? path = Path.Combine(dir, lang);
             if (!Directory.Exists(path))
                 path = Path.Combine(dir, "other");
 
-            var fn = $"{fileType}_{lang}.txt";
+            string? fn = $"{fileType}_{lang}.txt";
             return Path.Combine(path, fn);
         }
 
         private static string GetResourcePath()
         {
-            var path = Application.StartupPath;
+            string? path = Application.StartupPath;
             const string projname = "PKHeX\\";
-            var pos = path.LastIndexOf(projname, StringComparison.Ordinal);
-            var str = path[..(pos + projname.Length)];
-            var coreFolder = Path.Combine(str, "PKHeX.Core", "Resources", "text");
+            int pos = path.LastIndexOf(projname, StringComparison.Ordinal);
+            string? str = path[..(pos + projname.Length)];
+            string? coreFolder = Path.Combine(str, "PKHeX.Core", "Resources", "text");
 
             return coreFolder;
         }

@@ -17,13 +17,13 @@ namespace PKHeX.Core
         {
             // Don't clear existing keys on reset; only update.
             // A language will have the same keys (hopefully), only with differing values.
-            foreach (var line in lines)
+            foreach (string? line in lines)
             {
-                var index = line.IndexOf('\t');
+                int index = line.IndexOf('\t');
                 if (index < 0)
                     continue;
-                var name = line[..index];
-                var text = line[(index + 1)..];
+                string? name = line[..index];
+                string? text = line[(index + 1)..];
                 RibbonNames[name] = text;
             }
         }

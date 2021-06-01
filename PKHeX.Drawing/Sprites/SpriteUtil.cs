@@ -23,13 +23,13 @@ namespace PKHeX.Drawing
 
         public static Image? GetRibbonSprite(string name)
         {
-            var resource = name.Replace("CountG3", "G3").ToLower();
+            string? resource = name.Replace("CountG3", "G3").ToLower();
             return (Bitmap?)Resources.ResourceManager.GetObject(resource);
         }
 
         public static Image? GetRibbonSprite(string name, int max, int value)
         {
-            var resource = GetRibbonSpriteName(name, max, value);
+            string? resource = GetRibbonSpriteName(name, max, value);
             return (Bitmap?)Resources.ResourceManager.GetObject(resource);
         }
 
@@ -37,7 +37,7 @@ namespace PKHeX.Drawing
         {
             if (max != 4) // Memory
             {
-                var sprite = name.ToLower();
+                string? sprite = name.ToLower();
                 if (max == value)
                     return sprite + "2";
                 return sprite;
@@ -66,7 +66,7 @@ namespace PKHeX.Drawing
             if (gift.Empty)
                 return Spriter.None;
 
-            var img = GetBaseImage(gift);
+            Image? img = GetBaseImage(gift);
             if (gift.GiftUsed)
                 img = ImageUtil.ChangeOpacity(img, 0.3);
             return img;
@@ -90,21 +90,21 @@ namespace PKHeX.Drawing
 
         private static Image GetSprite(PKM pk, bool isBoxBGRed = false)
         {
-            var formarg = pk is IFormArgument f ? f.FormArgument : 0;
+            uint formarg = pk is IFormArgument f ? f.FormArgument : 0;
             bool alt = pk.Format >= 8 && (pk.ShinyXor == 0 || pk.FatefulEncounter || pk.Version == (int)GameVersion.GO);
-            var img = GetSprite(pk.Species, pk.Form, pk.Gender, formarg, pk.SpriteItem, pk.IsEgg, pk.IsShiny, pk.Format, isBoxBGRed, alt);
+            Image? img = GetSprite(pk.Species, pk.Form, pk.Gender, formarg, pk.SpriteItem, pk.IsEgg, pk.IsShiny, pk.Format, isBoxBGRed, alt);
             if (pk is IShadowPKM {IsShadow: true})
             {
                 const int Lugia = 249;
                 if (pk.Species == Lugia) // show XD shadow sprite
                     img = Spriter.GetSprite(Spriter.ShadowLugia, Lugia, pk.HeldItem, pk.IsEgg, pk.IsShiny, pk.Format, isBoxBGRed);
-                GetSpriteGlow(pk, 75, 0, 130, out var pixels, out var baseSprite, true);
-                var glowImg = ImageUtil.GetBitmap(pixels, baseSprite.Width, baseSprite.Height, baseSprite.PixelFormat);
+                GetSpriteGlow(pk, 75, 0, 130, out byte[]? pixels, out Image? baseSprite, true);
+                Bitmap? glowImg = ImageUtil.GetBitmap(pixels, baseSprite.Width, baseSprite.Height, baseSprite.PixelFormat);
                 return ImageUtil.LayerImage(glowImg, img, 0, 0);
             }
             if (pk is IGigantamax {CanGigantamax: true})
             {
-                var gm = Resources.dyna;
+                Bitmap? gm = Resources.dyna;
                 return ImageUtil.LayerImage(img, gm, (img.Width - gm.Width) / 2, 0);
             }
             return img;
@@ -131,13 +131,13 @@ namespace PKHeX.Drawing
 
             bool inBox = (uint)slot < MaxSlotCount;
             bool empty = pk.Species == 0;
-            var sprite = empty ? Spriter.None : pk.Sprite(isBoxBGRed: inBox && BoxWallpaper.IsWallpaperRed(sav.Version, sav.GetBoxWallpaper(box)));
+            Image? sprite = empty ? Spriter.None : pk.Sprite(isBoxBGRed: inBox && BoxWallpaper.IsWallpaperRed(sav.Version, sav.GetBoxWallpaper(box)));
 
             if (!empty && flagIllegal)
             {
                 if (box >= 0)
                     pk.Box = box;
-                var la = new LegalityAnalysis(pk, sav.Personal);
+                LegalityAnalysis? la = new LegalityAnalysis(pk, sav.Personal);
                 if (!la.Valid)
                     sprite = ImageUtil.LayerImage(sprite, Resources.warn, 0, FlagIllegalShiftY);
                 else if (pk.Format >= 8 && pk.Moves.Any(Legal.DummiedMoves_SWSH.Contains))
@@ -145,7 +145,7 @@ namespace PKHeX.Drawing
             }
             if (inBox) // in box
             {
-                var flags = sav.GetSlotFlags(box, slot);
+                StorageSlotFlag flags = sav.GetSlotFlags(box, slot);
                 int team = flags.IsBattleTeam();
                 if (team >= 0)
                     sprite = ImageUtil.LayerImage(sprite, Resources.team, SlotTeamShiftX, 0);
@@ -182,7 +182,7 @@ namespace PKHeX.Drawing
         public static void GetSpriteGlow(PKM pk, byte blue, byte green, byte red, out byte[] pixels, out Image baseSprite, bool forceHollow = false)
         {
             bool egg = pk.IsEgg;
-            var formarg = pk is IFormArgument f ? f.FormArgument : 0;
+            uint formarg = pk is IFormArgument f ? f.FormArgument : 0;
             baseSprite = GetSprite(pk.Species, pk.Form, pk.Gender, formarg, 0, egg, false, pk.Format);
             GetSpriteGlow(baseSprite, blue, green, red, out pixels, forceHollow || egg);
         }
@@ -199,7 +199,7 @@ namespace PKHeX.Drawing
             // If the image has any transparency, any derived background will bleed into it.
             // Need to undo any transparency values if any present.
             // Remove opaque pixels from original image, leaving only the glow effect pixels.
-            var original = (byte[])pixels.Clone();
+            byte[]? original = (byte[])pixels.Clone();
             ImageUtil.SetAllUsedPixelsOpaque(pixels);
             ImageUtil.GlowEdges(pixels, blue, green, red, baseSprite.Width);
             ImageUtil.RemovePixels(pixels, original);

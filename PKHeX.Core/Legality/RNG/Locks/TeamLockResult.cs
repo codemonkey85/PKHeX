@@ -81,9 +81,9 @@ namespace PKHeX.Core
             if (Locks.Count == 0) // full team reverse-generated
                 return VerifyNPC(frame);
 
-            var current = Locks.Pop();
-            var locks = GetPossibleLocks(frame, current, prior);
-            foreach (var l in locks)
+            NPCLock? current = Locks.Pop();
+            IEnumerable<SeedFrame>? locks = GetPossibleLocks(frame, current, prior);
+            foreach (SeedFrame l in locks)
             {
                 Team.Push(l); // possible match
                 if (FindLockSeed(l.FrameID, current))
@@ -133,10 +133,10 @@ namespace PKHeX.Core
             int start = 2;
             while (true)
             {
-                var upper = Cache[start + 1];
-                var lower = Cache[start];
+                uint upper = Cache[start + 1];
+                uint lower = Cache[start];
                 // uint cid = upper << 16 | lower;
-                var sv = (upper ^ lower) >> 3;
+                uint sv = (upper ^ lower) >> 3;
                 if (sv == TSV) // XD shiny checks all opponent PKM, even non-shadow.
                 {
                     // Anti-shiny rerolled! This is a possible frame.
@@ -188,10 +188,10 @@ namespace PKHeX.Core
                 if (p7 > start)
                 {
                     // check for interrupting cpu team cases
-                    var upper = Cache[p7 + 1];
-                    var lower = Cache[p7];
+                    uint upper = Cache[p7 + 1];
+                    uint lower = Cache[p7];
                     uint cid = upper << 16 | lower;
-                    var sv = (upper ^ lower) >> 3;
+                    uint sv = (upper ^ lower) >> 3;
                     if (sv == TSV) // XD shiny checks all opponent PKM, even non-shadow.
                     {
                         // This interrupt is ignored! The result is shiny.
@@ -230,17 +230,17 @@ namespace PKHeX.Core
         /// <returns>True if the <see cref="Specifications"/> are valid.</returns>
         private bool VerifyNPC(int ctr)
         {
-            var TID = Cache[ctr + 1];
-            var SID = Cache[ctr];
-            var CPUSV = (TID ^ SID) >> 3;
+            uint TID = Cache[ctr + 1];
+            uint SID = Cache[ctr];
+            uint CPUSV = (TID ^ SID) >> 3;
             if (RCSV != NOT_FORCED && RCSV != CPUSV)
                 return false; // required CPU Trainer's shiny value did not match the required value.
 
             int pos = Team.Count - 1; // stack can't do a for loop :(
-            foreach (var member in Team)
+            foreach (SeedFrame member in Team)
             {
-                var pid = member.PID;
-                var psv = ((pid & 0xFFFF) ^ (pid >> 16)) >> 3;
+                uint pid = member.PID;
+                uint psv = ((pid & 0xFFFF) ^ (pid >> 16)) >> 3;
 
                 // check for shiny for Trainer -- XD only
                 // if (psv == TSV) // XD shiny checks all opponent PKM, even non-shadow.

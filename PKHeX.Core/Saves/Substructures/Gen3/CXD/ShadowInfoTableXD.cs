@@ -16,7 +16,7 @@ namespace PKHeX.Core
             Entries = new ShadowInfoEntryXD[eCount];
             for (int i = 0; i < eCount; i++)
             {
-                var entry = GetEntry(data, i);
+                ShadowInfoEntryXD? entry = GetEntry(data, i);
                 Entries[i] = entry;
             }
         }
@@ -25,8 +25,8 @@ namespace PKHeX.Core
 
         private static ShadowInfoEntryXD GetEntry(byte[] data, int i)
         {
-            var d = data.Slice(i * SIZE_ENTRY, SIZE_ENTRY);
-            var entry = new ShadowInfoEntryXD(d);
+            byte[]? d = data.Slice(i * SIZE_ENTRY, SIZE_ENTRY);
+            ShadowInfoEntryXD? entry = new ShadowInfoEntryXD(d);
             return entry;
         }
 

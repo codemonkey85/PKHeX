@@ -17,7 +17,7 @@ namespace PKHeX.Core
             if (generation < 6)
                 return Array.Empty<int>();
 
-            var r = new List<int>();
+            List<int>? r = new List<int>();
             r.AddRange(MoveEgg.GetRelearnLVLMoves(pkm, species, form, 1, version));
 
             if (pkm.Format == 6 && pkm.Species != (int)Species.Meowstic)
@@ -46,8 +46,8 @@ namespace PKHeX.Core
 
         internal static int GetShedinjaMoveLevel(int species, int move, int generation)
         {
-            var src = generation == 4 ? LevelUpPt : LevelUpE;
-            var moves = src[species];
+            Learnset[]? src = generation == 4 ? LevelUpPt : LevelUpE;
+            Learnset? moves = src[species];
             return moves.GetLevelLearnMove(move);
         }
 
@@ -147,11 +147,11 @@ namespace PKHeX.Core
 
         internal static IReadOnlyList<int>[] GetValidMovesAllGens(PKM pkm, IReadOnlyList<EvoCriteria>[] evoChains, int minLvLG1 = 1, int minLvLG2 = 1, MoveSourceType types = MoveSourceType.ExternalSources, bool RemoveTransferHM = true)
         {
-            var result = new IReadOnlyList<int>[evoChains.Length];
+            IReadOnlyList<int>[]? result = new IReadOnlyList<int>[evoChains.Length];
             for (int i = 0; i < result.Length; i++)
                 result[i] = Array.Empty<int>();
 
-            var min = pkm is IBattleVersion b ? Math.Max(0, b.GetMinGeneration()) : 1;
+            int min = pkm is IBattleVersion b ? Math.Max(0, b.GetMinGeneration()) : 1;
             for (int i = min; i < evoChains.Length; i++)
             {
                 if (evoChains[i].Count == 0)
@@ -177,14 +177,14 @@ namespace PKHeX.Core
 
         internal static IEnumerable<int> GetExclusivePreEvolutionMoves(PKM pkm, int Species, IReadOnlyList<EvoCriteria> evoChain, int generation, GameVersion Version)
         {
-            var preevomoves = new List<int>();
-            var evomoves = new List<int>();
-            var index = EvolutionChain.GetEvoChainSpeciesIndex(evoChain, Species);
+            List<int>? preevomoves = new List<int>();
+            List<int>? evomoves = new List<int>();
+            int index = EvolutionChain.GetEvoChainSpeciesIndex(evoChain, Species);
             for (int i = 0; i < evoChain.Count; i++)
             {
-                var evo = evoChain[i];
-                var moves = GetMoves(pkm, evo.Species, 1, 1, evo.Level, evo.Form, Version: Version, types: MoveSourceType.ExternalSources, RemoveTransferHM: false, generation: generation);
-                var list = i >= index ? preevomoves : evomoves;
+                EvoCriteria? evo = evoChain[i];
+                IEnumerable<int>? moves = GetMoves(pkm, evo.Species, 1, 1, evo.Level, evo.Form, Version: Version, types: MoveSourceType.ExternalSources, RemoveTransferHM: false, generation: generation);
+                List<int>? list = i >= index ? preevomoves : evomoves;
                 list.AddRange(moves);
             }
             return preevomoves.Except(evomoves).Distinct();
@@ -192,7 +192,7 @@ namespace PKHeX.Core
 
         internal static IEnumerable<int> GetValidMoves(PKM pkm, GameVersion version, IReadOnlyList<EvoCriteria> chain, int generation, int minLvLG1 = 1, int minLvLG2 = 1, MoveSourceType types = MoveSourceType.Reminder, bool RemoveTransferHM = true)
         {
-            var r = new List<int> { 0 };
+            List<int>? r = new List<int> { 0 };
             int species = pkm.Species;
 
             if (FormChangeMoves.Contains(species)) // Deoxys & Shaymin & Giratina (others don't have extra but whatever)
@@ -213,10 +213,10 @@ namespace PKHeX.Core
                 return r.Distinct();
             }
 
-            for (var i = 0; i < chain.Count; i++)
+            for (int i = 0; i < chain.Count; i++)
             {
-                var evo = chain[i];
-                var moves = GetEvoMoves(pkm, version, types, chain, generation, minLvLG1, minLvLG2, RemoveTransferHM, i, evo);
+                EvoCriteria? evo = chain[i];
+                IEnumerable<int>? moves = GetEvoMoves(pkm, version, types, chain, generation, minLvLG1, minLvLG2, RemoveTransferHM, i, evo);
                 r.AddRange(moves);
             }
 
@@ -236,7 +236,7 @@ namespace PKHeX.Core
         {
             int minlvlevo1 = GetEvoMoveMinLevel1(pkm, generation, minLvLG1, evo);
             int minlvlevo2 = GetEvoMoveMinLevel2(pkm, generation, minLvLG2, evo);
-            var maxLevel = evo.Level;
+            int maxLevel = evo.Level;
             if (i != 0 && chain[i - 1].RequiresLvlUp) // evolution
                 ++maxLevel; // allow lvlmoves from the level it evolved to the next species
             return GetMoves(pkm, evo.Species, minlvlevo1, minlvlevo2, maxLevel, evo.Form, Version, types, RemoveTransferHM, generation);
@@ -267,7 +267,7 @@ namespace PKHeX.Core
 
         private static IEnumerable<int> GetMoves(PKM pkm, int species, int minlvlG1, int minlvlG2, int lvl, int form, GameVersion Version, MoveSourceType types, bool RemoveTransferHM, int generation)
         {
-            var r = new List<int>();
+            List<int>? r = new List<int>();
             if (types.HasFlagFast(MoveSourceType.LevelUp))
                 r.AddRange(MoveLevelUp.GetMovesLevelUp(pkm, species, minlvlG1, minlvlG2, lvl, form, Version, types.HasFlagFast(MoveSourceType.Reminder), generation));
             if (types.HasFlagFast(MoveSourceType.Machine))

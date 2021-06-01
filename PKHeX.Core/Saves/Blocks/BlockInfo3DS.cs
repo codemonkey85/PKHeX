@@ -36,7 +36,7 @@ namespace PKHeX.Core
         protected override bool ChecksumValid(byte[] data)
         {
             ushort chk = GetChecksum(data);
-            var old = BitConverter.ToUInt16(data, ChecksumOffset);
+            ushort old = BitConverter.ToUInt16(data, ChecksumOffset);
             return chk == old;
         }
 
@@ -81,16 +81,16 @@ namespace PKHeX.Core
             {
                 int ofs = blockInfoOffset + (i * 8);
 
-                var Offset = CurrentPosition;
-                var Length = BitConverter.ToUInt32(data, ofs + 0);
+                uint Offset = CurrentPosition;
+                uint Length = BitConverter.ToUInt32(data, ofs + 0);
                 if (Length == 0)
                     break;
-                var ID = BitConverter.ToUInt16(data, ofs + 4);
+                ushort ID = BitConverter.ToUInt16(data, ofs + 4);
                 // var Checksum = BitConverter.ToUInt16(data, ofs + 6);
                 Console.WriteLine($"ID={ID}, Offset=0x{Offset:X5}, Length=0x{Length:X5}");
 
                 // Expand out to nearest 0x200
-                var remainder = Length & 0x1FF;
+                uint remainder = Length & 0x1FF;
                 CurrentPosition += remainder == 0 ? Length : Length + 0x200 - remainder;
             }
         }

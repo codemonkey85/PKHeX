@@ -25,8 +25,8 @@ namespace PKHeX.WinForms
 
         private void CB_Key_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var name = CB_Key.Text;
-            var block = Metadata.GetBlock(name);
+            string? name = CB_Key.Text;
+            SaveBlock? block = Metadata.GetBlock(name);
             UpdateBlockSummaryControls(block);
         }
 

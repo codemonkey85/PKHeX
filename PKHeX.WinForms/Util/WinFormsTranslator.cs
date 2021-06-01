@@ -20,10 +20,10 @@ namespace PKHeX.WinForms
 
         private static TranslationContext GetContext(string lang)
         {
-            if (Context.TryGetValue(lang, out var context))
+            if (Context.TryGetValue(lang, out TranslationContext? context))
                 return context;
 
-            var lines = GetTranslationFile(lang);
+            IEnumerable<string>? lines = GetTranslationFile(lang);
             Context.Add(lang, context = new TranslationContext(lines));
             return context;
         }
@@ -31,23 +31,23 @@ namespace PKHeX.WinForms
         private static void TranslateForm(Control form, TranslationContext context)
         {
             form.SuspendLayout();
-            var formname = form.Name;
+            string? formname = form.Name;
             // Translate Title
             form.Text = context.GetTranslatedText(formname, form.Text);
-            var translatable = GetTranslatableControls(form);
-            foreach (var c in translatable)
+            IEnumerable<object>? translatable = GetTranslatableControls(form);
+            foreach (object? c in translatable)
             {
                 if (c is Control r)
                 {
-                    var current = r.Text;
-                    var updated = context.GetTranslatedText($"{formname}.{r.Name}", current);
+                    string? current = r.Text;
+                    string? updated = context.GetTranslatedText($"{formname}.{r.Name}", current);
                     if (!ReferenceEquals(current, updated))
                         r.Text = updated;
                 }
                 else if (c is ToolStripItem t)
                 {
-                    var current = t.Text;
-                    var updated = context.GetTranslatedText($"{formname}.{t.Name}", current);
+                    string? current = t.Text;
+                    string? updated = context.GetTranslatedText($"{formname}.{t.Name}", current);
                     if (!ReferenceEquals(current, updated))
                         t.Text = updated;
                 }
@@ -57,7 +57,7 @@ namespace PKHeX.WinForms
 
         private static IEnumerable<string> GetTranslationFile(string lang)
         {
-            var file = GetTranslationFileNameInternal(lang);
+            string? file = GetTranslationFileNameInternal(lang);
             // Check to see if a the translation file exists in the same folder as the executable
             string externalLangPath = GetTranslationFileNameExternal(file);
             if (File.Exists(externalLangPath))
@@ -68,20 +68,20 @@ namespace PKHeX.WinForms
 #pragma warning restore CA1031 // Do not catch general exception types
             }
 
-            if (Util.IsStringListCached(file, out var result))
+            if (Util.IsStringListCached(file, out string[]? result))
                 return result;
-            var txt = (string?)Properties.Resources.ResourceManager.GetObject(file);
+            string? txt = (string?)Properties.Resources.ResourceManager.GetObject(file);
             return Util.LoadStringList(file, txt);
         }
 
         private static IEnumerable<object> GetTranslatableControls(Control f)
         {
-            foreach (var z in f.GetChildrenOfType<Control>())
+            foreach (Control? z in f.GetChildrenOfType<Control>())
             {
                 switch (z)
                 {
                     case ToolStrip menu:
-                        foreach (var obj in GetToolStripMenuItems(menu))
+                        foreach (object? obj in GetToolStripMenuItems(menu))
                             yield return obj;
 
                         break;
@@ -91,7 +91,7 @@ namespace PKHeX.WinForms
 
                         if (z.ContextMenuStrip != null) // control has attached MenuStrip
                         {
-                            foreach (var obj in GetToolStripMenuItems(z.ContextMenuStrip))
+                            foreach (object? obj in GetToolStripMenuItems(z.ContextMenuStrip))
                                 yield return obj;
                         }
 
@@ -107,31 +107,31 @@ namespace PKHeX.WinForms
 
         private static IEnumerable<T> GetChildrenOfType<T>(this Control control) where T : class
         {
-            foreach (var child in control.Controls.OfType<Control>())
+            foreach (Control? child in control.Controls.OfType<Control>())
             {
                 if (child is T childOfT)
                     yield return childOfT;
 
                 if (!child.HasChildren) continue;
-                foreach (var descendant in GetChildrenOfType<T>(child))
+                foreach (T? descendant in GetChildrenOfType<T>(child))
                     yield return descendant;
             }
         }
 
         private static IEnumerable<object> GetToolStripMenuItems(ToolStrip menu)
         {
-            foreach (var i in menu.Items.OfType<ToolStripMenuItem>())
+            foreach (ToolStripMenuItem? i in menu.Items.OfType<ToolStripMenuItem>())
             {
                 if (!string.IsNullOrWhiteSpace(i.Text))
                     yield return i;
-                foreach (var sub in GetToolsStripDropDownItems(i).Where(z => !string.IsNullOrWhiteSpace(z.Text)))
+                foreach (ToolStripMenuItem? sub in GetToolsStripDropDownItems(i).Where(z => !string.IsNullOrWhiteSpace(z.Text)))
                     yield return sub;
             }
         }
 
         private static IEnumerable<ToolStripMenuItem> GetToolsStripDropDownItems(ToolStripDropDownItem item)
         {
-            foreach (var dropDownItem in item.DropDownItems.OfType<ToolStripMenuItem>())
+            foreach (ToolStripMenuItem? dropDownItem in item.DropDownItems.OfType<ToolStripMenuItem>())
             {
                 yield return dropDownItem;
                 if (!dropDownItem.HasDropDownItems) continue;
@@ -142,10 +142,10 @@ namespace PKHeX.WinForms
 
         public static void UpdateAll(string baseLanguage, IEnumerable<string> others)
         {
-            var baseContext = GetContext(baseLanguage);
-            foreach (var lang in others)
+            TranslationContext? baseContext = GetContext(baseLanguage);
+            foreach (string? lang in others)
             {
-                var c = GetContext(lang);
+                TranslationContext? c = GetContext(lang);
                 c.UpdateFrom(baseContext);
             }
         }
@@ -155,28 +155,28 @@ namespace PKHeX.WinForms
             var results = Context.Select(z => new {Lang = z.Key, Lines = z.Value.Write()});
             foreach (var c in results)
             {
-                var lang = c.Lang;
-                var fn = GetTranslationFileNameExternal(lang);
-                var lines = c.Lines;
-                var result = lines.Where(z => !banlist.Any(z.Contains));
+                string? lang = c.Lang;
+                string? fn = GetTranslationFileNameExternal(lang);
+                IEnumerable<string>? lines = c.Lines;
+                IEnumerable<string>? result = lines.Where(z => !banlist.Any(z.Contains));
                 File.WriteAllLines(fn, result);
             }
         }
 
         public static void LoadAllForms(params string[] banlist)
         {
-            var q = from t in System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
+            IEnumerable<System.Type>? q = from t in System.Reflection.Assembly.GetExecutingAssembly().GetTypes()
                 where t.BaseType == typeof(Form) && !banlist.Contains(t.Name)
                 select t;
-            foreach (var t in q)
+            foreach (System.Type? t in q)
             {
-                var constructors = t.GetConstructors();
+                System.Reflection.ConstructorInfo[]? constructors = t.GetConstructors();
                 if (constructors.Length == 0)
                 { System.Console.WriteLine($"No constructors: {t.Name}"); continue; }
-                var argCount = constructors[0].GetParameters().Length;
+                int argCount = constructors[0].GetParameters().Length;
                 try
                 {
-                    var _ = (Form?)System.Activator.CreateInstance(t, new object[argCount]);
+                    Form? _ = (Form?)System.Activator.CreateInstance(t, new object[argCount]);
                 }
 #pragma warning disable CA1031 // Do not catch general exception types
                 // This is a debug utility method, will always be logging. Shouldn't ever fail.
@@ -199,32 +199,32 @@ namespace PKHeX.WinForms
 
         public static void RemoveAll(string defaultLanguage, params string[] banlist)
         {
-            var badKeys = Context[defaultLanguage];
-            var split = badKeys.Write().Select(z => z.Split(TranslationContext.Separator)[0])
+            TranslationContext? badKeys = Context[defaultLanguage];
+            string[]? split = badKeys.Write().Select(z => z.Split(TranslationContext.Separator)[0])
                 .Where(l => !banlist.Any(l.StartsWith)).ToArray();
-            foreach (var c in Context)
+            foreach (KeyValuePair<string, TranslationContext> c in Context)
             {
-                var lang = c.Key;
-                var fn = GetTranslationFileNameExternal(lang);
-                var lines = File.ReadAllLines(fn);
-                var result = lines.Where(l => !split.Any(s => l.StartsWith(s + TranslationContext.Separator)));
+                string? lang = c.Key;
+                string? fn = GetTranslationFileNameExternal(lang);
+                string[]? lines = File.ReadAllLines(fn);
+                IEnumerable<string>? result = lines.Where(l => !split.Any(s => l.StartsWith(s + TranslationContext.Separator)));
                 File.WriteAllLines(fn, result);
             }
         }
 
         public static void LoadSettings<T>(string defaultLanguage, bool add = true)
         {
-            var context = (Dictionary<string, string>)Context[defaultLanguage].Lookup;
-            var props = typeof(T).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-            foreach (var prop in props)
+            Dictionary<string, string>? context = (Dictionary<string, string>)Context[defaultLanguage].Lookup;
+            System.Reflection.PropertyInfo[]? props = typeof(T).GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+            foreach (System.Reflection.PropertyInfo? prop in props)
             {
-                var p = prop.PropertyType.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
-                foreach (var x in p)
+                System.Reflection.PropertyInfo[]? p = prop.PropertyType.GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance);
+                foreach (System.Reflection.PropertyInfo? x in p)
                 {
-                    var individual = (LocalizedDescriptionAttribute[])x.GetCustomAttributes(typeof(LocalizedDescriptionAttribute), false);
-                    foreach (var v in individual)
+                    LocalizedDescriptionAttribute[]? individual = (LocalizedDescriptionAttribute[])x.GetCustomAttributes(typeof(LocalizedDescriptionAttribute), false);
+                    foreach (LocalizedDescriptionAttribute? v in individual)
                     {
-                        var hasKey = context.ContainsKey(v.Key);
+                        bool hasKey = context.ContainsKey(v.Key);
                         if (add)
                         {
                             if (!hasKey)
@@ -251,8 +251,8 @@ namespace PKHeX.WinForms
 
         public TranslationContext(IEnumerable<string> content, char separator = Separator)
         {
-            var entries = content.Select(z => z.Split(separator)).Where(z => z.Length == 2);
-            foreach (var kvp in entries.Where(z => !Translation.ContainsKey(z[0])))
+            IEnumerable<string[]>? entries = content.Select(z => z.Split(separator)).Where(z => z.Length == 2);
+            foreach (string[]? kvp in entries.Where(z => !Translation.ContainsKey(z[0])))
                 Translation.Add(kvp[0], kvp[1]);
         }
 
@@ -261,7 +261,7 @@ namespace PKHeX.WinForms
             if (RemoveUsedKeys)
                 Translation.Remove(val);
 
-            if (Translation.TryGetValue(val, out var translated))
+            if (Translation.TryGetValue(val, out string? translated))
                 return translated;
 
             if (fallback != null && AddNew)
@@ -278,14 +278,14 @@ namespace PKHeX.WinForms
         {
             bool oldAdd = AddNew;
             AddNew = true;
-            foreach (var kvp in other.Translation)
+            foreach (KeyValuePair<string, string> kvp in other.Translation)
                 GetTranslatedText(kvp.Key, kvp.Value);
             AddNew = oldAdd;
         }
 
         public void RemoveKeys(TranslationContext other)
         {
-            foreach (var kvp in other.Translation)
+            foreach (KeyValuePair<string, string> kvp in other.Translation)
                 Translation.Remove(kvp.Key);
         }
     }

@@ -15,7 +15,7 @@ namespace PKHeX.Core
         public SaveHandlerSplitResult TrySplit(byte[] input)
         {
             // No authentication to see if it actually is a header; no size collisions expected.
-            var header = input.Slice(0, sizeHeader);
+            byte[]? header = input.Slice(0, sizeHeader);
             input = input.SliceEnd(sizeHeader);
             return new SaveHandlerSplitResult(input, header, Array.Empty<byte>());
         }

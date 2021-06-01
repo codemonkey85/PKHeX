@@ -12,7 +12,7 @@ namespace PKHeX.Drawing
         public static string GetWallpaperResourceName(GameVersion version, int index)
         {
             index++; // start indexes at 1
-            var suffix = GetResourceSuffix(version, index);
+            string? suffix = GetResourceSuffix(version, index);
             return $"box_wp{index:00}{suffix}";
         }
 

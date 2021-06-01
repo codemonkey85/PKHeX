@@ -18,8 +18,8 @@ namespace PKHeX.Core
         public static IReadOnlyList<EvoCriteria> GetOriginChain(PKM pkm)
         {
             bool hasOriginMet = pkm.HasOriginalMetLocation;
-            var maxLevel = GetLevelOriginMax(pkm, hasOriginMet);
-            var minLevel = GetLevelOriginMin(pkm, hasOriginMet);
+            int maxLevel = GetLevelOriginMax(pkm, hasOriginMet);
+            int minLevel = GetLevelOriginMin(pkm, hasOriginMet);
             return GetOriginChain(pkm, -1, maxLevel, minLevel, hasOriginMet);
         }
 
@@ -32,7 +32,7 @@ namespace PKHeX.Core
         public static IReadOnlyList<EvoCriteria> GetOriginChain12(PKM pkm, GameVersion gameSource)
         {
             bool rby = gameSource == GameVersion.RBY;
-            var maxSpecies = rby ? Legal.MaxSpeciesID_1 : Legal.MaxSpeciesID_2;
+            int maxSpecies = rby ? Legal.MaxSpeciesID_1 : Legal.MaxSpeciesID_2;
 
             bool hasOriginMet;
             int maxLevel, minLevel;
@@ -73,10 +73,10 @@ namespace PKHeX.Core
                 return EvolutionChain.GetValidPreEvolutions(pkm, maxSpecies, maxLevel, minLevel);
 
             // Permit the maximum to be all the way up to Current Level; we'll trim these impossible evolutions out later.
-            var tempMax = pkm.CurrentLevel;
-            var chain = EvolutionChain.GetValidPreEvolutions(pkm, maxSpecies, tempMax, minLevel);
+            int tempMax = pkm.CurrentLevel;
+            List<EvoCriteria>? chain = EvolutionChain.GetValidPreEvolutions(pkm, maxSpecies, tempMax, minLevel);
 
-            foreach (var evo in chain)
+            foreach (EvoCriteria? evo in chain)
             {
                 evo.Level = maxLevel;
                 evo.MinLevel = minLevel;
@@ -99,7 +99,7 @@ namespace PKHeX.Core
 
         private static int GetLevelOriginMax(PKM pkm, bool hasMet)
         {
-            var met = pkm.Met_Level;
+            int met = pkm.Met_Level;
             if (hasMet)
                 return pkm.CurrentLevel;
 
@@ -107,15 +107,15 @@ namespace PKHeX.Core
             if (generation >= 4)
                 return met;
 
-            var downLevel = GetLevelOriginMaxTransfer(pkm, pkm.CurrentLevel, generation);
+            int downLevel = GetLevelOriginMaxTransfer(pkm, pkm.CurrentLevel, generation);
             return Math.Min(met, downLevel);
         }
 
         private static int GetLevelOriginMaxTransfer(PKM pkm, int met, int generation)
         {
-            var species = pkm.Species;
+            int species = pkm.Species;
 
-            if (Future_LevelUp.TryGetValue(species | (pkm.Form << 11), out var delta))
+            if (Future_LevelUp.TryGetValue(species | (pkm.Form << 11), out int delta))
                 return met - delta;
 
             if (generation < 4 && Future_LevelUp4.Contains(species) && (pkm.Format <= 7 || !Future_LevelUp4_Not8.Contains(species)))

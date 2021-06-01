@@ -14,7 +14,7 @@ namespace PKHeX.Tests.Legality
         [InlineData(nameof(Species.Smeargle), "Hyperspace Fury")]
         public static void VerifyCanLearn(string species, params string[] moves)
         {
-            var encs = EncounterLearn.GetLearn(species, moves);
+            System.Collections.Generic.IEnumerable<IEncounterable>? encs = EncounterLearn.GetLearn(species, moves);
             encs.Any().Should().BeTrue($"{species} should be able to learn all moves: {string.Join(", ", moves)}");
         }
 
@@ -25,7 +25,7 @@ namespace PKHeX.Tests.Legality
         [InlineData(nameof(Species.Smeargle), "Chatter")]
         public static void VerifyCannotLearn(string species, params string[] moves)
         {
-            var encs = EncounterLearn.GetLearn(species, moves);
+            System.Collections.Generic.IEnumerable<IEncounterable>? encs = EncounterLearn.GetLearn(species, moves);
             encs.Any().Should().BeFalse($"{species} should not be able to learn all moves: {string.Join(", ", moves)}");
         }
 
@@ -36,7 +36,7 @@ namespace PKHeX.Tests.Legality
         [InlineData(nameof(Species.Rayquaza), "V-Create")]
         public static void VerifyCanLearnSpecial(string species, params string[] moves)
         {
-            var encs = EncounterLearn.GetLearn(species, moves);
+            System.Collections.Generic.IEnumerable<IEncounterable>? encs = EncounterLearn.GetLearn(species, moves);
             encs.Any().Should().BeTrue($"{species} should be able to learn all moves: {string.Join(", ", moves)}");
         }
 
@@ -44,7 +44,7 @@ namespace PKHeX.Tests.Legality
         [InlineData("flaBeBe", "pEtaL Dance")]
         public static void VerifyCanLearnParse(string species, params string[] moves)
         {
-            var encs = EncounterLearn.GetLearn(species, moves);
+            System.Collections.Generic.IEnumerable<IEncounterable>? encs = EncounterLearn.GetLearn(species, moves);
             encs.Any().Should().BeTrue($"{species} should be able to learn all moves: {string.Join(", ", moves)}");
         }
     }

@@ -23,7 +23,7 @@ namespace PKHeX.Core
                 return;
 
             AllowedMoves.Clear();
-            foreach (var m in moves)
+            foreach (int m in moves)
                 AllowedMoves.Add(m);
             Array.Sort(MoveDataAllowed, Compare);
             // MoveDataAllowed = MoveDataAllowed.OrderByDescending(m => AllowedMoves.Contains(m.Value)).ToArray();
@@ -36,8 +36,8 @@ namespace PKHeX.Core
         private int Compare(ComboItem i1, ComboItem i2)
         {
             // split into 2 groups: Allowed & Not, and sort each sublist
-            var c1 = AllowedMoves.Contains(i1.Value);
-            var c2 = AllowedMoves.Contains(i2.Value);
+            bool c1 = AllowedMoves.Contains(i1.Value);
+            bool c2 = AllowedMoves.Contains(i2.Value);
             if (c1)
                 return c2 ? string.CompareOrdinal(i1.Text, i2.Text) : -1;
             return c2 ? 1 : string.CompareOrdinal(i1.Text, i2.Text);

@@ -12,7 +12,7 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm is not IRibbonIndex m)
                 return;
 
@@ -26,7 +26,7 @@ namespace PKHeX.Core
 
         private void VerifyNoMarksPresent(LegalityAnalysis data, IRibbonIndex m)
         {
-            for (var x = RibbonIndex.MarkLunchtime; x <= RibbonIndex.MarkSlump; x++)
+            for (RibbonIndex x = RibbonIndex.MarkLunchtime; x <= RibbonIndex.MarkSlump; x++)
             {
                 if (m.GetRibbon((int)x))
                     data.AddLine(GetInvalid(string.Format(LRibbonMarkingFInvalid_0, x)));
@@ -36,7 +36,7 @@ namespace PKHeX.Core
         private void VerifyMarksPresent(LegalityAnalysis data, IRibbonIndex m)
         {
             bool hasOne = false;
-            for (var mark = RibbonIndex.MarkLunchtime; mark <= RibbonIndex.MarkSlump; mark++)
+            for (RibbonIndex mark = RibbonIndex.MarkLunchtime; mark <= RibbonIndex.MarkSlump; mark++)
             {
                 bool has = m.GetRibbon((int) mark);
                 if (!has)
@@ -89,17 +89,17 @@ namespace PKHeX.Core
             if (enc is not EncounterSlot8 s)
                 return false;
 
-            var area = (EncounterArea8)s.Area;
+            EncounterArea8? area = (EncounterArea8)s.Area;
             if (area.PermitCrossover)
                 return false;
 
-            var weather = s.Weather;
+            AreaWeather8 weather = s.Weather;
             if ((weather & AreaWeather8.All) == 0)
                 return false;
 
             if (EncounterArea8.IsWildArea(s.Location))
                 return false;
-            var ball = pkm.Ball;
+            int ball = pkm.Ball;
             return (uint)(ball - 2) <= 2;
         }
 
@@ -109,11 +109,11 @@ namespace PKHeX.Core
             if (enc is not EncounterSlot8 s)
                 return false;
 
-            var area = (EncounterArea8)s.Area;
+            EncounterArea8? area = (EncounterArea8)s.Area;
             if (area.PermitCrossover)
                 return false;
 
-            var weather = s.Weather;
+            AreaWeather8 weather = s.Weather;
             return (weather & AreaWeather8.Fishing) != 0;
         }
 
@@ -122,7 +122,7 @@ namespace PKHeX.Core
             if (m is not PK8 pk8)
                 return;
 
-            var affix = pk8.AffixedRibbon;
+            sbyte affix = pk8.AffixedRibbon;
             if (affix == -1) // None
                 return;
 
@@ -145,7 +145,7 @@ namespace PKHeX.Core
             // Does not copy ribbons or marks, but retains the Affixed Ribbon value.
             // Try re-verifying to see if it could have had the Ribbon/Mark.
 
-            var enc = data.EncounterOriginal;
+            IEncounterable? enc = data.EncounterOriginal;
             if ((byte) affix >= (int) RibbonIndex.MarkLunchtime)
             {
                 if (!IsMarkValid((RibbonIndex)affix, pk8, enc))
@@ -160,14 +160,14 @@ namespace PKHeX.Core
                 return;
             }
 
-            var clone = pk8.Clone();
+            PKM? clone = pk8.Clone();
             clone.Species = (int) Species.Nincada;
             ((IRibbonIndex) clone).SetRibbon(affix);
-            var parse = RibbonVerifier.GetRibbonResults(clone, enc);
-            var expect = $"Ribbon{(RibbonIndex) affix}";
-            var name = RibbonStrings.GetName(expect);
+            System.Collections.Generic.IEnumerable<RibbonResult>? parse = RibbonVerifier.GetRibbonResults(clone, enc);
+            string? expect = $"Ribbon{(RibbonIndex) affix}";
+            string? name = RibbonStrings.GetName(expect);
             bool invalid = parse.FirstOrDefault(z => z.Name == name)?.Invalid == true;
-            var severity = invalid ? Severity.Invalid : Severity.Fishy;
+            Severity severity = invalid ? Severity.Invalid : Severity.Fishy;
             data.AddLine(Get(string.Format(LRibbonMarkingAffixedF_0, affix), severity));
         }
 
@@ -187,7 +187,7 @@ namespace PKHeX.Core
 
         private void EnsureHasRibbon(LegalityAnalysis data, IRibbonIndex pk8, sbyte affix)
         {
-            var hasRibbon = pk8.GetRibbonIndex((RibbonIndex) affix);
+            bool hasRibbon = pk8.GetRibbonIndex((RibbonIndex) affix);
             if (!hasRibbon)
                 data.AddLine(GetInvalid(string.Format(LRibbonMarkingAffixedF_0, (RibbonIndex) affix)));
         }

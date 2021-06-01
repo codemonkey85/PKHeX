@@ -19,7 +19,7 @@ namespace PKHeX.WinForms
             Data = ((ISaveBlock6Main)SAV).OPower;
 
             Current = Types[0];
-            foreach (var z in Types)
+            foreach (OPower6Type z in Types)
                 CB_Type.Items.Add(z.ToString());
             CB_Type.SelectedIndex = 0;
             CHK_Master.Checked = Data.MasterFlag;

@@ -43,7 +43,7 @@ namespace PKHeX.WinForms
 
         private void Main_DragDrop(object sender, DragEventArgs e)
         {
-            var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
             if (files == null || files.Length == 0)
                 return;
             ImportGP1From(files[0]);
@@ -108,7 +108,7 @@ namespace PKHeX.WinForms
             TextBox tb = sender as TextBox ?? TB_OTName;
 
             // Special Character Form
-            var d = new TrashEditor(tb, SAV);
+            TrashEditor? d = new TrashEditor(tb, SAV);
             d.ShowDialog();
             tb.Text = d.FinalString;
         }
@@ -134,7 +134,7 @@ namespace PKHeX.WinForms
 
         private void B_ExportGoSummary_Click(object sender, EventArgs e)
         {
-            var summary = Park.DumpAll(GameInfo.Strings.Species).ToArray();
+            string[]? summary = Park.DumpAll(GameInfo.Strings.Species).ToArray();
             if (summary.Length == 0)
             {
                 WinFormsUtil.Alert("No entities present in Go Park to dump.");
@@ -146,25 +146,25 @@ namespace PKHeX.WinForms
 
         private void B_ExportGoFiles_Click(object sender, EventArgs e)
         {
-            var gofiles = Park.GetAllEntities().Where(z => z.Species != 0).ToArray();
+            GP1[]? gofiles = Park.GetAllEntities().Where(z => z.Species != 0).ToArray();
             if (gofiles.Length == 0)
             {
                 WinFormsUtil.Alert("No entities present in Go Park to dump.");
                 return;
             }
-            using var fbd = new FolderBrowserDialog();
+            using FolderBrowserDialog? fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() != DialogResult.OK)
                 return;
 
-            var folder = fbd.SelectedPath;
-            foreach (var gpk in gofiles)
+            string? folder = fbd.SelectedPath;
+            foreach (GP1? gpk in gofiles)
                 File.WriteAllBytes(Path.Combine(folder, Util.CleanFileName(gpk.FileName)), gpk.Data);
             WinFormsUtil.Alert($"Dumped {gofiles.Length} files to {folder}");
         }
 
         private void B_Import_Click(object sender, EventArgs e)
         {
-            using var sfd = new OpenFileDialog
+            using OpenFileDialog? sfd = new OpenFileDialog
             {
                 Filter = GoFilter,
                 FilterIndex = 0,
@@ -188,13 +188,13 @@ namespace PKHeX.WinForms
 
         private void ImportGP1From(string path, int index)
         {
-            var data = File.ReadAllBytes(path);
+            byte[]? data = File.ReadAllBytes(path);
             if (data.Length != GP1.SIZE)
             {
                 WinFormsUtil.Error(MessageStrings.MsgFileLoadIncompatible);
                 return;
             }
-            var gp1 = new GP1();
+            GP1? gp1 = new GP1();
             data.CopyTo(gp1.Data, 0);
             Park[index] = gp1;
             UpdateGoSummary((int)NUD_GoIndex.Value);
@@ -206,9 +206,9 @@ namespace PKHeX.WinForms
         {
             int index = (int)NUD_GoIndex.Value;
             index = Math.Min(GoParkStorage.Count - 1, Math.Max(0, index));
-            var data = Park[index];
+            GP1? data = Park[index];
 
-            using var sfd = new SaveFileDialog
+            using SaveFileDialog? sfd = new SaveFileDialog
             {
                 FileName = data.FileName,
                 Filter = GoFilter,
@@ -224,7 +224,7 @@ namespace PKHeX.WinForms
 
         private void B_ImportGoFiles_Click(object sender, EventArgs e)
         {
-            using var fbd = new FolderBrowserDialog();
+            using FolderBrowserDialog? fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() != DialogResult.OK)
                 return;
 
@@ -232,7 +232,7 @@ namespace PKHeX.WinForms
             files = files.Where(z => Path.GetExtension(z) == ".gp1" && new FileInfo(z).Length == GP1.SIZE);
 
             int ctr = (int)NUD_GoIndex.Value;
-            foreach (var f in files)
+            foreach (string? f in files)
             {
                 while (true)
                 {
@@ -243,7 +243,7 @@ namespace PKHeX.WinForms
                     else
                         break;
                 }
-                var data = File.ReadAllBytes(f);
+                byte[]? data = File.ReadAllBytes(f);
                 Park[ctr] = new GP1(data);
                 ctr++;
             }
@@ -259,9 +259,9 @@ namespace PKHeX.WinForms
             int area = index / GoParkStorage.SlotsPerArea;
             int slot = index % GoParkStorage.SlotsPerArea;
 
-            var data = Park[index];
-            var prefix = $"Area: {area + 1:00}, Slot: {slot + 1:00}{Environment.NewLine}";
-            var dump = data.Species == 0 ? "Empty" : data.Dump(GameInfo.Strings.Species, index);
+            GP1? data = Park[index];
+            string? prefix = $"Area: {area + 1:00}, Slot: {slot + 1:00}{Environment.NewLine}";
+            string? dump = data.Species == 0 ? "Empty" : data.Dump(GameInfo.Strings.Species, index);
             L_GoSlotSummary.Text = prefix + dump;
         }
 

@@ -131,7 +131,7 @@ namespace PKHeX.WinForms
                 for (int i = 0; i < cbr.Length; i++)
                 {
                     int c = SAV.Data[ofsRoamer + 0x2E + i];
-                    var states = GetStates();
+                    List<ComboItem>? states = GetStates();
                     if (states.All(z => z.Value != c))
                         states.Add(new ComboItem($"Unknown (0x{c:X2})", c));
                     cbr[i].Items.Clear();
@@ -197,7 +197,7 @@ namespace PKHeX.WinForms
                 }
                 else
                 {
-                    var ofs = ofsFly + (FlyDestC[i] >> 3);
+                    int ofs = ofsFly + (FlyDestC[i] >> 3);
                     SAV.Data[ofs] = (byte)((SAV.Data[ofs] & ~(1 << (FlyDestC[i] & 7))) | ((CLB_FlyDest.GetItemChecked(i) ? 1 : 0) << (FlyDestC[i] & 7)));
                 }
             }
@@ -209,7 +209,7 @@ namespace PKHeX.WinForms
                 for (int i = 0; i < cbr.Length; i++)
                 {
                     int c = SAV.Data[ofsRoamer + 0x2E + i];
-                    var d = (int)cbr[i].SelectedValue;
+                    int d = (int)cbr[i].SelectedValue;
 
                     if (c == d)
                         continue;
@@ -423,7 +423,7 @@ namespace PKHeX.WinForms
             for (int i = 0; i < cba.Length; i++)
             {
                 if (cba[i].SelectedIndex < 0) continue;
-                var j = (int)cba[i].SelectedValue;
+                int j = (int)cba[i].SelectedValue;
                 SAV.Data[0x213A0 + i] = (byte)j;
             }
             for (int i = 0; i < nudaF.Length; i++)
@@ -436,15 +436,15 @@ namespace PKHeX.WinForms
             for (int i = 0; i < 2; i++)
             {
                 if (isBlack == true) continue;
-                var lv = (int)nudaE[i << 1].Value;
+                int lv = (int)nudaE[i << 1].Value;
                 int exp;
                 if (lv < 9)
                     exp = lv * (lv + 1) * 5 / 2;
                 else
                     exp = ((lv - 9) * 50) + 225;
                 exp += (int)nudaE[(i << 1) + 1].Value;
-                var lvl = lv == 999 ? -1 : nudaE[(i << 1) + 1].Maximum - nudaE[(i << 1) + 1].Value + 1;
-                var tip0 = $"{(i == 0 ? "White" : "Black")} LV {lv}{Environment.NewLine}" +
+                decimal lvl = lv == 999 ? -1 : nudaE[(i << 1) + 1].Maximum - nudaE[(i << 1) + 1].Value + 1;
+                string? tip0 = $"{(i == 0 ? "White" : "Black")} LV {lv}{Environment.NewLine}" +
                            $"Exp.Points: {exp}{Environment.NewLine}" +
                            $"To Next Lv: {lvl}";
                 ta[i].RemoveAll();
@@ -459,8 +459,8 @@ namespace PKHeX.WinForms
             {
                 if (isBlack == true)
                     continue;
-                var lv = (int)nudaE[i << 1].Value;
-                var expmax = lv > 8 ? 49 : (lv * 5) + 4;
+                int lv = (int)nudaE[i << 1].Value;
+                int expmax = lv > 8 ? 49 : (lv * 5) + 4;
                 if (nudaE[(i << 1) + 1].Value > expmax)
                     nudaE[(i << 1) + 1].Value = expmax;
                 nudaE[(i << 1) + 1].Maximum = expmax;
@@ -522,11 +522,11 @@ namespace PKHeX.WinForms
         {
             const int FunfestFlag = 2438;
             SAV.Data[0x2025E + (FunfestFlag >> 3)] |= 1 << (FunfestFlag & 7);
-            foreach (var ia in FMUnlockConditions)
+            foreach (int[]? ia in FMUnlockConditions)
             {
                 if (ia == null)
                     continue;
-                foreach (var index in ia)
+                foreach (int index in ia)
                     SAV.Data[0x2025E + (index >> 3)] |= (byte)(1 << (index & 7));
             }
 
@@ -570,7 +570,7 @@ namespace PKHeX.WinForms
             NUD_Unlocked.Value = Forest.Unlock38Areas + 2;
             CHK_Area9.Checked = Forest.Unlock9thArea;
 
-            var areas = AllSlots.Select(z => z.Area).Distinct()
+            List<ComboItem>? areas = AllSlots.Select(z => z.Area).Distinct()
                 .Select(z => new ComboItem(z.ToString(), (int) z)).ToList();
 
             CB_Species.InitializeBinding();
@@ -596,10 +596,10 @@ namespace PKHeX.WinForms
 
         private void ChangeArea(object sender, EventArgs e)
         {
-            var area = WinFormsUtil.GetIndex(CB_Areas);
+            int area = WinFormsUtil.GetIndex(CB_Areas);
             CurrentSlots = AllSlots.Where(z => (int) z.Area == area).ToArray();
             LB_Slots.Items.Clear();
-            foreach (var z in CurrentSlots.Select(z => GameInfo.Strings.Species[z.Species]))
+            foreach (string? z in CurrentSlots.Select(z => GameInfo.Strings.Species[z.Species]))
                 LB_Slots.Items.Add(z);
             LB_Slots.SelectedIndex = currentIndex = 0;
         }
@@ -609,7 +609,7 @@ namespace PKHeX.WinForms
             CurrentSlot = null;
             if (LB_Slots.SelectedIndex >= 0)
                 currentIndex = LB_Slots.SelectedIndex;
-            var current = CurrentSlots[currentIndex];
+            EntreeSlot? current = CurrentSlots[currentIndex];
             CB_Species.SelectedValue = current.Species;
             SetForms(current);
             SetGenders(current);
@@ -671,12 +671,12 @@ namespace PKHeX.WinForms
 
         private void B_RandForest_Click(object sender, EventArgs e)
         {
-            var source = (SAV is SAV5B2W2 ? Encounters5.DreamWorld_BW : Encounters5.DreamWorld_B2W2).Concat(Encounters5.DreamWorld_Common).ToList();
-            var rnd = Util.Rand;
-            foreach (var s in AllSlots)
+            List<EncounterStatic5>? source = (SAV is SAV5B2W2 ? Encounters5.DreamWorld_BW : Encounters5.DreamWorld_B2W2).Concat(Encounters5.DreamWorld_Common).ToList();
+            Random? rnd = Util.Rand;
+            foreach (EntreeSlot? s in AllSlots)
             {
                 int index = rnd.Next(source.Count);
-                var slot = source[index];
+                EncounterStatic5? slot = source[index];
                 source.Remove(slot);
                 s.Species = slot.Species;
                 s.Form = slot.Form;
@@ -691,8 +691,8 @@ namespace PKHeX.WinForms
 
         private static List<ComboItem> GetGenderChoices(int species)
         {
-            var pi = PersonalTable.B2W2[species];
-            var list = new List<ComboItem>();
+            PersonalInfo? pi = PersonalTable.B2W2[species];
+            List<ComboItem>? list = new List<ComboItem>();
             if (pi.Genderless)
             {
                 list.Add(new ComboItem("Genderless", 2));
@@ -712,7 +712,7 @@ namespace PKHeX.WinForms
             L_Form.Visible = CB_Form.Enabled = CB_Form.Visible = hasForms;
 
             CB_Form.InitializeBinding();
-            var list = FormConverter.GetFormList(slot.Species, GameInfo.Strings.types, GameInfo.Strings.forms, Main.GenderSymbols, SAV.Generation);
+            string[]? list = FormConverter.GetFormList(slot.Species, GameInfo.Strings.types, GameInfo.Strings.forms, Main.GenderSymbols, SAV.Generation);
             CB_Form.DataSource = new BindingSource(list, null);
         }
 
@@ -724,7 +724,7 @@ namespace PKHeX.WinForms
             sw = SAV.BattleSubway;
 
             // Figure out the Super Checks
-            var swSuperCheck = sw.SuperCheck;
+            int swSuperCheck = sw.SuperCheck;
             if (swSuperCheck == 0x00)
             {
                 CHK_SuperSingle.Checked = CHK_SuperDouble.Checked = CHK_SuperMulti.Checked = false;

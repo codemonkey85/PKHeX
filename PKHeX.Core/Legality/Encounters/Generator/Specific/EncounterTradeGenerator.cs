@@ -16,22 +16,22 @@ namespace PKHeX.Core
 
         private static IEnumerable<EncounterTradeGB> GetPossibleVC(IReadOnlyList<DexLevel> chain, GameVersion game)
         {
-            var table = GetTableVC(game);
+            IEnumerable<EncounterTradeGB>? table = GetTableVC(game);
             return table.Where(e => chain.Any(c => c.Species == e.Species && c.Form == 0));
         }
 
         private static IEnumerable<EncounterTrade> GetPossible(IReadOnlyList<DexLevel> chain, GameVersion game)
         {
-            var table = GetTable(game);
+            IEnumerable<EncounterTrade>? table = GetTable(game);
             return table.Where(e => chain.Any(c => c.Species == e.Species));
         }
 
         public static IEnumerable<EncounterTradeGB> GetValidEncounterTradesVC(PKM pkm, IReadOnlyList<DexLevel> chain, GameVersion game)
         {
-            var table = GetTableVC(game);
-            foreach (var p in table)
+            IEnumerable<EncounterTradeGB>? table = GetTableVC(game);
+            foreach (EncounterTradeGB? p in table)
             {
-                foreach (var evo in chain)
+                foreach (DexLevel? evo in chain)
                 {
                     if (evo.Species != p.Species || evo.Form != 0)
                         continue;
@@ -53,15 +53,15 @@ namespace PKHeX.Core
             if (lang == (int)LanguageID.Hacked && !EncounterTrade5PID.IsValidMissingLanguage(pkm)) // Japanese trades in BW have no language ID
                 return Array.Empty<EncounterTrade>();
 
-            var poss = GetPossible(chain, game);
+            IEnumerable<EncounterTrade>? poss = GetPossible(chain, game);
             return GetValidEncounterTrades(pkm, chain, poss);
         }
 
         private static IEnumerable<EncounterTrade> GetValidEncounterTrades(PKM pkm, IReadOnlyList<DexLevel> chain, IEnumerable<EncounterTrade> poss)
         {
-            foreach (var p in poss)
+            foreach (EncounterTrade? p in poss)
             {
-                foreach (var evo in chain)
+                foreach (DexLevel? evo in chain)
                 {
                     if (evo.Species != p.Species)
                         continue;

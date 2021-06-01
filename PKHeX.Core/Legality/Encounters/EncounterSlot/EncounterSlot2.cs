@@ -23,7 +23,7 @@ namespace PKHeX.Core
         {
             base.ApplyDetails(sav, criteria, pk);
 
-            var pk2 = (PK2)pk;
+            PK2? pk2 = (PK2)pk;
 
             if ((Area.Type & (SlotType)0xF) == SlotType.Headbutt)
             {
@@ -60,11 +60,11 @@ namespace PKHeX.Core
 
         internal bool IsTreeAvailable(int trainerID)
         {
-            if (!Trees.TryGetValue(Location, out var permissions))
+            if (!Trees.TryGetValue(Location, out int permissions))
                 return false;
 
-            var pivot = trainerID % 10;
-            var type = Area.Type;
+            int pivot = trainerID % 10;
+            SlotType type = Area.Type;
             return type switch
             {
                 SlotType.Headbutt => (permissions & (1 << pivot)) != 0,

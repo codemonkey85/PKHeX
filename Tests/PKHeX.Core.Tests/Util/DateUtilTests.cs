@@ -52,7 +52,7 @@ namespace PKHeX.Tests.Util
         [InlineData(uint.MaxValue, uint.MaxValue, uint.MaxValue, false, "Failed with uint.MaxValue, negative")]
         public void CheckDate(uint year, uint month, uint day, bool cmp, string because)
         {
-            var result = DateUtil.IsDateValid(year, month, day);
+            bool result = DateUtil.IsDateValid(year, month, day);
             result.Should().Be(cmp, because);
         }
 
@@ -62,12 +62,12 @@ namespace PKHeX.Tests.Util
         [InlineData(2000, 12, 1, 2000, 12, 31, 12)] // rand->+30
         public void CheckRandomDate(int y1, int m1, int d1, int y2, int m2, int d2, int seed)
         {
-            var start = new DateTime(y1, m1, d1);
-            var end = new DateTime(y2, m2, d2);
+            DateTime start = new DateTime(y1, m1, d1);
+            DateTime end = new DateTime(y2, m2, d2);
             (start <= end).Should().BeTrue();
 
-            var r = new Random(seed);
-            var rand = DateUtil.GetRandomDateWithin(start, end, r);
+            Random? r = new Random(seed);
+            DateTime rand = DateUtil.GetRandomDateWithin(start, end, r);
             (start <= rand).Should().BeTrue();
             (rand <= end).Should().BeTrue();
         }

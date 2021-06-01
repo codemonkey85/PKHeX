@@ -30,7 +30,7 @@ namespace PKHeX.Core
 
         protected void ReloadBattleTeams()
         {
-            var demo = this is SAV7SM && new ReadOnlySpan<byte>(Data, BoxLayout.Offset, 0x4C4).IsRangeEmpty(); // up to Battle Box values
+            bool demo = this is SAV7SM && new ReadOnlySpan<byte>(Data, BoxLayout.Offset, 0x4C4).IsRangeEmpty(); // up to Battle Box values
             if (demo || !State.Exportable)
             {
                 BoxLayout.ClearBattleTeams();
@@ -98,7 +98,7 @@ namespace PKHeX.Core
         {
             BoxLayout.SaveBattleTeams();
             SetChecksums();
-            var result = MemeCrypto.Resign7(Data);
+            byte[]? result = MemeCrypto.Resign7(Data);
             Debug.Assert(result != Data);
             return result;
         }
@@ -230,7 +230,7 @@ namespace PKHeX.Core
                 return StorageSlotFlag.None;
 
             team /= 6;
-            var val = (StorageSlotFlag)((int)StorageSlotFlag.BattleTeam1 << team);
+            StorageSlotFlag val = (StorageSlotFlag)((int)StorageSlotFlag.BattleTeam1 << team);
             if (BoxLayout.GetIsTeamLocked(team))
                 val |= StorageSlotFlag.Locked;
             return val;

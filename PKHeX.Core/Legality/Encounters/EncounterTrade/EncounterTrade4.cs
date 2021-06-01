@@ -63,7 +63,7 @@
         protected override void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
             base.ApplyDetails(sav, criteria, pk);
-            var pkm = (PK4) pk;
+            PK4? pkm = (PK4) pk;
 
             if (Version == GameVersion.DPPt)
             {

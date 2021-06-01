@@ -29,7 +29,7 @@ namespace PKHeX.Core
         public PokeListHeader(SAV7b sav, int offset) : base(sav)
         {
             Offset = offset;
-            var info = PokeListInfo = LoadPointerData();
+            int[]? info = PokeListInfo = LoadPointerData();
             if (!sav.State.Exportable)
             {
                 for (int i = 0; i < COUNT; i++)
@@ -102,7 +102,7 @@ namespace PKHeX.Core
 
         private int[] LoadPointerData()
         {
-            var list = new int[7];
+            int[]? list = new int[7];
             for (int i = 0; i < list.Length; i++)
                 list[i] = BitConverter.ToUInt16(Data, Offset + (i * 2));
             return list;
@@ -128,7 +128,7 @@ namespace PKHeX.Core
             int slotIndex = slot + (SAV.BoxSlotCount * box);
             if ((uint)slotIndex >= MAX_SLOTS)
                 return MAX_SLOTS;
-            var index = Array.IndexOf(PokeListInfo, slotIndex);
+            int index = Array.IndexOf(PokeListInfo, slotIndex);
             return index >= 0 ? index : MAX_SLOTS;
         }
 
@@ -136,14 +136,14 @@ namespace PKHeX.Core
         {
             // Box Data is stored as a list, instead of an array. Empty interstitials are not legal.
             // Fix stored slots!
-            var arr = PokeListInfo.Slice(0, 7);
-            var result = SAV.CompressStorage(out int count, arr);
+            int[]? arr = PokeListInfo.Slice(0, 7);
+            bool result = SAV.CompressStorage(out int count, arr);
             Debug.Assert(count <= MAX_SLOTS);
             Count = count;
             if (StarterIndex > count && StarterIndex != SLOT_EMPTY)
             {
                 // uh oh, we lost the starter! might have been moved out of its proper slot incorrectly.
-                var species = SAV.Version == GameVersion.GP ? 25 : 133;
+                int species = SAV.Version == GameVersion.GP ? 25 : 133;
                 int index = Array.FindIndex(SAV.BoxData.ToArray(), z => z.Species == species && z.Form != 0);
                 if (index >= 0)
                     arr[6] = index;

@@ -25,7 +25,7 @@ namespace PKHeX.Core
 
         internal static EncounterArea8g[] GetArea(byte[][] data)
         {
-            var areas = new EncounterArea8g[data.Length];
+            EncounterArea8g[]? areas = new EncounterArea8g[data.Length];
             for (int i = 0; i < areas.Length; i++)
                 areas[i] = GetArea(data[i]);
             return areas;
@@ -35,17 +35,17 @@ namespace PKHeX.Core
 
         private static EncounterArea8g GetArea(byte[] data)
         {
-            var sf = BitConverter.ToUInt16(data, 0);
+            ushort sf = BitConverter.ToUInt16(data, 0);
             int species = sf & 0x7FF;
             int form = sf >> 11;
 
-            var group = GetGroup(species, form);
+            GameVersion group = GetGroup(species, form);
 
-            var result = new EncounterSlot8GO[(data.Length - 2) / entrySize];
-            var area = new EncounterArea8g(species, form) {Slots = result};
+            EncounterSlot8GO[]? result = new EncounterSlot8GO[(data.Length - 2) / entrySize];
+            EncounterArea8g? area = new EncounterArea8g(species, form) {Slots = result};
             for (int i = 0; i < result.Length; i++)
             {
-                var offset = (i * entrySize) + 2;
+                int offset = (i * entrySize) + 2;
                 result[i] = ReadSlot(data, offset, area, species, form, group);
             }
 
@@ -56,10 +56,10 @@ namespace PKHeX.Core
         {
             int start = BitConverter.ToInt32(data, offset);
             int end = BitConverter.ToInt32(data, offset + 4);
-            var sg = data[offset + 8];
-            var shiny = (Shiny)(sg & 0x3F);
-            var gender = (Gender)(sg >> 6);
-            var type = (PogoType)data[offset + 9];
+            byte sg = data[offset + 8];
+            Shiny shiny = (Shiny)(sg & 0x3F);
+            Gender gender = (Gender)(sg >> 6);
+            PogoType type = (PogoType)data[offset + 9];
             return new EncounterSlot8GO(area, species, form, start, end, shiny, gender, type, group);
         }
 
@@ -70,10 +70,10 @@ namespace PKHeX.Core
             // Else, if it can exist in SW/SH, it uses SW/SH's move data for the initial moves.
             // Else, it must exist in US/UM, thus it uses US/UM's moves.
 
-            var pt8 = PersonalTable.SWSH;
-            var ptGG = PersonalTable.GG;
+            PersonalTable? pt8 = PersonalTable.SWSH;
+            PersonalTable? ptGG = PersonalTable.GG;
 
-            var pi8 = (PersonalInfoSWSH)pt8[species];
+            PersonalInfoSWSH? pi8 = (PersonalInfoSWSH)pt8[species];
             if (pi8.IsPresentInGame)
             {
                 bool lgpe = (species is (<= 151 or 808 or 809)) && (form == 0 || ptGG[species].HasForm(form));
@@ -96,17 +96,17 @@ namespace PKHeX.Core
             // Find the first chain that has slots defined.
             // Since it is possible to evolve before transferring, we only need the highest evolution species possible.
             // PoGoEncTool has already extrapolated the evolutions to separate encounters!
-            var sf = chain.FirstOrDefault(z => z.Species == Species && (z.Form == Form || FormInfo.IsFormChangeable(Species, Form, z.Form, pkm.Format)));
+            EvoCriteria? sf = chain.FirstOrDefault(z => z.Species == Species && (z.Form == Form || FormInfo.IsFormChangeable(Species, Form, z.Form, pkm.Format)));
             if (sf == null)
                 yield break;
 
-            var ball = (Ball)pkm.Ball;
-            var met = Math.Max(sf.MinLevel, pkm.Met_Level);
+            Ball ball = (Ball)pkm.Ball;
+            int met = Math.Max(sf.MinLevel, pkm.Met_Level);
             EncounterSlot? deferredIV = null;
 
-            foreach (var s in Slots)
+            foreach (EncounterSlot? s in Slots)
             {
-                var slot = (EncounterSlot8GO)s;
+                EncounterSlot8GO? slot = (EncounterSlot8GO)s;
                 if (!slot.IsLevelWithinRange(met))
                     continue;
                 if (!slot.IsBallValid(ball))

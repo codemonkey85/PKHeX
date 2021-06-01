@@ -21,7 +21,7 @@ namespace PKHeX.Core
         {
             for (int i = start; i < start + length; i++)
             {
-                var c = data[i];
+                byte c = data[i];
                 if (c == 0)
                     break;
                 if (!d.ContainsKey(c))
@@ -73,13 +73,13 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetString1(byte[] data, int offset, int count, bool jp)
         {
-            var dict = jp ? RBY2U_J : RBY2U_U;
+            Dictionary<byte, char>? dict = jp ? RBY2U_J : RBY2U_U;
 
-            var s = new StringBuilder(count);
+            StringBuilder? s = new StringBuilder(count);
             for (int i = 0; i < count; i++)
             {
-                var val = data[offset + i];
-                if (!dict.TryGetValue(val, out var c)) // Take valid values
+                byte val = data[offset + i];
+                if (!dict.TryGetValue(val, out char c)) // Take valid values
                     break;
                 if (c == G1Terminator) // Stop if Terminator
                     break;
@@ -106,9 +106,9 @@ namespace PKHeX.Core
             if (value.Length > maxLength)
                 value = value[..maxLength]; // Hard cap
 
-            var capacity = Math.Max(value.Length, padTo);
-            var arr = new List<byte>(capacity);
-            var dict = jp ? U2RBY_J : U2RBY_U;
+            int capacity = Math.Max(value.Length, padTo);
+            List<byte>? arr = new List<byte>(capacity);
+            Dictionary<char, byte>? dict = jp ? U2RBY_J : U2RBY_U;
             foreach (char c in value)
             {
                 if (!dict.TryGetValue(c, out byte val))
@@ -129,8 +129,8 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetG1Char(byte key, bool jp)
         {
-            var dict = jp ? RBY2U_J : RBY2U_U;
-            if (dict.TryGetValue(key, out var val))
+            Dictionary<byte, char>? dict = jp ? RBY2U_J : RBY2U_U;
+            if (dict.TryGetValue(key, out char val))
                 return val.ToString();
             return string.Empty;
         }

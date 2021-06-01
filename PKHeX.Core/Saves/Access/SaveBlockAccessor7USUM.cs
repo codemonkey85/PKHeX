@@ -55,7 +55,7 @@ namespace PKHeX.Core
 
         public SaveBlockAccessor7USUM(SAV7USUM sav)
         {
-            var bi = BlockInfo;
+            IReadOnlyList<BlockInfo7>? bi = BlockInfo;
 
             Items = new MyItem7USUM(sav, 0);
             Situation = new Situation7(sav, bi[01].Offset);

@@ -62,10 +62,10 @@ namespace PKHeX.WinForms
         {
             tabControl1.SizeMode = TabSizeMode.Fixed;
             tabControl1.ItemSize = new Size(IL_Pouch.Images[0].Width + 4, IL_Pouch.Images[0].Height + 4);
-            foreach (var pouch in Pouches)
+            foreach (InventoryPouch? pouch in Pouches)
             {
-                var tab = new TabPage {ImageIndex = (int)pouch.Type};
-                var dgv = GetDGV(pouch);
+                TabPage? tab = new TabPage {ImageIndex = (int)pouch.Type};
+                DataGridView? dgv = GetDGV(pouch);
                 ControlGrids.Add(pouch.Type, dgv);
                 tab.Controls.Add(dgv);
                 tabControl1.TabPages.Add(tab);
@@ -77,10 +77,10 @@ namespace PKHeX.WinForms
         private DataGridView GetDGV(InventoryPouch pouch)
         {
             // Add DataGrid
-            var dgv = GetBaseDataGrid(pouch);
+            DataGridView? dgv = GetBaseDataGrid(pouch);
 
             // Get Columns
-            var item = GetItemColumn(ColumnItem = dgv.Columns.Count);
+            DataGridViewComboBoxColumn? item = GetItemColumn(ColumnItem = dgv.Columns.Count);
             dgv.Columns.Add(item);
             dgv.Columns.Add(GetCountColumn(pouch, Main.HaX, ColumnCount = dgv.Columns.Count));
             if (HasFreeSpace)
@@ -89,7 +89,7 @@ namespace PKHeX.WinForms
                 dgv.Columns.Add(GetNewColumn(ColumnNEW = dgv.Columns.Count));
 
             // Populate with rows
-            var itemarr = Main.HaX ? itemlist : GetStringsForPouch(pouch.LegalItems);
+            string[]? itemarr = Main.HaX ? itemlist : GetStringsForPouch(pouch.LegalItems);
             item.Items.AddRange(itemarr);
 
             dgv.Rows.Add(pouch.Items.Length);
@@ -136,7 +136,7 @@ namespace PKHeX.WinForms
 
         private static DataGridViewColumn GetCountColumn(InventoryPouch pouch, bool HaX, int c, string name = "Count")
         {
-            var dgvIndex = new DataGridViewTextBoxColumn
+            DataGridViewTextBoxColumn? dgvIndex = new DataGridViewTextBoxColumn
             {
                 HeaderText = name,
                 DisplayIndex = c,
@@ -172,14 +172,14 @@ namespace PKHeX.WinForms
 
         private void LoadAllBags()
         {
-            foreach (var pouch in Pouches)
+            foreach (InventoryPouch? pouch in Pouches)
             {
-                var dgv = GetGrid(pouch.Type);
+                DataGridView? dgv = GetGrid(pouch.Type);
 
                 // Sanity Screen
-                var invalid = pouch.Items.Where(item => item.Index != 0 && !pouch.LegalItems.Contains((ushort)item.Index)).ToArray();
-                var outOfBounds = invalid.Where(item => item.Index >= itemlist.Length).ToArray();
-                var incorrectPouch = invalid.Where(item => item.Index < itemlist.Length).ToArray();
+                InventoryItem[]? invalid = pouch.Items.Where(item => item.Index != 0 && !pouch.LegalItems.Contains((ushort)item.Index)).ToArray();
+                InventoryItem[]? outOfBounds = invalid.Where(item => item.Index >= itemlist.Length).ToArray();
+                InventoryItem[]? incorrectPouch = invalid.Where(item => item.Index < itemlist.Length).ToArray();
 
                 if (outOfBounds.Length > 0)
                     WinFormsUtil.Error(MsgItemPouchUnknown, $"Item ID(s): {string.Join(", ", outOfBounds.Select(item => item.Index))}");
@@ -193,9 +193,9 @@ namespace PKHeX.WinForms
 
         private void SetBags()
         {
-            foreach (var pouch in Pouches)
+            foreach (InventoryPouch? pouch in Pouches)
             {
-                var dgv = GetGrid(pouch.Type);
+                DataGridView? dgv = GetGrid(pouch.Type);
                 SetBag(dgv, pouch);
             }
         }
@@ -204,7 +204,7 @@ namespace PKHeX.WinForms
         {
             for (int i = 0; i < dgv.Rows.Count; i++)
             {
-                var cells = dgv.Rows[i].Cells;
+                DataGridViewCellCollection? cells = dgv.Rows[i].Cells;
                 cells[ColumnItem].Value = itemlist[pouch.Items[i].Index];
                 cells[ColumnCount].Value = pouch.Items[i].Count;
                 if (HasFreeSpace)
@@ -219,9 +219,9 @@ namespace PKHeX.WinForms
             int ctr = 0;
             for (int i = 0; i < dgv.Rows.Count; i++)
             {
-                var cells = dgv.Rows[i].Cells;
-                var str = cells[ColumnItem].Value.ToString();
-                var itemindex = Array.IndexOf(itemlist, str);
+                DataGridViewCellCollection? cells = dgv.Rows[i].Cells;
+                string? str = cells[ColumnItem].Value.ToString();
+                int itemindex = Array.IndexOf(itemlist, str);
 
                 if (itemindex <= 0 && !HasNew) // Compression of Empty Slots
                     continue;
@@ -233,7 +233,7 @@ namespace PKHeX.WinForms
                     continue; // ignore item
 
                 // create clean item data when saving
-                var obj = new InventoryItem {Index = itemindex, Count = itemcnt};
+                InventoryItem? obj = new InventoryItem {Index = itemindex, Count = itemcnt};
                 if (HasFreeSpace)
                     obj.FreeSpace = (bool)cells[ColumnFreeSpace].Value;
                 if (HasNew)
@@ -247,7 +247,7 @@ namespace PKHeX.WinForms
 
         private void ChangeViewedPouch(int index)
         {
-            var pouch = Pouches[index];
+            InventoryPouch? pouch = Pouches[index];
             NUD_Count.Maximum = GetMax(SAV, pouch, Main.HaX);
 
             bool disable = pouch.Type == InventoryType.PCItems || pouch.Type == InventoryType.FreeSpace;
@@ -307,11 +307,11 @@ namespace PKHeX.WinForms
 
         private void GiveAllItems(object sender, EventArgs e)
         {
-            var pouch = Pouches[CurrentPouch];
-            if (!GetModifySettings(pouch, out var truncate, out var shuffle))
+            InventoryPouch? pouch = Pouches[CurrentPouch];
+            if (!GetModifySettings(pouch, out bool truncate, out bool shuffle))
                 return;
 
-            var items = pouch.LegalItems;
+            ushort[]? items = pouch.LegalItems;
             if (truncate)
             {
                 items = (ushort[])items.Clone();
@@ -331,7 +331,7 @@ namespace PKHeX.WinForms
             if (!pouch.IsCramped)
                 return true;
 
-            var dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgItemPouchSizeSmall,
+            DialogResult dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgItemPouchSizeSmall,
                 string.Format(MsgItemPouchRandom, Environment.NewLine));
             if (dr == DialogResult.Cancel)
                 return false;
@@ -359,8 +359,8 @@ namespace PKHeX.WinForms
             if (func == null)
                 throw new ArgumentNullException(nameof(func));
 
-            var dgv = GetGrid(pouch);
-            var p = Pouches[pouch];
+            DataGridView? dgv = GetGrid(pouch);
+            InventoryPouch? p = Pouches[pouch];
             SetBag(dgv, p); // save current
             func(p); // update
             GetBag(dgv, p); // load current

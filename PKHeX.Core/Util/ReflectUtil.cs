@@ -11,14 +11,14 @@ namespace PKHeX.Core
     {
         public static bool IsValueEqual(this PropertyInfo pi, object obj, object value)
         {
-            var v = pi.GetValue(obj, null);
-            var c = ConvertValue(value, pi.PropertyType);
+            object? v = pi.GetValue(obj, null);
+            object? c = ConvertValue(value, pi.PropertyType);
             return v.Equals(c);
         }
 
         public static void SetValue(PropertyInfo pi, object obj, object value)
         {
-            var c = ConvertValue(value, pi.PropertyType);
+            object? c = ConvertValue(value, pi.PropertyType);
             pi.SetValue(obj, c, null);
         }
 
@@ -135,15 +135,15 @@ namespace PKHeX.Core
 
         public static Dictionary<T, string> GetAllConstantsOfType<T>(this Type type) where T : struct
         {
-            var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy);
-            var consts = fields.Where(fi => fi.IsLiteral && !fi.IsInitOnly && fi.FieldType == typeof(T));
+            FieldInfo[]? fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy);
+            IEnumerable<FieldInfo>? consts = fields.Where(fi => fi.IsLiteral && !fi.IsInitOnly && fi.FieldType == typeof(T));
             return consts.ToDictionary(x => (T)x.GetRawConstantValue(), z => z.Name);
         }
 
         public static Dictionary<T, string> GetAllPropertiesOfType<T>(this Type type, object obj) where T : class
         {
-            var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            var ofType = props.Where(fi => typeof(T).IsAssignableFrom(fi.PropertyType));
+            PropertyInfo[]? props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+            IEnumerable<PropertyInfo>? ofType = props.Where(fi => typeof(T).IsAssignableFrom(fi.PropertyType));
             return ofType.ToDictionary(x => (T)x.GetValue(obj), z => z.Name);
         }
     }

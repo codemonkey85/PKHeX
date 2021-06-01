@@ -23,23 +23,23 @@ namespace PKHeX.Core
             if (!sav.HasBox)
                 return -1;
 
-            var boxData = sav.BoxData;
-            var ctr = 0;
-            foreach (var pk in boxData)
+            IList<PKM>? boxData = sav.BoxData;
+            int ctr = 0;
+            foreach (PKM? pk in boxData)
             {
                 if (pk.Species == 0 || !pk.Valid)
                     continue;
 
-                var boxFolder = path;
+                string? boxFolder = path;
                 if (boxFolders)
                 {
-                    var boxName = Util.CleanFileName(sav.GetBoxName(pk.Box - 1));
+                    string? boxName = Util.CleanFileName(sav.GetBoxName(pk.Box - 1));
                     boxFolder = Path.Combine(path, boxName);
                     Directory.CreateDirectory(boxFolder);
                 }
 
-                var fileName = Util.CleanFileName(pk.FileName);
-                var fn = Path.Combine(boxFolder, fileName);
+                string? fileName = Util.CleanFileName(pk.FileName);
+                string? fn = Path.Combine(boxFolder, fileName);
                 if (File.Exists(fn))
                     continue;
 
@@ -61,14 +61,14 @@ namespace PKHeX.Core
             if (!sav.HasBox)
                 return -1;
 
-            var boxData = sav.BoxData;
-            var ctr = 0;
-            foreach (var pk in boxData)
+            IList<PKM>? boxData = sav.BoxData;
+            int ctr = 0;
+            foreach (PKM? pk in boxData)
             {
                 if (pk.Species == 0 || !pk.Valid || pk.Box - 1 != currentBox)
                     continue;
 
-                var fileName = Path.Combine(path, Util.CleanFileName(pk.FileName));
+                string? fileName = Path.Combine(path, Util.CleanFileName(pk.FileName));
                 if (File.Exists(fileName))
                     continue;
 
@@ -95,8 +95,8 @@ namespace PKHeX.Core
             if (string.IsNullOrWhiteSpace(path) || !Directory.Exists(path))
             { result = MsgSaveBoxExportPathInvalid; return -1; }
 
-            var option = all ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
-            var files = Directory.EnumerateFiles(path, "*.*", option);
+            SearchOption option = all ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+            IEnumerable<string>? files = Directory.EnumerateFiles(path, "*.*", option);
             return sav.LoadBoxes(files, out result, boxStart, boxClear, overwrite, noSetb);
         }
 
@@ -113,7 +113,7 @@ namespace PKHeX.Core
         /// <returns>Count of files imported.</returns>
         public static int LoadBoxes(this SaveFile sav, IEnumerable<string> files, out string result, int boxStart = 0, bool boxClear = false, bool overwrite = false, PKMImportSetting noSetb = PKMImportSetting.UseDefault)
         {
-            var pks = GetPossiblePKMsFromPaths(sav, files);
+            IEnumerable<PKM>? pks = GetPossiblePKMsFromPaths(sav, files);
             return sav.LoadBoxes(pks, out result, boxStart, boxClear, overwrite, noSetb);
         }
 
@@ -130,7 +130,7 @@ namespace PKHeX.Core
         /// <returns>Count of files imported.</returns>
         public static int LoadBoxes(this SaveFile sav, IEnumerable<IEncounterConvertible> encounters, out string result, int boxStart = 0, bool boxClear = false, bool overwrite = false, PKMImportSetting noSetb = PKMImportSetting.UseDefault)
         {
-            var pks = encounters.Select(z => z.ConvertToPKM(sav));
+            IEnumerable<PKM>? pks = encounters.Select(z => z.ConvertToPKM(sav));
             return sav.LoadBoxes(pks, out result, boxStart, boxClear, overwrite, noSetb);
         }
 
@@ -150,7 +150,7 @@ namespace PKHeX.Core
             if (!sav.HasBox)
             { result = MsgSaveBoxFailNone; return -1; }
 
-            var compat = sav.GetCompatible(pks);
+            IEnumerable<PKM>? compat = sav.GetCompatible(pks);
             if (boxClear)
                 sav.ClearBoxes(boxStart);
 
@@ -167,12 +167,12 @@ namespace PKHeX.Core
 
         public static IEnumerable<PKM> GetPKMsFromPaths(IEnumerable<string> files, int generation)
         {
-            var result = files
+            IEnumerable<PKM?>? result = files
                 .Where(file => PKX.IsPKM(new FileInfo(file).Length))
                 .Select(File.ReadAllBytes)
                 .Select(data => PKMConverter.GetPKMfromBytes(data, prefer: generation));
 
-            foreach (var pkm in result)
+            foreach (PKM? pkm in result)
             {
                 if (pkm != null)
                     yield return pkm;
@@ -181,9 +181,9 @@ namespace PKHeX.Core
 
         private static IEnumerable<PKM> GetPossiblePKMsFromPaths(SaveFile sav, IEnumerable<string> files)
         {
-            foreach (var f in files)
+            foreach (string? f in files)
             {
-                var obj = FileUtil.GetSupportedFile(f, sav);
+                object? obj = FileUtil.GetSupportedFile(f, sav);
                 switch (obj)
                 {
                     case PKM pk:
@@ -196,7 +196,7 @@ namespace PKHeX.Core
                         yield return g.ConvertToPB7(sav);
                         break;
                     case IPokeGroup g:
-                        foreach (var p in g.Contents)
+                        foreach (PKM? p in g.Contents)
                             yield return p;
                         break;
                 }
@@ -211,7 +211,7 @@ namespace PKHeX.Core
         public static string[] GetBoxNames(SaveFile sav)
         {
             int count = sav.BoxCount;
-            var result = new string[count];
+            string[]? result = new string[count];
             if (!sav.State.Exportable)
             {
                 for (int i = 0; i < count; i++)

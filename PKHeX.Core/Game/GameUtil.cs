@@ -215,7 +215,7 @@ namespace PKHeX.Core
         {
             if (obj.MaxGameID == Legal.MaxGameID_7b) // edge case
                 return new[] {GO, GP, GE};
-            var versions = GameVersions
+            IEnumerable<GameVersion>? versions = GameVersions
                 .Where(version => (GameVersion)obj.MinGameID <= version && version <= (GameVersion)obj.MaxGameID);
             if (generation < 0)
                 return versions;

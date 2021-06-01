@@ -102,7 +102,7 @@ namespace PKHeX.Core
             int j = 0 + data.Length - 1;
             while (i < j)
             {
-                var temp = data[i];
+                byte temp = data[i];
                 data[i] = data[j];
                 data[j] = temp;
                 i++;

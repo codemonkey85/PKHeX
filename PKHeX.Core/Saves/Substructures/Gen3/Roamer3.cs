@@ -90,7 +90,7 @@ namespace PKHeX.Core
         /// <returns>Indication if the PID is shiny for the trainer.</returns>
         public bool IsShiny(uint pid)
         {
-            var val = (ushort)(SAV.SID ^ SAV.TID ^ (pid >> 16) ^ pid);
+            ushort val = (ushort)(SAV.SID ^ SAV.TID ^ (pid >> 16) ^ pid);
             return val < 8;
         }
 
@@ -101,9 +101,9 @@ namespace PKHeX.Core
         {
             get
             {
-                var ivs = IV32; // store for restoration later
+                uint ivs = IV32; // store for restoration later
                 IV32 &= 0xFF; // only 1 byte is loaded to the encounter
-                var glitch = IVs; // get glitched IVs
+                int[]? glitch = IVs; // get glitched IVs
                 IV32 = ivs; // restore unglitched IVs
                 return glitch;
             }

@@ -79,7 +79,7 @@ namespace PKHeX.Core
         /// <returns>True if valid, false if invalid.</returns>
         public static bool IsBallValid(this PogoType encounterType, Ball ball)
         {
-            var req = encounterType.GetValidBall();
+            Ball req = encounterType.GetValidBall();
             if (req == Ball.None)
                 return (uint)(ball - 2) <= 2; // Poke, Great, Ultra
             return ball == req;

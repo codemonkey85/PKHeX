@@ -79,7 +79,7 @@ namespace PKHeX.Core
         {
             if (abil < 0)
                 return;
-            var index = pk.PersonalInfo.GetAbilityIndex(abil);
+            int index = pk.PersonalInfo.GetAbilityIndex(abil);
             index = Math.Max(0, index);
             pk.SetAbilityIndex(index);
         }
@@ -173,8 +173,8 @@ namespace PKHeX.Core
         /// <param name="nature">Desired <see cref="PKM.Nature"/> value to set.</param>
         public static void SetNature(this PKM pk, int nature)
         {
-            var value = Math.Min((int)Nature.Quirky, Math.Max((int)Nature.Hardy, nature));
-            var format = pk.Format;
+            int value = Math.Min((int)Nature.Quirky, Math.Max((int)Nature.Hardy, nature));
+            int format = pk.Format;
             if (format >= 8)
                 pk.StatNature = value;
             else if (format is 3 or 4)
@@ -260,7 +260,7 @@ namespace PKHeX.Core
             if (ShowdownSetBehaviorNature && pk.Format >= 8)
                 pk.Nature = pk.StatNature;
 
-            var legal = new LegalityAnalysis(pk);
+            LegalityAnalysis? legal = new LegalityAnalysis(pk);
             if (legal.Parsed && legal.Info.Relearn.Any(z => !z.Valid))
                 pk.SetRelearnMoves(legal.GetSuggestedRelearnMoves());
             pk.ResetPartyStats();
@@ -324,7 +324,7 @@ namespace PKHeX.Core
             if (pk.Format < 3)
                 return ushort.MaxValue;
 
-            var sum = pk.EVTotal - pk.GetEV(index);
+            int sum = pk.EVTotal - pk.GetEV(index);
             int remaining = 510 - sum;
             return Math.Min(Math.Max(remaining, 0), 252);
         }
@@ -357,7 +357,7 @@ namespace PKHeX.Core
             pk.CurrentFriendship = pk.PersonalInfo.BaseFriendship;
             if (pk.IsTradedEgg)
                 pk.Egg_Location = pk.Met_Location;
-            var loc = EncounterSuggestion.GetSuggestedEggMetLocation(pk);
+            int loc = EncounterSuggestion.GetSuggestedEggMetLocation(pk);
             if (loc >= 0)
                 pk.Met_Location = loc;
             pk.MetDate = DateTime.Today;
@@ -374,7 +374,7 @@ namespace PKHeX.Core
         public static void SetEggMetData(this PKM pk, GameVersion origin, GameVersion dest)
         {
             bool traded = origin == dest;
-            var today = pk.MetDate = DateTime.Today;
+            DateTime? today = pk.MetDate = DateTime.Today;
             pk.Egg_Location = EncounterSuggestion.GetSuggestedEncounterEggLocationEgg(pk.Generation, traded);
             pk.EggMetDate = today;
         }
@@ -436,7 +436,7 @@ namespace PKHeX.Core
         /// <returns>Potential string</returns>
         public static string GetPotentialString(this PKM pk, bool unicode = true)
         {
-            var arr = unicode ? PotentialUnicode : PotentialNoUnicode;
+            string[]? arr = unicode ? PotentialUnicode : PotentialNoUnicode;
             return arr[pk.PotentialRating];
         }
 

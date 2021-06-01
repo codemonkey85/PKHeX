@@ -157,7 +157,7 @@ namespace PKHeX.Core
             // Just mark them with the ID if they aren't empty.
             for (int i = 0; i < 227; i++)
             {
-                var str = cxd[i];
+                string? str = cxd[i];
                 if (str.Length != 0)
                     cxd[i] = $"{str} [{i:000}]";
             }
@@ -175,15 +175,15 @@ namespace PKHeX.Core
             // Replace the Egg Name with ---; egg name already stored to eggname
             specieslist[0] = "---";
             // Fix (None) tags
-            var none = $"({itemlist[0]})";
+            string? none = $"({itemlist[0]})";
             abilitylist[0] = itemlist[0] = movelist[0] = metXY_00000[0] = metBW2_00000[0] = metHGSS_00000[0] = metCXD_00000[0] = puffs[0] = none;
         }
 
         private void SanitizeItemNames()
         {
             // Fix Item Names (Duplicate entries)
-            var HM06 = itemlist[425];
-            var HM0 = HM06[..^1]; // language ambiguous!
+            string? HM06 = itemlist[425];
+            string? HM0 = HM06[..^1]; // language ambiguous!
             itemlist[426] = $"{HM0}7 (G4)";
             itemlist[427] = $"{HM0}8 (G4)";
             itemlist[456] += " (HG/SS)"; // S.S. Ticket
@@ -220,7 +220,7 @@ namespace PKHeX.Core
             itemlist[479] += " (HG/SS)"; // Lost Item (Dropped Item=636)
 
             // Append Z-Crystal flagging
-            foreach (var i in Legal.Pouch_ZCrystal_USUM)
+            foreach (ushort i in Legal.Pouch_ZCrystal_USUM)
                 itemlist[i] += " [Z]";
 
             itemlist[0121] += " (1)"; // Pokémon Box Link
@@ -334,7 +334,7 @@ namespace PKHeX.Core
             {
                 if (i is >= 194 and < 198)
                     continue; // Skip Island Names (unused)
-                var nextLoc = metSM_00000[i + 1];
+                string? nextLoc = metSM_00000[i + 1];
                 if (nextLoc.Length == 0)
                     continue;
                 metSM_00000[i + 1] = string.Empty;
@@ -360,7 +360,7 @@ namespace PKHeX.Core
             // SW/SH duplicates -- elaborate!
             for (int i = 88; i < metSWSH_00000.Length; i += 2)
             {
-                var nextLoc = metSWSH_00000[i + 1];
+                string? nextLoc = metSWSH_00000[i + 1];
                 if (nextLoc.Length == 0)
                     continue;
                 metSWSH_00000[i + 1] = string.Empty;
@@ -406,7 +406,7 @@ namespace PKHeX.Core
                     if (EReaderBerrySettings.IsEnigma)
                         return g3items;
 
-                    var g3ItemsWithEBerry = (string[])g3items.Clone();
+                    string[]? g3ItemsWithEBerry = (string[])g3items.Clone();
                     g3ItemsWithEBerry[175] = EReaderBerrySettings.DisplayName;
                     return g3ItemsWithEBerry;
             }
@@ -464,7 +464,7 @@ namespace PKHeX.Core
                     location--;
             }
 
-            var bank = GetLocationNames(gen, version, bankID);
+            IReadOnlyList<string>? bank = GetLocationNames(gen, version, bankID);
             if ((uint)location >= bank.Count)
                 return string.Empty;
             return bank[location];

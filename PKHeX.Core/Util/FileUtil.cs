@@ -21,12 +21,12 @@ namespace PKHeX.Core
         {
             try
             {
-                var fi = new FileInfo(path);
+                FileInfo? fi = new FileInfo(path);
                 if (IsFileTooBig(fi.Length) || IsFileTooSmall(fi.Length))
                     return null;
 
-                var data = File.ReadAllBytes(path);
-                var ext = Path.GetExtension(path);
+                byte[]? data = File.ReadAllBytes(path);
+                string? ext = Path.GetExtension(path);
                 return GetSupportedFile(data, ext, reference);
             }
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -49,21 +49,21 @@ namespace PKHeX.Core
         /// <returns>Supported file object reference, null if none found.</returns>
         public static object? GetSupportedFile(byte[] data, string ext, SaveFile? reference = null)
         {
-            if (TryGetSAV(data, out var sav))
+            if (TryGetSAV(data, out SaveFile? sav))
                 return sav;
-            if (TryGetMemoryCard(data, out var mc))
+            if (TryGetMemoryCard(data, out SAV3GCMemoryCard? mc))
                 return mc;
-            if (TryGetPKM(data, out var pk, ext))
+            if (TryGetPKM(data, out PKM? pk, ext))
                 return pk;
             if (TryGetPCBoxBin(data, out IEnumerable<byte[]> pks, reference))
                 return pks;
-            if (TryGetBattleVideo(data, out var bv))
+            if (TryGetBattleVideo(data, out BattleVideo? bv))
                 return bv;
-            if (TryGetMysteryGift(data, out var g, ext))
+            if (TryGetMysteryGift(data, out MysteryGift? g, ext))
                 return g;
-            if (TryGetGP1(data, out var gp))
+            if (TryGetGP1(data, out GP1? gp))
                 return gp;
-            if (TryGetBundle(data, out var bundle))
+            if (TryGetBundle(data, out IPokeGroup? bundle))
                 return bundle;
             return null;
         }
@@ -80,7 +80,7 @@ namespace PKHeX.Core
         {
             try
             {
-                var size = new FileInfo(path).Length;
+                long size = new FileInfo(path).Length;
                 if (size > int.MaxValue)
                     return -1;
                 return (int)size;
@@ -177,7 +177,7 @@ namespace PKHeX.Core
                 pk = null;
                 return false;
             }
-            var format = PKX.GetPKMFormatFromExtension(ext, sav?.Generation ?? 6);
+            int format = PKX.GetPKMFormatFromExtension(ext, sav?.Generation ?? 6);
             pk = PKMConverter.GetPKMfromBytes(data, prefer: format);
             return pk != null;
         }
@@ -196,7 +196,7 @@ namespace PKHeX.Core
                 pkms = Array.Empty<byte[]>();
                 return false;
             }
-            var length = data.Length;
+            int length = data.Length;
             if (PKX.IsPKM(length / sav.SlotCount) || PKX.IsPKM(length / sav.BoxSlotCount))
             {
                 pkms = ArrayUtil.EnumerateSplit(data, length);
@@ -253,17 +253,17 @@ namespace PKHeX.Core
         /// <returns>New <see cref="PKM"/> reference from the file.</returns>
         public static PKM? GetSingleFromPath(string file, ITrainerInfo sav)
         {
-            var fi = new FileInfo(file);
+            FileInfo? fi = new FileInfo(file);
             if (!fi.Exists)
                 return null;
-            if (fi.Length == GP1.SIZE && TryGetGP1(File.ReadAllBytes(file), out var gp1))
+            if (fi.Length == GP1.SIZE && TryGetGP1(File.ReadAllBytes(file), out GP1? gp1))
                 return gp1.ConvertToPB7(sav);
             if (!PKX.IsPKM(fi.Length) && !MysteryGift.IsMysteryGift(fi.Length))
                 return null;
-            var data = File.ReadAllBytes(file);
-            var ext = fi.Extension;
-            var mg = MysteryGift.GetMysteryGift(data, ext);
-            var gift = mg?.ConvertToPKM(sav);
+            byte[]? data = File.ReadAllBytes(file);
+            string? ext = fi.Extension;
+            DataMysteryGift? mg = MysteryGift.GetMysteryGift(data, ext);
+            PKM? gift = mg?.ConvertToPKM(sav);
             if (gift != null)
                 return gift;
             int prefer = PKX.GetPKMFormatFromExtension(ext, sav.Generation);

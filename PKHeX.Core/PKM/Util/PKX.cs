@@ -37,10 +37,10 @@ namespace PKHeX.Core
         /// <returns>Array containing randomized EVs (H/A/B/S/C/D)</returns>
         public static int[] GetRandomEVs(int generation = Generation)
         {
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             if (generation > 2)
             {
-                var evs = new int[6];
+                int[]? evs = new int[6];
                 do
                 {
                     int max = 510;
@@ -53,7 +53,7 @@ namespace PKHeX.Core
             }
             else
             {
-                var evs = new int[6];
+                int[]? evs = new int[6];
                 for (int i = 0; i < evs.Length; i++)
                     evs[i] = rnd.Next(ushort.MaxValue + 1);
                 return evs;
@@ -141,7 +141,7 @@ namespace PKHeX.Core
                 // Gen 3 Unown: Letter/form derived from PID
                 if (g3unown)
                 {
-                    var pidLetter = GetUnownForm(pid);
+                    int pidLetter = GetUnownForm(pid);
                     if (pidLetter != form)
                         continue;
                 }
@@ -173,7 +173,7 @@ namespace PKHeX.Core
         /// <returns></returns>
         public static int GetUnownForm(uint pid)
         {
-            var val = (pid & 0x3000000) >> 18 | (pid & 0x30000) >> 12 | (pid & 0x300) >> 6 | (pid & 0x3);
+            uint val = (pid & 0x3000000) >> 18 | (pid & 0x30000) >> 12 | (pid & 0x300) >> 6 | (pid & 0x3);
             return (int)(val % 28);
         }
 
@@ -205,7 +205,7 @@ namespace PKHeX.Core
         /// <returns>Valid <see cref="PKM"/> file extensions.</returns>
         public static string[] GetPKMExtensions(int maxGeneration = Generation)
         {
-            var result = new List<string>();
+            List<string>? result = new List<string>();
             int min = maxGeneration is <= 2 or >= 7 ? 1 : 3;
             for (int i = min; i <= maxGeneration; i++)
                 result.Add($"pk{i}");
@@ -284,7 +284,7 @@ namespace PKHeX.Core
         /// <returns>Same array, reordered.</returns>
         public static int[] ReorderSpeedLast(int[] value)
         {
-            var spe = value[3];
+            int spe = value[3];
             value[3] = value[4];
             value[4] = value[5];
             value[5] = spe;

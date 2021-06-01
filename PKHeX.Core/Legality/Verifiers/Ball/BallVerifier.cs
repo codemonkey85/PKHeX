@@ -16,14 +16,14 @@ namespace PKHeX.Core
         {
             if (data.pkm.Format <= 2)
                 return; // no ball info saved
-            var result = VerifyBall(data);
+            CheckResult? result = VerifyBall(data);
             data.AddLine(result);
         }
 
         private CheckResult VerifyBall(LegalityAnalysis data)
         {
-            var Info = data.Info;
-            var enc = Info.EncounterMatch;
+            LegalInfo? Info = data.Info;
+            IEncounterable? enc = Info.EncounterMatch;
 
             // Fixed ball cases -- can be only one ball ever
             switch (enc)
@@ -39,7 +39,7 @@ namespace PKHeX.Core
             }
 
             // Capture / Inherit cases -- can be one of many balls
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.Species == (int)Species.Shedinja && data.EncounterMatch.Species != (int)Species.Shedinja) // Shedinja. For gen3, copy the ball from Nincada
             {
                 // Only Gen3 origin Shedinja can copy the wild ball.
@@ -78,7 +78,7 @@ namespace PKHeX.Core
 
         private CheckResult VerifyBallWild(LegalityAnalysis data, EncounterSlot w)
         {
-            var req = w.Area.Type.GetRequiredBallValueWild(w.Generation, w.Location);
+            Ball req = w.Area.Type.GetRequiredBallValueWild(w.Generation, w.Location);
             if (req != None)
                 return VerifyBallEquals(data, (int) req);
 
@@ -87,7 +87,7 @@ namespace PKHeX.Core
 
         private CheckResult VerifyBallEgg(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (data.Info.Generation < 6) // No inheriting Balls
                 return VerifyBallEquals(data, (int)Poke); // Must be Pokéball -- no ball inheritance.
 
@@ -110,8 +110,8 @@ namespace PKHeX.Core
 
         private CheckResult VerifyBallEggGen6(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var enc = data.EncounterMatch;
+            PKM? pkm = data.pkm;
+            IEncounterable? enc = data.EncounterMatch;
             int species = enc.Species;
             if (pkm.Gender == 2 || BallBreedLegality.BreedMaleOnly6.Contains(species)) // Genderless
                 return VerifyBallEquals(data, (int)Poke); // Must be Pokéball as ball can only pass via mother (not Ditto!)
@@ -180,7 +180,7 @@ namespace PKHeX.Core
 
         private CheckResult VerifyBallEggGen7(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             int species = data.EncounterMatch.Species;
             if (species is >= 722 and <= 730) // G7 Starters
                 return VerifyBallEquals(data, (int)Poke);
@@ -254,7 +254,7 @@ namespace PKHeX.Core
 
         private CheckResult VerifyBallEggGen8(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             int species = data.EncounterMatch.Species;
             if (species is >= 722 and <= 730) // G7 Starters
                 return VerifyBallEquals(data, (int)Poke);
@@ -350,8 +350,8 @@ namespace PKHeX.Core
                 return false;
 
             // Everything breed-able that is in the Galar Dex can be captured in-game.
-            var pt = PersonalTable.SWSH;
-            var pi = (PersonalInfoSWSH) pt.GetFormEntry(species, 0);
+            PersonalTable? pt = PersonalTable.SWSH;
+            PersonalInfoSWSH? pi = (PersonalInfoSWSH) pt.GetFormEntry(species, 0);
             if (pi.IsInDex)
                 return true;
 

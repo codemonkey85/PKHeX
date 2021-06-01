@@ -25,7 +25,7 @@ namespace PKHeX.Core
             Entries = new List<StrategyMemoEntry>(count);
             for (int i = 0; i < count; i++)
             {
-                var entry = Read(input, offset, i);
+                StrategyMemoEntry? entry = Read(input, offset, i);
                 Entries.Add(entry);
             }
         }
@@ -33,18 +33,18 @@ namespace PKHeX.Core
         private StrategyMemoEntry Read(byte[] input, int offset, int index)
         {
             byte[] data = new byte[SIZE_ENTRY];
-            var ofs = 4 + offset + (SIZE_ENTRY * index);
+            int ofs = 4 + offset + (SIZE_ENTRY * index);
             Array.Copy(input, ofs, data, 0, SIZE_ENTRY);
             return new StrategyMemoEntry(XD, data);
         }
 
         public byte[] Write()
         {
-            var result = new byte[4 + (Entries.Count * SIZE_ENTRY)];
+            byte[]? result = new byte[4 + (Entries.Count * SIZE_ENTRY)];
             BigEndian.GetBytes((short)Entries.Count).CopyTo(result, 0);
             BigEndian.GetBytes((short)_unk).CopyTo(result, 2);
 
-            var count = Math.Min(MAX_COUNT, Entries.Count);
+            int count = Math.Min(MAX_COUNT, Entries.Count);
             for (int i = 0; i < count; i++)
                 Entries[i].Data.CopyTo(result, 4 + (i * SIZE_ENTRY));
             return result;

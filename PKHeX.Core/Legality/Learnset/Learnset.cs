@@ -82,7 +82,7 @@ namespace PKHeX.Core
         /// <returns>Array of Move IDs</returns>
         public List<int> GetMoveList(int maxLevel, int minLevel = 0)
         {
-            var list = new List<int>();
+            List<int>? list = new List<int>();
             return AddMoves(list, maxLevel, minLevel);
         }
 
@@ -93,7 +93,7 @@ namespace PKHeX.Core
         public int[] GetEncounterMoves(int level)
         {
             const int count = 4;
-            var moves = new int[count];
+            int[]? moves = new int[count];
             return GetEncounterMoves(level, moves);
         }
 
@@ -125,7 +125,7 @@ namespace PKHeX.Core
         {
             int start = Array.FindIndex(Levels, z => z >= minLevel);
             int end = Array.FindLastIndex(Levels, z => z <= maxLevel);
-            var list = new List<int>(seed);
+            List<int>? list = new List<int>(seed);
             for (int i = start; i <= end; i++)
             {
                 if (!list.Contains(Moves[i]))
@@ -151,7 +151,7 @@ namespace PKHeX.Core
 
         private Dictionary<int, int> GetDictionary()
         {
-            var dict = new Dictionary<int, int>();
+            Dictionary<int, int>? dict = new Dictionary<int, int>();
             for (int i = 0; i < Moves.Length; i++)
             {
                 if (!dict.ContainsKey(Moves[i]))
@@ -165,7 +165,7 @@ namespace PKHeX.Core
         /// <returns>Level the move is learned at. If the result is below 0, the move cannot be learned by leveling up.</returns>
         public int GetLevelLearnMove(int move)
         {
-            return (Learn ??= GetDictionary()).TryGetValue(move, out var level) ? level : -1;
+            return (Learn ??= GetDictionary()).TryGetValue(move, out int level) ? level : -1;
         }
 
         /// <summary>Returns the level that a Pokémon can learn the specified move.</summary>
@@ -179,7 +179,7 @@ namespace PKHeX.Core
                 if (move != Moves[i])
                     continue;
 
-                var lv = Levels[i];
+                int lv = Levels[i];
                 if (lv >= min)
                     return lv;
             }
@@ -189,8 +189,8 @@ namespace PKHeX.Core
         public ReadOnlySpan<int> GetBaseEggMoves(int level)
         {
             // Count moves <= level
-            var count = 0;
-            foreach (var x in Levels)
+            int count = 0;
+            foreach (int x in Levels)
             {
                 if (x > level)
                     break;

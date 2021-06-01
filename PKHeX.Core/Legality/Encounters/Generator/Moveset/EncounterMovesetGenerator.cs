@@ -34,14 +34,14 @@ namespace PKHeX.Core
         public static IEnumerable<PKM> GeneratePKMs(PKM pk, ITrainerInfo info, int[]? moves = null, params GameVersion[] versions)
         {
             pk.TID = info.TID;
-            var m = moves ?? pk.Moves;
-            var vers = versions.Length >= 1 ? versions : GameUtil.GetVersionsWithinRange(pk, pk.Format);
-            foreach (var ver in vers)
+            int[]? m = moves ?? pk.Moves;
+            IEnumerable<GameVersion>? vers = versions.Length >= 1 ? versions : GameUtil.GetVersionsWithinRange(pk, pk.Format);
+            foreach (GameVersion ver in vers)
             {
-                var encounters = GenerateVersionEncounters(pk, m, ver);
-                foreach (var enc in encounters)
+                IEnumerable<IEncounterable>? encounters = GenerateVersionEncounters(pk, m, ver);
+                foreach (IEncounterable? enc in encounters)
                 {
-                    var result = enc.ConvertToPKM(info);
+                    PKM? result = enc.ConvertToPKM(info);
 #if VERIFY_GEN
                     var la = new LegalityAnalysis(result);
                     if (!la.Valid)
@@ -64,12 +64,12 @@ namespace PKHeX.Core
         public static IEnumerable<IEncounterable> GenerateEncounters(PKM pk, ITrainerInfo info, int[]? moves = null, params GameVersion[] versions)
         {
             pk.TID = info.TID;
-            var m = moves ?? pk.Moves;
-            var vers = versions.Length >= 1 ? versions : GameUtil.GetVersionsWithinRange(pk, pk.Format);
-            foreach (var ver in vers)
+            int[]? m = moves ?? pk.Moves;
+            IEnumerable<GameVersion>? vers = versions.Length >= 1 ? versions : GameUtil.GetVersionsWithinRange(pk, pk.Format);
+            foreach (GameVersion ver in vers)
             {
-                var encounters = GenerateVersionEncounters(pk, m, ver);
-                foreach (var enc in encounters)
+                IEnumerable<IEncounterable>? encounters = GenerateVersionEncounters(pk, m, ver);
+                foreach (IEncounterable? enc in encounters)
                     yield return enc;
             }
         }
@@ -83,7 +83,7 @@ namespace PKHeX.Core
         /// <param name="moves">Moves that the resulting <see cref="IEncounterable"/> must be able to learn.</param>
         public static IEnumerable<PKM> GeneratePKMs(PKM pk, ITrainerInfo info, int generation, int[]? moves = null)
         {
-            var vers = GameUtil.GetVersionsInGeneration(generation, pk.Version);
+            GameVersion[]? vers = GameUtil.GetVersionsInGeneration(generation, pk.Version);
             return GeneratePKMs(pk, info, moves, vers);
         }
 
@@ -96,7 +96,7 @@ namespace PKHeX.Core
         /// <returns>A consumable <see cref="IEncounterable"/> list of possible encounters.</returns>
         public static IEnumerable<IEncounterable> GenerateEncounter(PKM pk, int generation, int[]? moves = null)
         {
-            var vers = GameUtil.GetVersionsInGeneration(generation, pk.Version);
+            GameVersion[]? vers = GameUtil.GetVersionsInGeneration(generation, pk.Version);
             return GenerateEncounters(pk, moves, vers);
         }
 
@@ -113,7 +113,7 @@ namespace PKHeX.Core
             if (versions.Length > 0)
                 return GenerateEncounters(pk, moves, (IReadOnlyList<GameVersion>)versions);
 
-            var vers = GameUtil.GetVersionsWithinRange(pk, pk.Format);
+            IEnumerable<GameVersion>? vers = GameUtil.GetVersionsWithinRange(pk, pk.Format);
             return vers.SelectMany(ver => GenerateVersionEncounters(pk, moves, ver));
         }
 
@@ -140,8 +140,8 @@ namespace PKHeX.Core
         public static IEnumerable<IEncounterable> GenerateVersionEncounters(PKM pk, IEnumerable<int> moves, GameVersion version)
         {
             pk.Version = (int)version;
-            var et = EvolutionTree.GetEvolutionTree(pk.Format);
-            var chain = et.GetValidPreEvolutions(pk, maxLevel: 100, skipChecks: true);
+            EvolutionTree? et = EvolutionTree.GetEvolutionTree(pk.Format);
+            List<EvoCriteria>? chain = et.GetValidPreEvolutions(pk, maxLevel: 100, skipChecks: true);
             int[] needs = GetNeededMoves(pk, moves, chain);
 
             return PriorityList.SelectMany(type => GetPossibleOfType(pk, needs, version, type, chain));
@@ -153,7 +153,7 @@ namespace PKHeX.Core
                 return moves.Intersect(Legal.InvalidSketch).ToArray(); // Can learn anything
 
             // Roughly determine the generation the PKM is originating from
-            var ver = pk.Version;
+            int ver = pk.Version;
             int origin = pk.Generation;
             if (origin < 0)
                 origin = ((GameVersion)ver).GetGeneration();
@@ -163,9 +163,9 @@ namespace PKHeX.Core
             if (vcBump)
                 pk.Version = (int)GameVersion.C;
 
-            var gens = GenerationTraversal.GetVisitedGenerationOrder(pk, origin);
-            var canlearn = gens.SelectMany(z => GetMovesForGeneration(pk, chain, z));
-            var result = moves.Except(canlearn).Where(z => z != 0).ToArray();
+            int[]? gens = GenerationTraversal.GetVisitedGenerationOrder(pk, origin);
+            IEnumerable<int>? canlearn = gens.SelectMany(z => GetMovesForGeneration(pk, chain, z));
+            int[]? result = moves.Except(canlearn).Where(z => z != 0).ToArray();
 
             if (vcBump)
                 pk.Version = ver;
@@ -228,10 +228,10 @@ namespace PKHeX.Core
             int gen = version.GetGeneration();
             if (gen < 2)
                 yield break;
-            var eggs = gen == 2
+            IEnumerable<EncounterEgg>? eggs = gen == 2
                 ? EncounterEggGenerator2.GenerateEggs(pk, chain, all: true)
                 : EncounterEggGenerator.GenerateEggs(pk, chain, gen, all: true);
-            foreach (var egg in eggs)
+            foreach (EncounterEgg? egg in eggs)
             {
                 if (needs.Count == 0)
                 {
@@ -259,8 +259,8 @@ namespace PKHeX.Core
         /// <returns>A consumable <see cref="IEncounterable"/> list of possible encounters.</returns>
         private static IEnumerable<MysteryGift> GetGifts(PKM pk, IReadOnlyCollection<int> needs, IReadOnlyList<EvoCriteria> chain)
         {
-            var gifts = MysteryGiftGenerator.GetPossible(pk, chain);
-            foreach (var gift in gifts)
+            IEnumerable<MysteryGift>? gifts = MysteryGiftGenerator.GetPossible(pk, chain);
+            foreach (MysteryGift? gift in gifts)
             {
                 if (gift is WC3 {NotDistributed: true})
                     continue;
@@ -269,7 +269,7 @@ namespace PKHeX.Core
                     yield return gift;
                     continue;
                 }
-                var em = gift.Moves;
+                IReadOnlyList<int>? em = gift.Moves;
                 if (!needs.Except(em).Any())
                     yield return gift;
             }
@@ -285,8 +285,8 @@ namespace PKHeX.Core
         /// <returns>A consumable <see cref="IEncounterable"/> list of possible encounters.</returns>
         private static IEnumerable<EncounterStatic> GetStatic(PKM pk, IReadOnlyCollection<int> needs, IReadOnlyList<EvoCriteria> chain, GameVersion version)
         {
-            var encounters = EncounterStaticGenerator.GetPossible(pk, chain, version);
-            foreach (var enc in encounters)
+            IEnumerable<EncounterStatic>? encounters = EncounterStaticGenerator.GetPossible(pk, chain, version);
+            foreach (EncounterStatic? enc in encounters)
             {
                 if (enc.IsUnobtainable())
                     continue;
@@ -311,8 +311,8 @@ namespace PKHeX.Core
             if ((uint)gen >= 3)
                 yield break;
 
-            var gifts = EncounterStaticGenerator.GetPossibleGBGifts(chain, version);
-            foreach (var enc in gifts)
+            IEnumerable<EncounterStatic>? gifts = EncounterStaticGenerator.GetPossibleGBGifts(chain, version);
+            foreach (EncounterStatic? enc in gifts)
             {
                 if (needs.Count == 0)
                 {
@@ -320,7 +320,7 @@ namespace PKHeX.Core
                     continue;
                 }
 
-                var em = enc.Moves;
+                IReadOnlyList<int>? em = enc.Moves;
                 if (!needs.Except(em).Any())
                     yield return enc;
             }
@@ -336,8 +336,8 @@ namespace PKHeX.Core
         /// <returns>A consumable <see cref="IEncounterable"/> list of possible encounters.</returns>
         private static IEnumerable<EncounterTrade> GetTrades(PKM pk, IReadOnlyCollection<int> needs, IReadOnlyList<EvoCriteria> chain, GameVersion version)
         {
-            var trades = EncounterTradeGenerator.GetPossible(pk, chain, version);
-            foreach (var trade in trades)
+            IEnumerable<EncounterTrade>? trades = EncounterTradeGenerator.GetPossible(pk, chain, version);
+            foreach (EncounterTrade? trade in trades)
             {
                 if (needs.Count == 0)
                 {
@@ -362,8 +362,8 @@ namespace PKHeX.Core
         /// <returns>A consumable <see cref="IEncounterable"/> list of possible encounters.</returns>
         private static IEnumerable<EncounterSlot> GetSlots(PKM pk, IReadOnlyList<int> needs, IReadOnlyList<EvoCriteria> chain, GameVersion version)
         {
-            var slots = EncounterSlotGenerator.GetPossible(pk, chain, version);
-            foreach (var slot in slots)
+            IEnumerable<EncounterSlot>? slots = EncounterSlotGenerator.GetPossible(pk, chain, version);
+            foreach (EncounterSlot? slot in slots)
             {
                 if (slot.IsUnobtainable())
                     continue;

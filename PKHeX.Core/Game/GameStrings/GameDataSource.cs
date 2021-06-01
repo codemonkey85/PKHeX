@@ -45,9 +45,9 @@ namespace PKHeX.Core
             AbilityDataSource = Util.GetCBList(s.abilitylist);
             EncounterTypeDataSource = Util.GetUnsortedCBList(s.encountertypelist, Gen4EncounterTypes);
 
-            var moves = Util.GetCBList(s.movelist);
+            List<ComboItem>? moves = Util.GetCBList(s.movelist);
             HaXMoveDataSource = moves;
-            var legal = new List<ComboItem>(moves);
+            List<ComboItem>? legal = new List<ComboItem>(moves);
             legal.RemoveAll(m => Legal.Z_Moves.Contains(m.Value));
             LegalMoveDataSource = legal;
 
@@ -78,8 +78,8 @@ namespace PKHeX.Core
 
         private static IReadOnlyList<ComboItem> GetVersionList(GameStrings s)
         {
-            var list = s.gamelist;
-            var games = new byte[]
+            string[]? list = s.gamelist;
+            byte[]? games = new byte[]
             {
                 44, 45, // 8 swsh
                 42, 43, // 7 gg
@@ -105,13 +105,13 @@ namespace PKHeX.Core
 
         public List<ComboItem> GetItemDataSource(GameVersion game, int generation, IReadOnlyList<ushort> allowed, bool HaX = false)
         {
-            var items = Strings.GetItemStrings(generation, game);
+            string[]? items = Strings.GetItemStrings(generation, game);
             return HaX ? Util.GetCBList(items) : Util.GetCBList(items, allowed);
         }
 
         public static IReadOnlyList<ComboItem> LanguageDataSource(int gen)
         {
-            var languages = LanguageList.ToList();
+            List<ComboItem>? languages = LanguageList.ToList();
             if (gen == 3)
                 languages.RemoveAll(l => l.Value >= (int)LanguageID.Korean);
             else if (gen < 7)

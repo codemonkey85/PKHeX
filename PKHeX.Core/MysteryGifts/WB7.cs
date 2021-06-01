@@ -26,8 +26,8 @@ namespace PKHeX.Core
                 return false;
             if (RestrictVersion == 0)
                 return true; // no data
-            var bitIndex = v - (int)GameVersion.GP;
-            var bit = 1 << bitIndex;
+            int bitIndex = v - (int)GameVersion.GP;
+            int bit = 1 << bitIndex;
             return (RestrictVersion & bit) != 0;
         }
 
@@ -237,7 +237,7 @@ namespace PKHeX.Core
 
         private static int GetLanguageIndex(int language)
         {
-            var lang = (LanguageID) language;
+            LanguageID lang = (LanguageID) language;
             if (lang is < LanguageID.Japanese or LanguageID.UNUSED_6 or > LanguageID.ChineseT)
                 return (int) LanguageID.English; // fallback
             return lang < LanguageID.UNUSED_6 ? language - 1 : language - 2;
@@ -276,7 +276,7 @@ namespace PKHeX.Core
 
         public int GetLanguage(int redeemLanguage)
         {
-            var languageOffset = GetLanguageIndex(redeemLanguage);
+            int languageOffset = GetLanguageIndex(redeemLanguage);
             return Data[0x1D8 + languageOffset];
         }
 
@@ -303,18 +303,18 @@ namespace PKHeX.Core
             if (!IsPokémon)
                 throw new ArgumentException(nameof(IsPokémon));
 
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
 
             int currentLevel = Level > 0 ? Level : rnd.Next(1, 101);
             int metLevel = MetLevel > 0 ? MetLevel : currentLevel;
-            var pi = PersonalTable.GG.GetFormEntry(Species, Form);
+            PersonalInfo? pi = PersonalTable.GG.GetFormEntry(Species, Form);
 
-            var redeemLanguage = sav.Language;
-            var language = GetLanguage(redeemLanguage);
-            var OT = GetOT(redeemLanguage);
+            int redeemLanguage = sav.Language;
+            int language = GetLanguage(redeemLanguage);
+            string? OT = GetOT(redeemLanguage);
             bool isRedeemHT = OT.Length != 0;
 
-            var pk = new PB7
+            PB7? pk = new PB7
             {
                 Species = Species,
                 HeldItem = HeldItem,
@@ -402,10 +402,10 @@ namespace PKHeX.Core
 
         private void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = PersonalTable.GG.GetFormEntry(Species, Form);
+            PersonalInfo? pi = PersonalTable.GG.GetFormEntry(Species, Form);
             pk.Nature = (int)criteria.GetNature((Nature)Nature);
             pk.Gender = criteria.GetGender(Gender, pi);
-            var av = GetAbilityIndex(criteria);
+            int av = GetAbilityIndex(criteria);
             pk.RefreshAbility(av);
             SetPID(pk);
             SetIVs(pk);
@@ -442,8 +442,8 @@ namespace PKHeX.Core
         private void SetIVs(PKM pk)
         {
             int[] finalIVs = new int[6];
-            var ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
-            var rng = Util.Rand;
+            int ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
+            Random? rng = Util.Rand;
             if (ivflag == 0) // Random IVs
             {
                 for (int i = 0; i < 6; i++)
@@ -493,7 +493,7 @@ namespace PKHeX.Core
                     if (TID != pkm.TID) return false;
                     if (OTGender != pkm.OT_Gender) return false;
                 }
-                var OT = GetOT(pkm.Language);
+                string? OT = GetOT(pkm.Language);
                 if (!string.IsNullOrEmpty(OT) && OT != pkm.OT_Name) return false;
                 if (OriginGame != 0 && OriginGame != pkm.Version) return false;
                 if (EncryptionConstant != 0 && EncryptionConstant != pkm.EncryptionConstant) return false;

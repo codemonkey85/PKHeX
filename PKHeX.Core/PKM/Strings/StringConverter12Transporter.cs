@@ -17,8 +17,8 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetString(byte[] data, bool jp)
         {
-            var table = jp ? jp_table : us_table;
-            var chars = GetG1ConvertedChar(data, table);
+            ushort[]? table = jp ? jp_table : us_table;
+            IEnumerable<char>? chars = GetG1ConvertedChar(data, table);
             if (jp)
                 chars = CheckKata(chars);
 
@@ -27,12 +27,12 @@ namespace PKHeX.Core
 
         private static IEnumerable<char> GetG1ConvertedChar(byte[] data, ushort[] table)
         {
-            foreach (var b in data)
+            foreach (byte b in data)
             {
                 if (b == 0)
                     yield break;
 
-                var val = table[b];
+                ushort val = table[b];
                 if (val == 0)
                     yield break;
 
@@ -42,7 +42,7 @@ namespace PKHeX.Core
 
         private static IEnumerable<char> CheckKata(IEnumerable<char> chars)
         {
-            var arr = chars.ToArray();
+            char[]? arr = chars.ToArray();
             if (!arr.Any(Katakana.Contains))
                 return arr;
 
@@ -62,7 +62,7 @@ namespace PKHeX.Core
 
         private static bool IsHiragana(IEnumerable<char> chars)
         {
-            foreach (var c in chars)
+            foreach (char c in chars)
             {
                 if ((uint)(c - 0x3041) < 0x53)
                     return true;

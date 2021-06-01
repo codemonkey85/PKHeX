@@ -194,7 +194,7 @@ namespace PKHeX.Core
 
         private static HashSet<int> GetBattleFormSet()
         {
-            var hs = new HashSet<int>(BattleForms);
+            HashSet<int>? hs = new HashSet<int>(BattleForms);
             hs.UnionWith(BattleMegas);
             hs.UnionWith(BattlePrimals);
             return hs;

@@ -97,7 +97,7 @@ namespace PKHeX.Core
 
         public override void SetBoxName(int box, string value)
         {
-            var data = SetString(value, LongStringLength / 2, LongStringLength / 2);
+            byte[]? data = SetString(value, LongStringLength / 2, LongStringLength / 2);
             SetData(data, PCLayout + (LongStringLength * box));
         }
 
@@ -129,7 +129,7 @@ namespace PKHeX.Core
                     case (int) Species.Hoopa:
                     {
                         pkm.Form = 0;
-                        var hsf = Array.IndexOf(pkm.Moves, (int) Move.HyperspaceFury);
+                            int hsf = Array.IndexOf(pkm.Moves, (int) Move.HyperspaceFury);
                         if (hsf != -1)
                             pkm.SetMove(hsf, (int) Move.HyperspaceHole);
                         break;

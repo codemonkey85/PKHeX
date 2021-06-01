@@ -40,8 +40,8 @@ namespace PKHeX.Core
             Capacity = (byte)c;
             Entry_Size = GetEntrySize();
             StringLength = GetStringLength(jp);
-            var data = d ?? GetEmptyList(c, jp);
-            var dataSize = 1 + 1 + (Capacity * (Entry_Size + 1 + (2 * StringLength)));
+            byte[]? data = d ?? GetEmptyList(c, jp);
+            int dataSize = 1 + 1 + (Capacity * (Entry_Size + 1 + (2 * StringLength)));
 
             Array.Resize(ref data, dataSize);
             Data = data;
@@ -67,7 +67,7 @@ namespace PKHeX.Core
             int size_pkm = GetEntrySize() * capacity;
             int size_str = 2 * GetStringLength(jp) * capacity;
 
-            var result = new byte[1 + size_intro + size_pkm + size_str];
+            byte[]? result = new byte[1 + size_intro + size_pkm + size_str];
 
             for (int i = 1; i <= size_intro; i++)
                 result[i] = SLOT_NONE;
@@ -88,7 +88,7 @@ namespace PKHeX.Core
 
         protected static int GetDataSize(PokeListType c, bool jp, int entrySize)
         {
-            var entryLength = 1 + entrySize + (2 * GetStringLength(jp));
+            int entryLength = 1 + entrySize + (2 * GetStringLength(jp));
             return 2 + ((byte)c * entryLength);
         }
 
@@ -109,7 +109,7 @@ namespace PKHeX.Core
 
         private T[] Read()
         {
-            var arr = new T[Capacity];
+            T[]? arr = new T[Capacity];
             int base_ofs = 2 + Capacity;
             for (int i = 0; i < Capacity; i++)
                 arr[i] = GetEntry(base_ofs, i);
@@ -137,9 +137,9 @@ namespace PKHeX.Core
             int otOfs = GetOffsetPKMOT(base_ofs, i);
             int nkOfs = GetOffsetPKMNickname(base_ofs, i);
 
-            var dat = Data.Slice(pkOfs, Entry_Size);
-            var otname = Data.Slice(otOfs, StringLength);
-            var nick = Data.Slice(nkOfs, StringLength);
+            byte[]? dat = Data.Slice(pkOfs, Entry_Size);
+            byte[]? otname = Data.Slice(otOfs, StringLength);
+            byte[]? nick = Data.Slice(nkOfs, StringLength);
 
             return GetEntry(dat, otname, nick, Data[1 + i] == 0xFD);
         }

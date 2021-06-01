@@ -52,7 +52,7 @@ namespace PKHeX.Core
 
         public PKM ConvertToPKM(ITrainerInfo sav, EncounterCriteria criteria)
         {
-            var pk = GetBlank(sav);
+            PKM? pk = GetBlank(sav);
             sav.ApplyTo(pk);
 
             ApplyDetails(sav, criteria, pk);
@@ -65,7 +65,7 @@ namespace PKHeX.Core
             pk.Species = Species;
             pk.Form = Form;
 
-            var version = this.GetCompatibleVersion((GameVersion)sav.Game);
+            GameVersion version = this.GetCompatibleVersion((GameVersion)sav.Game);
             int lang = (int)Language.GetSafeLanguage(Generation, (LanguageID)sav.Language, version);
             int level = GetMinimalLevel();
 
@@ -78,7 +78,7 @@ namespace PKHeX.Core
             pk.HeldItem = HeldItem;
             pk.OT_Friendship = pk.PersonalInfo.BaseFriendship;
 
-            var today = DateTime.Today;
+            DateTime today = DateTime.Today;
             SetMetData(pk, level, today);
             if (EggEncounter)
                 SetEggMetData(pk, sav, today);
@@ -107,12 +107,12 @@ namespace PKHeX.Core
 
         protected virtual void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             int gender = criteria.GetGender(Gender, pi);
             int nature = (int)criteria.GetNature(Nature);
             int ability = criteria.GetAbilityFromNumber(Ability);
 
-            var pidtype = GetPIDType();
+            PIDType pidtype = GetPIDType();
             PIDGenerator.SetRandomWildPID(pk, pk.Format, nature, ability, gender, pidtype);
             SetIVs(pk);
             pk.StatNature = pk.Nature;
@@ -146,7 +146,7 @@ namespace PKHeX.Core
 
         private void SetEncounterMoves(PKM pk, GameVersion version, int level)
         {
-            var moves = Moves.Count > 0 ? Moves : MoveLevelUp.GetEncounterMoves(pk, level, version);
+            IReadOnlyList<int>? moves = Moves.Count > 0 ? Moves : MoveLevelUp.GetEncounterMoves(pk, level, version);
             pk.SetMoves(moves);
             pk.SetMaximumPPCurrent(moves);
         }

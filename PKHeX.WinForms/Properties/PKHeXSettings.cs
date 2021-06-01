@@ -36,7 +36,7 @@ namespace PKHeX.WinForms
 
             try
             {
-                var lines = File.ReadAllText(configPath);
+                string? lines = File.ReadAllText(configPath);
                 return JsonConvert.DeserializeObject<PKHeXSettings>(lines) ?? new PKHeXSettings();
             }
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -52,13 +52,13 @@ namespace PKHeX.WinForms
         {
             try
             {
-                var settings = new JsonSerializerSettings
+                JsonSerializerSettings? settings = new JsonSerializerSettings
                 {
                     Formatting = Formatting.Indented,
                     DefaultValueHandling = DefaultValueHandling.Populate,
                     NullValueHandling = NullValueHandling.Ignore,
                 };
-                var text = JsonConvert.SerializeObject(cfg, settings);
+                string? text = JsonConvert.SerializeObject(cfg, settings);
                 File.WriteAllText(configPath, text);
             }
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -155,7 +155,7 @@ namespace PKHeX.WinForms
 
         public void LoadSaveFile(string path)
         {
-            var recent = RecentlyLoaded;
+            List<string>? recent = RecentlyLoaded;
             // Remove from list if already present.
             if (!recent.Remove(path) && recent.Count >= MaxRecentCount)
                 recent.RemoveAt(recent.Count - 1);

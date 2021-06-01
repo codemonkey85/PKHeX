@@ -79,7 +79,7 @@ namespace PKHeX.WinForms
                         m[i] = new Mail4(((PK4)p[i]).GetHeldMailData());
                     for (int i = p.Count, j = 0; i < m.Length; i++, j++)
                         m[i] = sav4.GetMail(j);
-                    var l4 = (Mail4)m[^1];
+                    Mail4? l4 = (Mail4)m[^1];
                     ResetVer = l4.AuthorVersion;
                     ResetLang = l4.AuthorLanguage;
                     MailItemID = new[] {137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148};
@@ -91,7 +91,7 @@ namespace PKHeX.WinForms
                         m[i] = new Mail5(((PK5)p[i]).GetHeldMailData());
                     for (int i = p.Count, j = 0; i < m.Length; i++, j++)
                         m[i] = sav5.GetMail(j);
-                    var l5 = (Mail5)m[^1];
+                    Mail5? l5 = (Mail5)m[^1];
                     ResetVer = l5.AuthorVersion;
                     ResetLang = l5.AuthorLanguage;
                     MailItemID = new[] {137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148};
@@ -109,7 +109,7 @@ namespace PKHeX.WinForms
             }
             else if (Gen is 4 or 5)
             {
-                var species = GameInfo.FilteredSources.Species.ToList();
+                List<ComboItem>? species = GameInfo.FilteredSources.Species.ToList();
                 foreach (ComboBox a in AppearPKMs)
                 {
                     a.Items.Clear();
@@ -148,7 +148,7 @@ namespace PKHeX.WinForms
                 }, null);
             }
 
-            var ItemList = GameInfo.Strings.GetItemStrings(Gen, SAV.Version);
+            string[]? ItemList = GameInfo.Strings.GetItemStrings(Gen, SAV.Version);
             CB_MailType.Items.Clear();
             CB_MailType.Items.Add(ItemList[0]);
             foreach (int item in MailItemID)
@@ -235,7 +235,7 @@ namespace PKHeX.WinForms
             switch (Gen)
             {
                 case 2:
-                    foreach (var n in m) n.CopyTo(SAV);
+                    foreach (Mail? n in m) n.CopyTo(SAV);
                     // duplicate
                     int ofs = 0x600;
                     int len = 0x2F * 6;
@@ -246,7 +246,7 @@ namespace PKHeX.WinForms
                     Array.Copy(SAV.Data, ofs, SAV.Data, ofs + len, len);
                     break;
                 case 3:
-                    foreach (var n in m) n.CopyTo(SAV);
+                    foreach (Mail? n in m) n.CopyTo(SAV);
                     break;
                 case 4:
                     for (int i = 0; i < p.Count; i++)
@@ -314,7 +314,7 @@ namespace PKHeX.WinForms
 
         private List<string> CheckValid()
         {
-            var ret = new List<string>();
+            List<string>? ret = new List<string>();
             // Gen3
             // A: held item is mail, but heldMailID is not 0 to 5. it should be 0 to 5, or held not mail.
             // B: held item is mail, but mail is empty(mail type is 0). it should be not empty, or held not mail and heldMailId -1.
@@ -342,7 +342,7 @@ namespace PKHeX.WinForms
                 }
                 for (int i = 0; i < 6; i++)
                 {
-                    var index = i;
+                    int index = i;
                     if (heldMailIDs.Count(v => v == index) > 1) //D
                         ret.Add($"MailID{i} duplicated");
                     if (m[i].IsEmpty == false && heldMailIDs.All(v => v != index)) //E
@@ -398,7 +398,7 @@ namespace PKHeX.WinForms
         {
             if (entry >= 0) TempSave();
             Save();
-            var Err = CheckValid();
+            List<string>? Err = CheckValid();
             if (Err.Count != 0 && DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, $"{Err.Aggregate($"Validation Error. Save?{Environment.NewLine}", (tmp, v) => $"{tmp}{Environment.NewLine}{v}")}"))
                 return;
             Origin.CopyChangesFrom(SAV);
@@ -412,22 +412,22 @@ namespace PKHeX.WinForms
 
         private string GetSpeciesNameFromCB(int index)
         {
-            var result = CB_AppearPKM1.Items.OfType<ComboItem>().FirstOrDefault(z => z.Value == index);
+            ComboItem? result = CB_AppearPKM1.Items.OfType<ComboItem>().FirstOrDefault(z => z.Value == index);
             return result != null ? result.Text : "PKM";
         }
 
         private DialogResult ModifyHeldItem()
         {
             DialogResult ret = DialogResult.Abort;
-            var s = p.Select((pkm, i) => ((sbyte)PKMNUDs[i].Value == entry) && ItemIsMail(pkm.HeldItem) ? pkm : null).ToArray();
+            PKM?[]? s = p.Select((pkm, i) => ((sbyte)PKMNUDs[i].Value == entry) && ItemIsMail(pkm.HeldItem) ? pkm : null).ToArray();
             if (s.All(v => v == null))
                 return ret;
             System.Media.SystemSounds.Question.Play();
-            var msg = $"{s.Select((v, i) => v == null ? string.Empty : $"{Environment.NewLine}  {PKMLabels[i].Text}: {PKMHeldItems[i].Text} -> {CB_MailType.Items[0]}").Aggregate($"Modify PKM's HeldItem?{Environment.NewLine}", (tmp, v) => $"{tmp}{v}")}{Environment.NewLine}{Environment.NewLine}Yes: Delete Mail & Modify PKM{Environment.NewLine}No: Delete Mail";
+            string? msg = $"{s.Select((v, i) => v == null ? string.Empty : $"{Environment.NewLine}  {PKMLabels[i].Text}: {PKMHeldItems[i].Text} -> {CB_MailType.Items[0]}").Aggregate($"Modify PKM's HeldItem?{Environment.NewLine}", (tmp, v) => $"{tmp}{v}")}{Environment.NewLine}{Environment.NewLine}Yes: Delete Mail & Modify PKM{Environment.NewLine}No: Delete Mail";
             ret = WinFormsUtil.Prompt(MessageBoxButtons.YesNoCancel, msg);
             if (ret != DialogResult.Yes)
                 return ret;
-            foreach (var pkm in s)
+            foreach (PKM? pkm in s)
             {
                 if (pkm == null)
                     continue;

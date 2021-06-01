@@ -65,7 +65,7 @@ namespace PKHeX.Core
             if (species == 0)
                 return EggNames[language];
 
-            var arr = SpeciesLang[language];
+            IReadOnlyList<string>? arr = SpeciesLang[language];
             if ((uint)species >= arr.Count)
                 return string.Empty;
 
@@ -106,7 +106,7 @@ namespace PKHeX.Core
             }
 
             // All names are uppercase.
-            var sb = new System.Text.StringBuilder(nick);
+            System.Text.StringBuilder? sb = new System.Text.StringBuilder(nick);
             for (int i = 0; i < sb.Length; i++)
                 sb[i] = char.ToUpper(sb[i]);
             if (language == (int)LanguageID.French)
@@ -128,7 +128,7 @@ namespace PKHeX.Core
             if (language == (int)LanguageID.French)
                 return generation == 2 ? "OEUF" : "Oeuf";
 
-            var nick = GetSpeciesName(species, language);
+            string? nick = GetSpeciesName(species, language);
 
             // All Gen4 egg names are Title cased.
             if (generation == 4)
@@ -177,7 +177,7 @@ namespace PKHeX.Core
         /// <returns>True if it does not match any language name, False if not nicknamed</returns>
         public static bool IsNicknamedAnyLanguage(int species, string nickname, int generation = PKX.Generation)
         {
-            var langs = Language.GetAvailableGameLanguages(generation);
+            IReadOnlyList<int>? langs = Language.GetAvailableGameLanguages(generation);
             return langs.All(language => IsNicknamed(species, nickname, language, generation));
         }
 
@@ -204,7 +204,7 @@ namespace PKHeX.Core
         /// <returns>Language ID if it does not match any language name, -1 if no matches</returns>
         public static int GetSpeciesNameLanguage(int species, int priorityLanguage, string nickname, int generation = PKX.Generation)
         {
-            var langs = Language.GetAvailableGameLanguages(generation);
+            IReadOnlyList<int>? langs = Language.GetAvailableGameLanguages(generation);
             if (langs.Contains(priorityLanguage) && GetSpeciesNameGeneration(species, priorityLanguage, generation) == nickname)
                 return priorityLanguage;
 
@@ -220,13 +220,13 @@ namespace PKHeX.Core
         /// <returns>Language ID if it does not match any language name, -1 if no matches</returns>
         public static int GetSpeciesNameLanguage(int species, string nickname, int generation = PKX.Generation)
         {
-            var langs = Language.GetAvailableGameLanguages(generation);
+            IReadOnlyList<int>? langs = Language.GetAvailableGameLanguages(generation);
             return GetSpeciesNameLanguage(species, nickname, generation, langs);
         }
 
         private static int GetSpeciesNameLanguage(int species, string nickname, int generation, IReadOnlyList<int> langs)
         {
-            foreach (var lang in langs)
+            foreach (int lang in langs)
             {
                 if (GetSpeciesNameGeneration(species, lang, generation) == nickname)
                     return lang;
@@ -243,7 +243,7 @@ namespace PKHeX.Core
         /// <remarks>Only use this for modern era name -> ID fetching.</remarks>
         public static int GetSpeciesID(string speciesName, int language = (int)LanguageID.English)
         {
-            if (SpeciesDict[language].TryGetValue(speciesName, out var val))
+            if (SpeciesDict[language].TryGetValue(speciesName, out int val))
                 return val;
 
             // stupid ’, ignore language if we match these.

@@ -43,7 +43,7 @@ namespace PKHeX.Core
                 // Only update the properties if a value is provided.
                 if (value.HasValue)
                 {
-                    var dt = value.Value;
+                    DateTime dt = value.Value;
                     LastSavedYear = dt.Year;
                     LastSavedMonth = dt.Month;
                     LastSavedDay = dt.Day;

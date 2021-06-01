@@ -27,9 +27,9 @@ namespace PKHeX.WinForms
             CHK_Shiny.Checked = Reader.IsShiny(Reader.PID);
 
             CB_Species.SelectedValue = Reader.Species;
-            var IVs = Reader.IVs;
+            int[]? IVs = Reader.IVs;
 
-            var iv = new[] {TB_HPIV, TB_ATKIV, TB_DEFIV, TB_SPEIV, TB_SPAIV, TB_SPDIV};
+            MaskedTextBox[]? iv = new[] {TB_HPIV, TB_ATKIV, TB_DEFIV, TB_SPEIV, TB_SPAIV, TB_SPDIV};
             for (int i = 0; i < iv.Length; i++)
                 iv[i].Text = IVs[i].ToString();
 
@@ -40,7 +40,7 @@ namespace PKHeX.WinForms
         private void SaveData()
         {
             int[] IVs = new int[6];
-            var iv = new[] { TB_HPIV, TB_ATKIV, TB_DEFIV, TB_SPEIV, TB_SPAIV, TB_SPDIV };
+            MaskedTextBox[]? iv = new[] { TB_HPIV, TB_ATKIV, TB_DEFIV, TB_SPEIV, TB_SPAIV, TB_SPDIV };
             for (int i = 0; i < iv.Length; i++)
                 IVs[i] = Util.ToInt32(iv[i].Text);
 
@@ -64,7 +64,7 @@ namespace PKHeX.WinForms
 
         private void TB_PID_TextChanged(object sender, EventArgs e)
         {
-            var pid = Util.GetHexValue(TB_PID.Text);
+            uint pid = Util.GetHexValue(TB_PID.Text);
             CHK_Shiny.Checked = Reader.IsShiny(pid);
         }
     }

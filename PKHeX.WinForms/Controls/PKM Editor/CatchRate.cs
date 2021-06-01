@@ -15,7 +15,7 @@ namespace PKHeX.WinForms.Controls
 
         private void Reset(object sender, EventArgs e)
         {
-            var sav = WinFormsUtil.FindFirstControlOfType<IMainEditor>(this)?.RequestSaveFile;
+            SaveFile? sav = WinFormsUtil.FindFirstControlOfType<IMainEditor>(this)?.RequestSaveFile;
             if (sav == null)
                 return;
             NUD_CatchRate.Value = CatchRateApplicator.GetSuggestedCatchRate(pk1, sav);

@@ -45,7 +45,7 @@ namespace PKHeX.WinForms.Controls
             relearnPB = new[] { PB_WarnRelearn1, PB_WarnRelearn2, PB_WarnRelearn3, PB_WarnRelearn4 };
             movePB = new[] { PB_WarnMove1, PB_WarnMove2, PB_WarnMove3, PB_WarnMove4 };
 
-            foreach (var c in WinFormsUtil.GetAllControlsOfType<ComboBox>(this))
+            foreach (Control? c in WinFormsUtil.GetAllControlsOfType<ComboBox>(this))
                 c.KeyDown += WinFormsUtil.RemoveDropCB;
 
             Stats.MainEditor = this;
@@ -61,7 +61,7 @@ namespace PKHeX.WinForms.Controls
                 CB_Country, CB_SubRegion, CB_3DSReg, CB_Language, CB_Ball, CB_HeldItem, CB_Species, DEV_Ability,
                 CB_EncounterType, CB_GameOrigin, CB_BattleVersion, CB_Ability, CB_MetLocation, CB_EggLocation, CB_Language, CB_HTLanguage,
             };
-            foreach (var cb in cbs.Concat(Moves.Concat(Relearn)))
+            foreach (ComboBox? cb in cbs.Concat(Moves.Concat(Relearn)))
                 cb.InitializeBinding();
         }
 
@@ -90,7 +90,7 @@ namespace PKHeX.WinForms.Controls
             set
             {
                 _hideSecret = value;
-                var sav = RequestSaveFile;
+                SaveFile? sav = RequestSaveFile;
                 ToggleSecrets(_hideSecret, sav.Generation);
             }
         }
@@ -164,7 +164,7 @@ namespace PKHeX.WinForms.Controls
                 forceValidation = false;
             }
 
-            var pk = GetPKMfromFields();
+            PKM? pk = GetPKMfromFields();
             LastData = pk.Data;
             return pk.Clone();
         }
@@ -176,7 +176,7 @@ namespace PKHeX.WinForms.Controls
                 if (ModifierKeys == (Keys.Control | Keys.Shift | Keys.Alt))
                     return true; // Override
 
-                var cb = Array.Find(ValidationRequired, c => c.BackColor == Draw.InvalidSelection && c.Items.Count != 0);
+                ComboBox? cb = Array.Find(ValidationRequired, c => c.BackColor == Draw.InvalidSelection && c.Items.Count != 0);
                 if (cb != null)
                     tabMain.SelectedTab = WinFormsUtil.FindFirstControlOfType<TabPage>(cb);
                 else if (!Stats.Valid)
@@ -245,10 +245,10 @@ namespace PKHeX.WinForms.Controls
 
         private void SetPKMFormatExtraBytes(PKM pk)
         {
-            var extraBytes = pk.ExtraBytes;
+            IReadOnlyList<ushort>? extraBytes = pk.ExtraBytes;
             GB_ExtraBytes.Visible = GB_ExtraBytes.Enabled = extraBytes.Count != 0;
             CB_ExtraBytes.Items.Clear();
-            foreach (var b in extraBytes)
+            foreach (ushort b in extraBytes)
                 CB_ExtraBytes.Items.Add($"0x{b:X2}");
             if (GB_ExtraBytes.Enabled)
                 CB_ExtraBytes.SelectedIndex = 0;
@@ -312,7 +312,7 @@ namespace PKHeX.WinForms.Controls
             }
 
             // Refresh Move Legality
-            var moves = Entity.Moves;
+            int[]? moves = Entity.Moves;
             for (int i = 0; i < 4; i++)
             {
                 bool invalid = !Legality.Info.Moves[i].Valid;
@@ -365,7 +365,7 @@ namespace PKHeX.WinForms.Controls
 
         private static string ReloadGender(string text, IReadOnlyList<string> genders)
         {
-            var index = PKX.GetGenderFromString(text);
+            int index = PKX.GetGenderFromString(text);
             if (index >= 2)
                 return text;
             return genders[index];
@@ -394,7 +394,7 @@ namespace PKHeX.WinForms.Controls
             if (tr.Game >= 0)
                 CB_GameOrigin.SelectedValue = tr.Game;
 
-            var lang = tr.Language;
+            int lang = tr.Language;
             if (lang <= 0)
                 lang = (int)LanguageID.English;
             CB_Language.SelectedValue = lang;
@@ -428,7 +428,7 @@ namespace PKHeX.WinForms.Controls
         private void SetForms()
         {
             int species = Entity.Species;
-            var pi = RequestSaveFile.Personal[species];
+            PersonalInfo? pi = RequestSaveFile.Personal[species];
             bool hasForms = FormInfo.HasFormSelection(pi, species, Entity.Format);
             CB_Form.Enabled = CB_Form.Visible = Label_Form.Visible = hasForms;
 
@@ -445,7 +445,7 @@ namespace PKHeX.WinForms.Controls
                 return;
             }
 
-            var ds = FormConverter.GetFormList(species, GameInfo.Strings.types, GameInfo.Strings.forms, gendersymbols, Entity.Format);
+            string[]? ds = FormConverter.GetFormList(species, GameInfo.Strings.types, GameInfo.Strings.forms, gendersymbols, Entity.Format);
             if (ds.Length == 1 && string.IsNullOrEmpty(ds[0])) // empty (Alolan Totems)
                 CB_Form.Enabled = CB_Form.Visible = Label_Form.Visible = false;
             else
@@ -495,8 +495,8 @@ namespace PKHeX.WinForms.Controls
 
         private void SetMarkings()
         {
-            var pba = Markings;
-            var markings = Entity.Markings;
+            PictureBox[]? pba = Markings;
+            int[]? markings = Entity.Markings;
             for (int i = 0; i < pba.Length; i++)
                 pba[i].Image = GetMarkSprite(pba[i], markings[i] != 0);
 
@@ -661,7 +661,7 @@ namespace PKHeX.WinForms.Controls
                 return;
             }
 
-            using var frm = new BallBrowser();
+            using BallBrowser? frm = new BallBrowser();
             frm.LoadBalls(Entity);
             frm.ShowDialog();
             if (frm.BallChoice >= 0)
@@ -733,7 +733,7 @@ namespace PKHeX.WinForms.Controls
 
         private bool SetSuggestedMoves(bool random = false, bool silent = false)
         {
-            var m = Entity.GetMoveSet(random);
+            int[]? m = Entity.GetMoveSet(random);
             if (m.All(z => z == 0) || m.Length == 0)
             {
                 if (!silent)
@@ -746,9 +746,9 @@ namespace PKHeX.WinForms.Controls
 
             if (!silent)
             {
-                var mv = GameInfo.Strings.Move;
-                var movestrings = m.Select(v => (uint)v >= mv.Count ? MsgProgramError : mv[v]);
-                var msg = string.Join(Environment.NewLine, movestrings);
+                IReadOnlyList<string>? mv = GameInfo.Strings.Move;
+                IEnumerable<string>? movestrings = m.Select(v => (uint)v >= mv.Count ? MsgProgramError : mv[v]);
+                string? msg = string.Join(Environment.NewLine, movestrings);
                 if (DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgPKMSuggestionMoves, msg))
                     return false;
             }
@@ -766,15 +766,15 @@ namespace PKHeX.WinForms.Controls
             if (Entity.Format < 6)
                 return false;
 
-            var m = Legality.GetSuggestedRelearnMoves();
+            IReadOnlyList<int>? m = Legality.GetSuggestedRelearnMoves();
             if (Entity.RelearnMoves.SequenceEqual(m) || m.Count != 4)
                 return false;
 
             if (!silent)
             {
-                var mv = GameInfo.Strings.Move;
-                var movestrings = m.Select(v => (uint)v >= mv.Count ? MsgProgramError : mv[v]);
-                var msg = string.Join(Environment.NewLine, movestrings);
+                IReadOnlyList<string>? mv = GameInfo.Strings.Move;
+                IEnumerable<string>? movestrings = m.Select(v => (uint)v >= mv.Count ? MsgProgramError : mv[v]);
+                string? msg = string.Join(Environment.NewLine, movestrings);
                 if (DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgPKMSuggestionRelearn, msg))
                     return false;
             }
@@ -788,7 +788,7 @@ namespace PKHeX.WinForms.Controls
 
         private bool SetSuggestedMetLocation(bool silent = false)
         {
-            var encounter = EncounterSuggestion.GetSuggestedMetInfo(Entity);
+            EncounterSuggestionData? encounter = EncounterSuggestion.GetSuggestedMetInfo(Entity);
             if (encounter == null || (Entity.Format >= 3 && encounter.Location < 0))
             {
                 if (!silent)
@@ -812,11 +812,11 @@ namespace PKHeX.WinForms.Controls
 
             if (!silent)
             {
-                var suggestions = EditPKMUtil.GetSuggestionMessage(Entity, level, location, minlvl);
+                List<string>? suggestions = EditPKMUtil.GetSuggestionMessage(Entity, level, location, minlvl);
                 if (suggestions.Count <= 1) // no suggestion
                     return false;
 
-                var msg = string.Join(Environment.NewLine, suggestions);
+                string? msg = string.Join(Environment.NewLine, suggestions);
                 if (WinFormsUtil.Prompt(MessageBoxButtons.YesNo, msg) != DialogResult.Yes)
                     return false;
             }
@@ -867,7 +867,7 @@ namespace PKHeX.WinForms.Controls
             {
                 // Change the Level
                 uint EXP = Util.ToUInt32(TB_EXP.Text);
-                var gr = Entity.PersonalInfo.EXPGrowth;
+                int gr = Entity.PersonalInfo.EXPGrowth;
                 int Level = Experience.GetLevel(EXP, gr);
                 if (Level == 100)
                     EXP = Experience.GetEXP(100, gr);
@@ -946,7 +946,7 @@ namespace PKHeX.WinForms.Controls
                 return;
             if (Util.ToInt32(tb.Text) > byte.MaxValue)
                 tb.Text = "255";
-            if (sender == TB_Friendship && int.TryParse(TB_Friendship.Text, out var val))
+            if (sender == TB_Friendship && int.TryParse(TB_Friendship.Text, out int val))
             {
                 Entity.CurrentFriendship = val;
                 UpdateStats();
@@ -1051,7 +1051,7 @@ namespace PKHeX.WinForms.Controls
         private void RefreshMovePP(int index)
         {
             int move = WinFormsUtil.GetIndex(Moves[index]);
-            var ppUpControl = PPUps[index];
+            ComboBox? ppUpControl = PPUps[index];
             int ppUpCount = ppUpControl.SelectedIndex;
             if (move <= 0)
             {
@@ -1220,7 +1220,7 @@ namespace PKHeX.WinForms.Controls
         private void CheckMetLocationChange(GameVersion version, int format)
         {
             // Does the list of locations need to be changed to another group?
-            var group = GameUtil.GetMetLocationVersionGroup(version);
+            GameVersion group = GameUtil.GetMetLocationVersionGroup(version);
             if (group != origintrack || format != originFormat)
                 ReloadMetLocations(version, format);
             origintrack = group;
@@ -1229,10 +1229,10 @@ namespace PKHeX.WinForms.Controls
 
         private void ReloadMetLocations(GameVersion version, int format)
         {
-            var metList = GameInfo.GetLocationList(version, format, egg: false);
+            IReadOnlyList<ComboItem>? metList = GameInfo.GetLocationList(version, format, egg: false);
             CB_MetLocation.DataSource = new BindingSource(metList, null);
 
-            var eggList = GameInfo.GetLocationList(version, format, egg: true);
+            IReadOnlyList<ComboItem>? eggList = GameInfo.GetLocationList(version, format, egg: true);
             CB_EggLocation.DataSource = new BindingSource(eggList, null);
 
             if (FieldsLoaded)
@@ -1338,12 +1338,12 @@ namespace PKHeX.WinForms.Controls
             if (ModifierKeys != Keys.Control)
                 return;
 
-            var sav = RequestSaveFile;
+            SaveFile? sav = RequestSaveFile;
 
             if (tb == TB_Nickname)
             {
                 Entity.Nickname = tb.Text;
-                var d = new TrashEditor(tb, Entity.Nickname_Trash, sav);
+                TrashEditor? d = new TrashEditor(tb, Entity.Nickname_Trash, sav);
                 d.ShowDialog();
                 tb.Text = d.FinalString;
                 Entity.Nickname_Trash = d.FinalBytes;
@@ -1351,7 +1351,7 @@ namespace PKHeX.WinForms.Controls
             else if (tb == TB_OT)
             {
                 Entity.OT_Name = tb.Text;
-                var d = new TrashEditor(tb, Entity.OT_Trash, sav);
+                TrashEditor? d = new TrashEditor(tb, Entity.OT_Trash, sav);
                 d.ShowDialog();
                 tb.Text = d.FinalString;
                 Entity.OT_Trash = d.FinalBytes;
@@ -1359,7 +1359,7 @@ namespace PKHeX.WinForms.Controls
             else if (tb == TB_OTt2)
             {
                 Entity.HT_Name = tb.Text;
-                var d = new TrashEditor(tb, Entity.HT_Trash, sav);
+                TrashEditor? d = new TrashEditor(tb, Entity.HT_Trash, sav);
                 d.ShowDialog();
                 tb.Text = d.FinalString;
                 Entity.HT_Trash = d.FinalBytes;
@@ -1403,9 +1403,9 @@ namespace PKHeX.WinForms.Controls
                 // if egg wasn't originally obtained by OT => Link Trade, else => None
                 if (Entity.Format >= 4)
                 {
-                    var sav = SaveFileRequested.Invoke(this, e);
+                    SaveFile? sav = SaveFileRequested.Invoke(this, e);
                     bool isTraded = sav.OT != TB_OT.Text || sav.TID != Entity.TID || sav.SID != Entity.SID;
-                    var loc = isTraded ? Locations.TradedEggLocation(sav.Generation) : 0;
+                    int loc = isTraded ? Locations.TradedEggLocation(sav.Generation) : 0;
                     CB_MetLocation.SelectedValue = loc;
                 }
 
@@ -1464,7 +1464,7 @@ namespace PKHeX.WinForms.Controls
 
         private void UpdateShinyPID(object sender, EventArgs e)
         {
-            var changePID = Entity.Format >= 3 && (ModifierKeys & Keys.Alt) == 0;
+            bool changePID = Entity.Format >= 3 && (ModifierKeys & Keys.Alt) == 0;
             UpdateShiny(changePID);
         }
 
@@ -1478,7 +1478,7 @@ namespace PKHeX.WinForms.Controls
 
             if (Entity.Format > 2)
             {
-                var type = (ModifierKeys & ~Keys.Alt) switch
+                Shiny type = (ModifierKeys & ~Keys.Alt) switch
                 {
                     Keys.Shift => Shiny.AlwaysSquare,
                     Keys.Control => Shiny.AlwaysStar,
@@ -1520,7 +1520,7 @@ namespace PKHeX.WinForms.Controls
             TID_Trainer.UpdateTSV();
 
             Entity.PID = Util.GetHexValue(TB_PID.Text);
-            var tip = $"PSV: {Entity.PSV:d4}";
+            string? tip = $"PSV: {Entity.PSV:d4}";
             if (Entity.IsShiny)
                 tip += $" | Xor = {Entity.ShinyXor}";
             Tip3.SetToolTip(TB_PID, tip);
@@ -1555,7 +1555,7 @@ namespace PKHeX.WinForms.Controls
             // Trim out nonhex characters
             if (sender == TB_HomeTracker && Entity is IHomeTrack home)
             {
-                var value = Util.GetHexValue64(TB_HomeTracker.Text);
+                ulong value = Util.GetHexValue64(TB_HomeTracker.Text);
                 home.Tracker = value;
                 TB_HomeTracker.Text = value.ToString("X16");
             }
@@ -1573,7 +1573,7 @@ namespace PKHeX.WinForms.Controls
             if (!FieldsLoaded)
                 return;
             FieldsLoaded = false;
-            var value = NUD_Purification.Value;
+            decimal value = NUD_Purification.Value;
             CHK_Shadow.Checked = Entity is CK3 ? value != CK3.Purified : value > 0;
             FieldsLoaded = true;
         }
@@ -1664,19 +1664,19 @@ namespace PKHeX.WinForms.Controls
             if (e.Index < 0)
                 return;
 
-            var (text, value) = (ComboItem)((ComboBox)sender).Items[e.Index];
-            var valid = LegalMoveSource.CanLearn(value) && !HaX;
+            (string text, int value) = (ComboItem)((ComboBox)sender).Items[e.Index];
+            bool valid = LegalMoveSource.CanLearn(value) && !HaX;
 
-            var current = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
-            var brush = Draw.Brushes.GetBackground(valid, current);
-            var textColor = Draw.GetText(current);
+            bool current = (e.State & DrawItemState.Selected) == DrawItemState.Selected;
+            Brush? brush = Draw.Brushes.GetBackground(valid, current);
+            Color textColor = Draw.GetText(current);
 
             DrawMoveRectangle(e, brush, text, textColor);
         }
 
         private static void DrawMoveRectangle(DrawItemEventArgs e, Brush brush, string text, Color textColor)
         {
-            var rec = new Rectangle(e.Bounds.X - 1, e.Bounds.Y, e.Bounds.Width + 1, e.Bounds.Height + 0); // 1px left
+            Rectangle rec = new Rectangle(e.Bounds.X - 1, e.Bounds.Y, e.Bounds.Width + 1, e.Bounds.Height + 0); // 1px left
             e.Graphics.FillRectangle(brush, rec);
 
             const TextFormatFlags flags = TextFormatFlags.Left | TextFormatFlags.EndEllipsis | TextFormatFlags.ExpandTabs | TextFormatFlags.SingleLine;
@@ -1687,8 +1687,8 @@ namespace PKHeX.WinForms.Controls
 
         private void ValidateMoveDropDown(object sender, EventArgs e)
         {
-            var s = (ComboBox) sender;
-            var index = Array.IndexOf(Moves, s);
+            ComboBox? s = (ComboBox) sender;
+            int index = Array.IndexOf(Moves, s);
             if (LegalMoveSource.IsMoveBoxOrdered[index])
                 return;
             SetMoveDataSource(s);
@@ -1697,7 +1697,7 @@ namespace PKHeX.WinForms.Controls
 
         private void SetMoveDataSource(ComboBox c)
         {
-            var index = WinFormsUtil.GetIndex(c);
+            int index = WinFormsUtil.GetIndex(c);
             c.DataSource = new BindingSource(LegalMoveSource.DataSource, null);
             c.SelectedValue = index;
         }
@@ -1716,13 +1716,13 @@ namespace PKHeX.WinForms.Controls
         // Secondary Windows for Ribbons/Amie/Memories
         private void OpenRibbons(object sender, EventArgs e)
         {
-            using var form = new RibbonEditor(Entity);
+            using RibbonEditor? form = new RibbonEditor(Entity);
             form.ShowDialog();
         }
 
         private void OpenMedals(object sender, EventArgs e)
         {
-            using var form = new SuperTrainingEditor(Entity);
+            using SuperTrainingEditor? form = new SuperTrainingEditor(Entity);
             form.ShowDialog();
         }
 
@@ -1733,7 +1733,7 @@ namespace PKHeX.WinForms.Controls
             Entity.OT_Name = TB_OT.Text;
             Entity.IsEgg = CHK_IsEgg.Checked;
             Entity.CurrentFriendship = Util.ToInt32(TB_Friendship.Text);
-            using var form = new MemoryAmie(Entity);
+            using MemoryAmie? form = new MemoryAmie(Entity);
             form.ShowDialog();
             TB_Friendship.Text = Entity.CurrentFriendship.ToString();
         }
@@ -1747,7 +1747,7 @@ namespace PKHeX.WinForms.Controls
                 return;
             }
 
-            using var form = new TechRecordEditor(Entity);
+            using TechRecordEditor? form = new TechRecordEditor(Entity);
             form.ShowDialog();
             UpdateLegality();
         }
@@ -1766,7 +1766,7 @@ namespace PKHeX.WinForms.Controls
 
         private void ToggleInterface(PKM t)
         {
-            var pb7 = t is PB7;
+            bool pb7 = t is PB7;
             int gen = t.Format;
             FLP_Purification.Visible = FLP_ShadowID.Visible = t is IShadowPKM;
             bool sizeCP = gen >= 8 || pb7;
@@ -1889,7 +1889,7 @@ namespace PKHeX.WinForms.Controls
         {
             AllowDrop = true;
             DragDrop += drop;
-            foreach (var tab in tabMain.TabPages.OfType<TabPage>())
+            foreach (TabPage? tab in tabMain.TabPages.OfType<TabPage>())
             {
                 tab.AllowDrop = true;
                 tab.DragEnter += enter;
@@ -1902,7 +1902,7 @@ namespace PKHeX.WinForms.Controls
 
         private void LoadShowdownSetDefault(IBattleTemplate Set)
         {
-            var pk = PreparePKM();
+            PKM? pk = PreparePKM();
             pk.ApplySetDetails(Set);
             PopulateFields(pk);
         }
@@ -1917,7 +1917,7 @@ namespace PKHeX.WinForms.Controls
 
         private static Image GetMarkSprite(PictureBox p, bool opaque, double trans = 0.175)
         {
-            var sprite = p.InitialImage;
+            Image? sprite = p.InitialImage;
             return opaque ? sprite : ImageUtil.ChangeOpacity(sprite, trans);
         }
 
@@ -1948,7 +1948,7 @@ namespace PKHeX.WinForms.Controls
 
         private void InitializeLanguage(ITrainerInfo sav)
         {
-            var source = GameInfo.FilteredSources;
+            FilteredGameDataSource? source = GameInfo.FilteredSources;
             // Set the various ComboBox DataSources up with their allowed entries
             SetCountrySubRegion(CB_Country, "countries");
             CB_3DSReg.DataSource = source.ConsoleRegions;
@@ -1972,12 +1972,12 @@ namespace PKHeX.WinForms.Controls
 
         private void PopulateFilteredDataSources(ITrainerInfo sav, bool force = false)
         {
-            var source = GameInfo.FilteredSources;
+            FilteredGameDataSource? source = GameInfo.FilteredSources;
             SetIfDifferentCount(source.Languages, CB_Language, force);
 
             if (sav.Generation >= 2)
             {
-                var game = (GameVersion) sav.Game;
+                GameVersion game = (GameVersion) sav.Game;
                 if (game <= 0)
                     game = GameUtil.GetVersion(sav.Generation);
                 CheckMetLocationChange(game, sav.Generation);
@@ -1995,13 +1995,13 @@ namespace PKHeX.WinForms.Controls
 
             if (sav.Generation >= 8)
             {
-                var lang = source.Languages;
-                var langWith0 = new List<ComboItem>(1 + lang.Count) {GameInfo.Sources.Empty};
+                IReadOnlyList<ComboItem>? lang = source.Languages;
+                List<ComboItem>? langWith0 = new List<ComboItem>(1 + lang.Count) {GameInfo.Sources.Empty};
                 langWith0.AddRange(lang);
                 SetIfDifferentCount(langWith0, CB_HTLanguage, force);
 
-                var game = source.Games;
-                var gamesWith0 = new List<ComboItem>(1 + game.Count) {GameInfo.Sources.Empty};
+                IReadOnlyList<ComboItem>? game = source.Games;
+                List<ComboItem>? gamesWith0 = new List<ComboItem>(1 + game.Count) {GameInfo.Sources.Empty};
                 gamesWith0.AddRange(game);
                 SetIfDifferentCount(gamesWith0, CB_BattleVersion, force);
             }
@@ -2009,7 +2009,7 @@ namespace PKHeX.WinForms.Controls
 
             // Set the Move ComboBoxes too..
             LegalMoveSource.ReloadMoves(source.Moves);
-            foreach (var cb in Moves.Concat(Relearn))
+            foreach (ComboBox? cb in Moves.Concat(Relearn))
                 SetIfDifferentCount(source.Moves, cb, force);
         }
     }

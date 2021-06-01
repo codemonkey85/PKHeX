@@ -13,14 +13,14 @@ namespace PKHeX.Core
 
         public override object? CreateInstance(ITypeDescriptorContext context, IDictionary propertyValues)
         {
-            var pd = context.PropertyDescriptor;
+            PropertyDescriptor? pd = context.PropertyDescriptor;
             if (pd is null)
                 return null;
 
             object? boxed = pd.GetValue(context.Instance);
             foreach (DictionaryEntry entry in propertyValues)
             {
-                var pi = pd.PropertyType.GetProperty(entry.Key.ToString());
+                System.Reflection.PropertyInfo? pi = pd.PropertyType.GetProperty(entry.Key.ToString());
                 if (pi?.CanWrite == true)
                     pi.SetValue(boxed, Convert.ChangeType(entry.Value, pi.PropertyType), null);
             }
@@ -53,7 +53,7 @@ namespace PKHeX.Core
                 return base.ConvertFrom(context, culture, value);
             if (input.StartsWith("0x", StringComparison.OrdinalIgnoreCase))
                 input = input[2..];
-            return ulong.TryParse(input, System.Globalization.NumberStyles.HexNumber, culture, out var result) ? result : 0ul;
+            return ulong.TryParse(input, System.Globalization.NumberStyles.HexNumber, culture, out ulong result) ? result : 0ul;
         }
     }
 }

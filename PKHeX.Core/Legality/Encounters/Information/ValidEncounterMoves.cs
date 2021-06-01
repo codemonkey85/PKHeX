@@ -19,7 +19,7 @@ namespace PKHeX.Core
 
         public ValidEncounterMoves(PKM pkm, LevelUpRestriction restrict, IEncounterable encounter)
         {
-            var level = MoveList.GetValidMovesAllGens(pkm, restrict.EvolutionChains, minLvLG1: restrict.MinimumLevelGen1, minLvLG2: restrict.MinimumLevelGen2, types: MoveSourceType.Encounter, RemoveTransferHM: false);
+            IReadOnlyList<int>[]? level = MoveList.GetValidMovesAllGens(pkm, restrict.EvolutionChains, minLvLG1: restrict.MinimumLevelGen1, minLvLG2: restrict.MinimumLevelGen2, types: MoveSourceType.Encounter, RemoveTransferHM: false);
 
             int gen = encounter.Generation;
             if ((uint)gen < level.Length && level[gen] is List<int> x)

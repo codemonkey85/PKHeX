@@ -31,8 +31,8 @@ namespace PKHeX.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public ulong Next()
         {
-            var _s0 = s0;
-            var _s1 = s1;
+            ulong _s0 = s0;
+            ulong _s1 = s1;
             ulong result = _s0 + _s1;
 
             _s1 ^= _s0;

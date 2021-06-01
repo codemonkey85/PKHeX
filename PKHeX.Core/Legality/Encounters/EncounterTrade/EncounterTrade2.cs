@@ -48,13 +48,13 @@ namespace PKHeX.Core
 
         private bool IsValidTradeOTName(PKM pkm)
         {
-            var OT = pkm.OT_Name;
+            string? OT = pkm.OT_Name;
             if (pkm.Japanese)
                 return GetOT((int)LanguageID.Japanese) == OT;
             if (pkm.Korean)
                 return GetOT((int)LanguageID.Korean) == OT;
 
-            var lang = GetInternationalLanguageID(OT);
+            int lang = GetInternationalLanguageID(OT);
             if (pkm.Format < 7)
                 return lang != -1;
 
@@ -83,7 +83,7 @@ namespace PKHeX.Core
             const int start = (int)LanguageID.English;
             const int end = (int)LanguageID.Spanish;
 
-            var tr = TrainerNames;
+            System.Collections.Generic.IReadOnlyList<string>? tr = TrainerNames;
             for (int i = start; i <= end; i++)
             {
                 if (tr[i] == OT)

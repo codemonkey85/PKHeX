@@ -13,7 +13,7 @@ namespace PKHeX.Core
         {
             if (data.pkm is not IRegionOrigin tr)
                 return;
-            var result = VerifyConsoleRegion(tr);
+            CheckResult? result = VerifyConsoleRegion(tr);
             data.AddLine(result);
         }
 

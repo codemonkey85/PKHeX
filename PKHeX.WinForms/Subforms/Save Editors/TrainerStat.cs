@@ -26,7 +26,7 @@ namespace PKHeX.WinForms.Subforms.Save_Editors
             CB_Stats.Items.Clear();
             for (int i = 0; i < sav.RecordCount; i++)
             {
-                if (!records.TryGetValue(i, out var name))
+                if (!records.TryGetValue(i, out string? name))
                     name = $"{i:D3}";
 
                 CB_Stats.Items.Add(name!);
@@ -67,7 +67,7 @@ namespace PKHeX.WinForms.Subforms.Save_Editors
 
         private void UpdateToolTipSpecial(int index, bool updateStats)
         {
-            var str = GetToolTipText?.Invoke(index);
+            string? str = GetToolTipText?.Invoke(index);
             if (str != null)
             {
                 Tip.SetToolTip(NUD_Stat, str);
@@ -78,7 +78,7 @@ namespace PKHeX.WinForms.Subforms.Save_Editors
 
         private void UpdateToolTipDefault(int index, bool updateStats)
         {
-            if (!updateStats || !RecordList.TryGetValue(index, out var tip))
+            if (!updateStats || !RecordList.TryGetValue(index, out string? tip))
             {
                 Tip.RemoveAll();
                 return;

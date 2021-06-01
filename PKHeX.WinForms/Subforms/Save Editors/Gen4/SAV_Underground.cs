@@ -84,7 +84,7 @@ namespace PKHeX.WinForms
             // Spheres (split in two, first 40 positions are the sphere type, last 40 are their size)
             for (int i = 0; i < (spheresList.Length / 2); i++)
             {
-                var row = DGV_UGSpheres.Rows[i];
+                DataGridViewRow? row = DGV_UGSpheres.Rows[i];
                 row.Cells[0].Value = ugSpheres[spheresList[i]];
                 row.Cells[1].Value = spheresList[i + MAX_SIZE].ToString();
             }
@@ -113,8 +113,8 @@ namespace PKHeX.WinForms
             int ctr = 0;
             for (int i = 0; i < DGV_UGGoods.Rows.Count; i++)
             {
-                var str = DGV_UGGoods.Rows[i].Cells[0].Value.ToString();
-                var itemindex = Array.IndexOf(ugGoods, str);
+                string? str = DGV_UGGoods.Rows[i].Cells[0].Value.ToString();
+                int itemindex = Array.IndexOf(ugGoods, str);
 
                 if (itemindex <= 0)
                     continue; // ignore empty slot
@@ -127,11 +127,11 @@ namespace PKHeX.WinForms
             ctr = 0;
             for (int i = 0; i < DGV_UGSpheres.Rows.Count; i++)
             {
-                var row = DGV_UGSpheres.Rows[i];
-                var str = row.Cells[0].Value.ToString();
-                var itemindex = Array.IndexOf(ugSpheres, str);
+                DataGridViewRow? row = DGV_UGSpheres.Rows[i];
+                string? str = row.Cells[0].Value.ToString();
+                int itemindex = Array.IndexOf(ugSpheres, str);
 
-                bool success = int.TryParse(row.Cells[1].Value?.ToString(), out var itemcnt);
+                bool success = int.TryParse(row.Cells[1].Value?.ToString(), out int itemcnt);
                 if (!success || itemindex <= 0)
                     continue;  // ignore empty slot or non-numeric values
 
@@ -144,8 +144,8 @@ namespace PKHeX.WinForms
             ctr = 0;
             for (int i = 0; i < DGV_UGTraps.Rows.Count; i++)
             {
-                var str = DGV_UGTraps.Rows[i].Cells[0].Value.ToString();
-                var itemindex = Array.IndexOf(ugTraps, str);
+                string? str = DGV_UGTraps.Rows[i].Cells[0].Value.ToString();
+                int itemindex = Array.IndexOf(ugTraps, str);
 
                 if (itemindex <= 0)
                     continue; // ignore empty slot
@@ -158,8 +158,8 @@ namespace PKHeX.WinForms
             ctr = 0;
             for (int i = 0; i < DGV_UGTreasures.Rows.Count; i++)
             {
-                var str = DGV_UGTreasures.Rows[i].Cells[0].Value.ToString();
-                var itemindex = Array.IndexOf(ugTreasures, str);
+                string? str = DGV_UGTreasures.Rows[i].Cells[0].Value.ToString();
+                int itemindex = Array.IndexOf(ugTreasures, str);
 
                 if (itemindex <= 0)
                     continue; // ignore empty slot

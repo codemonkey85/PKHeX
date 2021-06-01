@@ -18,7 +18,7 @@ namespace PKHeX.Core
 
         public override void GetPouch(byte[] data)
         {
-            var items = new InventoryItem[PouchDataSize];
+            InventoryItem[]? items = new InventoryItem[PouchDataSize];
             for (int i = 0; i < items.Length; i++)
             {
                 uint val = BitConverter.ToUInt32(data, Offset + (i * 4));
@@ -81,7 +81,7 @@ namespace PKHeX.Core
         /// </remarks>
         internal void SanitizeCounts()
         {
-            foreach (var item in Items)
+            foreach (InventoryItem? item in Items)
                 item.Count = GetSuggestedCount(Type, item.Index, item.Count);
         }
 

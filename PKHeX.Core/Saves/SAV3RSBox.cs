@@ -47,13 +47,13 @@ namespace PKHeX.Core
 
             // Copy block to the allocated location
             const int copySize = BLOCK_SIZE - 0x10;
-            foreach (var b in Blocks)
+            foreach (BlockInfoRSBOX? b in Blocks)
                 Array.Copy(Data, b.Offset + 0xC, Data, (int) (Box + (b.ID * copySize)), copySize);
         }
 
         private static BlockInfoRSBOX[] ReadBlocks(byte[] data)
         {
-            var blocks = new BlockInfoRSBOX[2 * BLOCK_COUNT];
+            BlockInfoRSBOX[]? blocks = new BlockInfoRSBOX[2 * BLOCK_COUNT];
             for (int i = 0; i < blocks.Length; i++)
             {
                 int offset = BLOCK_SIZE + (i * BLOCK_SIZE);
@@ -71,7 +71,7 @@ namespace PKHeX.Core
 
         protected override byte[] GetFinalData()
         {
-            var newFile = GetInnerData();
+            byte[]? newFile = GetInnerData();
 
             // Return the gci if Memory Card is not being exported
             if (!IsMemoryCardSave)
@@ -85,7 +85,7 @@ namespace PKHeX.Core
         {
             // Copy Box data back
             const int copySize = BLOCK_SIZE - 0x10;
-            foreach (var b in Blocks)
+            foreach (BlockInfoRSBOX? b in Blocks)
                 Array.Copy(Data, (int) (Box + (b.ID * copySize)), Data, b.Offset + 0xC, copySize);
 
             SetChecksums();
@@ -96,8 +96,8 @@ namespace PKHeX.Core
         // Configuration
         protected override SaveFile CloneInternal()
         {
-            var data = GetInnerData();
-            var sav = IsMemoryCardSave ? new SAV3RSBox(data, MC!) : new SAV3RSBox(data);
+            byte[]? data = GetInnerData();
+            SAV3RSBox? sav = IsMemoryCardSave ? new SAV3RSBox(data, MC!) : new SAV3RSBox(data);
             return sav;
         }
 

@@ -26,7 +26,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var team = new HallFame3PKM[6];
+                HallFame3PKM[]? team = new HallFame3PKM[6];
                 for (int i = 0; i < Count; i++)
                     team[i] = GetMember(i);
                 return team;
@@ -42,7 +42,7 @@ namespace PKHeX.Core
             Debug.Assert(data.Length > MaxLength);
             bool Japanese = sav.Japanese;
 
-            var entries = new HallFame3Entry[MaxEntries];
+            HallFame3Entry[]? entries = new HallFame3Entry[MaxEntries];
             for (int i = 0; i < entries.Length; i++)
                 entries[i] = new HallFame3Entry(data, SIZE, Japanese);
             return entries;

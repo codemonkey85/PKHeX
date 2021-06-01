@@ -28,7 +28,7 @@ namespace PKHeX.Core
 
         public static T[][] Split<T>(this T[] data, int size)
         {
-            var result = new T[data.Length / size][];
+            T[][]? result = new T[data.Length / size][];
             for (int i = 0; i < data.Length; i += size)
                 result[i / size] = data.Slice(i, size);
             return result;
@@ -60,8 +60,8 @@ namespace PKHeX.Core
         {
             for (int i = 0; i < value.Length; i++)
             {
-                var ofs = offset + (i >> 3);
-                var mask = (1 << (i & 7));
+                int ofs = offset + (i >> 3);
+                int mask = (1 << (i & 7));
                 if (value[i])
                     data[ofs] |= (byte)mask;
                 else
@@ -88,7 +88,7 @@ namespace PKHeX.Core
         {
             int ctr = start;
             int skipped = 0;
-            foreach (var z in list)
+            foreach (T? z in list)
             {
                 // seek forward to next open slot
                 int next = FindNextValidIndex(dest, skip, ctr);
@@ -107,7 +107,7 @@ namespace PKHeX.Core
             {
                 if ((uint)ctr >= dest.Count)
                     return -1;
-                var exist = dest[ctr];
+                T? exist = dest[ctr];
                 if (exist == null || !skip(exist))
                     return ctr;
                 ctr++;
@@ -125,7 +125,7 @@ namespace PKHeX.Core
         public static int CopyTo<T>(this IEnumerable<T> list, IList<T> dest, int start = 0)
         {
             int ctr = start;
-            foreach (var z in list)
+            foreach (T? z in list)
             {
                 if ((uint)ctr >= dest.Count)
                     break;
@@ -137,13 +137,13 @@ namespace PKHeX.Core
         internal static T[] ConcatAll<T>(params T[][] arr)
         {
             int len = 0;
-            foreach (var a in arr)
+            foreach (T[]? a in arr)
                 len += a.Length;
 
-            var result = new T[len];
+            T[]? result = new T[len];
 
             int ctr = 0;
-            foreach (var a in arr)
+            foreach (T[]? a in arr)
             {
                 a.CopyTo(result, ctr);
                 ctr += a.Length;
@@ -155,7 +155,7 @@ namespace PKHeX.Core
         internal static T[] ConcatAll<T>(T[] arr1, T[] arr2)
         {
             int len = arr1.Length + arr2.Length;
-            var result = new T[len];
+            T[]? result = new T[len];
             arr1.CopyTo(result, 0);
             arr2.CopyTo(result, arr1.Length);
             return result;
@@ -164,7 +164,7 @@ namespace PKHeX.Core
         internal static T[] ConcatAll<T>(T[] arr1, T[] arr2, T[] arr3)
         {
             int len = arr1.Length + arr2.Length + arr3.Length;
-            var result = new T[len];
+            T[]? result = new T[len];
             arr1.CopyTo(result, 0);
             arr2.CopyTo(result, arr1.Length);
             arr3.CopyTo(result, arr1.Length + arr2.Length);
@@ -174,7 +174,7 @@ namespace PKHeX.Core
         internal static T[] ConcatAll<T>(T[] arr1, T[] arr2, Span<T> arr3)
         {
             int len = arr1.Length + arr2.Length + arr3.Length;
-            var result = new T[len];
+            T[]? result = new T[len];
             arr1.CopyTo(result, 0);
             arr2.CopyTo(result, arr1.Length);
             arr3.CopyTo(result.AsSpan(arr1.Length + arr2.Length));

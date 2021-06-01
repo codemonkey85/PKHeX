@@ -17,7 +17,7 @@ namespace PKHeX.WinForms
             seen = new bool[SAV.MaxSpeciesID];
             caught = new bool[SAV.MaxSpeciesID];
 
-            var speciesNames = GameInfo.Strings.specieslist;
+            string[]? speciesNames = GameInfo.Strings.specieslist;
             for (int i = 0; i < seen.Length; i++)
             {
                 int species = i + 1;

@@ -22,7 +22,7 @@ namespace PKHeX.WinForms.Controls
 
         public bool InitializeGrid(int width, int height, SpriteBuilder info)
         {
-            var newCount = width * height;
+            int newCount = width * height;
             if (Slots == newCount)
             {
                 if (info.Width == sizeW && info.Height == sizeH)
@@ -52,11 +52,11 @@ namespace PKHeX.WinForms.Controls
             Location = new Point(0, Location.Y); // prevent auto-expanding parent if position changes (centered)
             for (int row = 0; row < height; row++)
             {
-                var y = padEdge + (row * (rowHeight + border));
+                int y = padEdge + (row * (rowHeight + border));
                 for (int column = 0; column < width; column++)
                 {
-                    var x = padEdge + (column * (colWidth + border));
-                    var pb = GetControl(sizeW, sizeH);
+                    int x = padEdge + (column * (colWidth + border));
+                    PictureBox? pb = GetControl(sizeW, sizeH);
                     pb.Location = new Point(x, y);
                     Entries.Add(pb);
                 }

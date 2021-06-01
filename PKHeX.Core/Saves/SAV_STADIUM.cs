@@ -74,7 +74,7 @@
 
         protected sealed override byte[] GetFinalData()
         {
-            var result = base.GetFinalData();
+            byte[]? result = base.GetFinalData();
             if (IsPairSwapped)
                 BigEndian.SwapBytes32(result = (byte[])result.Clone());
             return result;
@@ -84,7 +84,7 @@
 
         public virtual SlotGroup[] GetRegisteredTeams()
         {
-            var result = new SlotGroup[TeamCount];
+            SlotGroup[]? result = new SlotGroup[TeamCount];
             for (int i = 0; i < result.Length; i++)
                 result[i] = GetTeam(i);
             return result;

@@ -47,8 +47,8 @@ namespace PKHeX.WinForms
                     Raids.DectivateAllRaids();
                     LoadDen(CB_Den.SelectedIndex);
                 }
-                var txt = Raids.DumpAll();
-                var concat = string.Join(Environment.NewLine, txt);
+                string[]? txt = Raids.DumpAll();
+                string? concat = string.Join(Environment.NewLine, txt);
                 if (WinFormsUtil.SetClipboardText(concat))
                     System.Media.SystemSounds.Asterisk.Play();
                 return;

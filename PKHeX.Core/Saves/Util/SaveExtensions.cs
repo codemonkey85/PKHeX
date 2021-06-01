@@ -25,7 +25,7 @@ namespace PKHeX.Core
 
         private static IReadOnlyList<string> GetSaveFileErrata(this SaveFile sav, PKM pkm, IBasicStrings strings)
         {
-            var errata = new List<string>();
+            List<string>? errata = new List<string>();
             ushort held = (ushort)pkm.HeldItem;
             if (sav.Generation > 1 && held != 0)
             {
@@ -36,7 +36,7 @@ namespace PKHeX.Core
                     msg = MsgIndexItemHeld;
                 if (msg != null)
                 {
-                    var itemstr = GameInfo.Strings.GetItemStrings(pkm.Format, (GameVersion)pkm.Version);
+                    string[]? itemstr = GameInfo.Strings.GetItemStrings(pkm.Format, (GameVersion)pkm.Version);
                     errata.Add($"{msg} {(held >= itemstr.Length ? held.ToString() : itemstr[held])}");
                 }
             }
@@ -78,7 +78,7 @@ namespace PKHeX.Core
             int index = startCount;
             int nonOverwriteImport = 0;
 
-            foreach (var pk in compat)
+            foreach (PKM? pk in compat)
             {
                 if (overwrite)
                 {
@@ -109,11 +109,11 @@ namespace PKHeX.Core
 
         public static IEnumerable<PKM> GetCompatible(this SaveFile sav, IEnumerable<PKM> pks)
         {
-            var savtype = sav.PKMType;
+            Type? savtype = sav.PKMType;
 
-            foreach (var temp in pks)
+            foreach (PKM? temp in pks)
             {
-                var pk = PKMConverter.ConvertToType(temp, savtype, out string c);
+                PKM? pk = PKMConverter.ConvertToType(temp, savtype, out string c);
                 if (pk == null)
                 {
                     Debug.WriteLine(c);
@@ -127,7 +127,7 @@ namespace PKHeX.Core
                     continue;
                 }
 
-                var compat = sav.IsPKMCompatible(pk);
+                IReadOnlyList<string>? compat = sav.IsPKMCompatible(pk);
                 if (compat.Count > 0)
                     continue;
 
@@ -171,13 +171,13 @@ namespace PKHeX.Core
             if (templatePath == null || !Directory.Exists(templatePath))
                 return LoadTemplateInternal(sav);
 
-            var di = new DirectoryInfo(templatePath);
+            DirectoryInfo? di = new DirectoryInfo(templatePath);
             string path = Path.Combine(templatePath, $"{di.Name}.{sav.PKMType.Name.ToLower()}");
 
             if (!File.Exists(path) || !PKX.IsPKM(new FileInfo(path).Length))
                 return LoadTemplateInternal(sav);
 
-            var pk = PKMConverter.GetPKMfromBytes(File.ReadAllBytes(path), prefer: sav.Generation);
+            PKM? pk = PKMConverter.GetPKMfromBytes(File.ReadAllBytes(path), prefer: sav.Generation);
             if (pk == null)
                 return LoadTemplateInternal(sav);
 

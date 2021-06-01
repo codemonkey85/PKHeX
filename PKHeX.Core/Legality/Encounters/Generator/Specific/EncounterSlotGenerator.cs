@@ -23,7 +23,7 @@ namespace PKHeX.Core
     {
         public static IEnumerable<EncounterSlot> GetPossible(PKM pkm, IReadOnlyList<DexLevel> chain, GameVersion gameSource = Any)
         {
-            var possibleAreas = GetAreasByGame(pkm, gameSource);
+            IEnumerable<EncounterArea>? possibleAreas = GetAreasByGame(pkm, gameSource);
             return possibleAreas.SelectMany(area => area.Slots).Where(z => chain.Any(v => v.Species == z.Species));
         }
 
@@ -46,11 +46,11 @@ namespace PKHeX.Core
             if (pkm.Egg_Location != 0 || pkm.IsEgg)
                 yield break;
 
-            var possibleAreas = GetEncounterAreas(pkm, gameSource);
-            foreach (var area in possibleAreas)
+            IEnumerable<EncounterArea>? possibleAreas = GetEncounterAreas(pkm, gameSource);
+            foreach (EncounterArea? area in possibleAreas)
             {
-                var slots = area.GetMatchingSlots(pkm, chain);
-                foreach (var s in slots)
+                IEnumerable<EncounterSlot>? slots = area.GetMatchingSlots(pkm, chain);
+                foreach (EncounterSlot? s in slots)
                     yield return s;
             }
         }
@@ -60,7 +60,7 @@ namespace PKHeX.Core
             if (gameSource == Any)
                 gameSource = (GameVersion)pkm.Version;
 
-            var slots = GetRawEncounterSlots(pkm, chain, gameSource);
+            IEnumerable<EncounterSlot>? slots = GetRawEncounterSlots(pkm, chain, gameSource);
 
             return slots; // defer deferrals to the method consuming this collection
         }
@@ -94,17 +94,17 @@ namespace PKHeX.Core
             if (gameSource == Any)
                 gameSource = (GameVersion)pkm.Version;
 
-            var slots = GetEncounterSlots(pkm, gameSource: gameSource);
+            IEnumerable<EncounterArea>? slots = GetEncounterSlots(pkm, gameSource: gameSource);
             bool noMet = !pkm.HasOriginalMetLocation || (pkm.Format == 2 && gameSource != C);
             if (noMet)
                 return slots;
-            var metLocation = pkm.Met_Location;
+            int metLocation = pkm.Met_Location;
             return slots.Where(z => z.IsMatchLocation(metLocation));
         }
 
         internal static EncounterSlot? GetCaptureLocation(PKM pkm)
         {
-            var chain = EvolutionChain.GetValidPreEvolutions(pkm, maxLevel: 100, skipChecks: true);
+            List<EvoCriteria>? chain = EvolutionChain.GetValidPreEvolutions(pkm, maxLevel: 100, skipChecks: true);
             return GetPossible(pkm, chain)
                 .OrderBy(z => !chain.Any(s => s.Species == z.Species && s.Form == z.Form))
                 .ThenBy(z => z.LevelMin)
@@ -183,7 +183,7 @@ namespace PKHeX.Core
 
             // If we know the met location, return the specific area list.
             // If we're just getting all encounters (lack of met location is kinda bad...), just return everything.
-            var met = pkm.Met_Location;
+            int met = pkm.Met_Location;
             return met switch
             {
                 Locations.GO8 => SlotsGO,

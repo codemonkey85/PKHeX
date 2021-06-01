@@ -14,9 +14,9 @@ namespace PKHeX.Core
             if (gen == 4 && pkm.Species == (int) Species.Manaphy)
                 yield return RangerManaphy;
 
-            var table = GetTable(gen, pkm);
-            var possible = table.Where(wc => chain.Any(dl => dl.Species == wc.Species));
-            foreach (var enc in possible)
+            IReadOnlyList<MysteryGift>? table = GetTable(gen, pkm);
+            IEnumerable<MysteryGift>? possible = table.Where(wc => chain.Any(dl => dl.Species == wc.Species));
+            foreach (MysteryGift? enc in possible)
                 yield return enc;
         }
 
@@ -28,7 +28,7 @@ namespace PKHeX.Core
 
             if (gen == 4) // check for Manaphy gift
                 return GetMatchingPCD(pkm, MGDB_G4, chain);
-            var table = GetTable(gen, pkm);
+            IReadOnlyList<MysteryGift>? table = GetTable(gen, pkm);
             return GetMatchingGifts(pkm, table, chain);
         }
 
@@ -51,15 +51,15 @@ namespace PKHeX.Core
                 yield break;
             }
 
-            foreach (var g in GetMatchingGifts(pkm, DB, chain))
+            foreach (MysteryGift? g in GetMatchingGifts(pkm, DB, chain))
                 yield return g;
         }
 
         private static IEnumerable<MysteryGift> GetMatchingGifts(PKM pkm, IReadOnlyList<MysteryGift> DB, IReadOnlyList<DexLevel> chain)
         {
-            foreach (var mg in DB)
+            foreach (MysteryGift? mg in DB)
             {
-                foreach (var dl in chain)
+                foreach (DexLevel? dl in chain)
                 {
                     if (dl.Species != mg.Species)
                         continue;

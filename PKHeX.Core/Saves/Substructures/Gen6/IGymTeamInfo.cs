@@ -18,7 +18,7 @@
 
         private static ushort[] GetGymTeam(IGymTeamInfo info, uint badge)
         {
-            var team = new ushort[6];
+            ushort[]? team = new ushort[6];
             for (uint slot = 0; slot < team.Length; slot++)
                 team[slot] = info.GetBadgeVictorySpecies(badge, slot);
             return team;

@@ -27,7 +27,7 @@ namespace PKHeX.Core
             }
             set
             {
-                var wcData = SetAlbum(value);
+                byte[]? wcData = SetAlbum(value);
                 // Write Back
                 wcData.CopyTo(Data, Offset + FlagStart);
                 BitConverter.GetBytes(value.Seed).CopyTo(Data, SeedOffset);
@@ -38,9 +38,9 @@ namespace PKHeX.Core
         {
             PokeCrypto.CryptArray(wcData, seed);
 
-            var flags = new bool[MaxReceivedFlag];
-            var gifts = new DataMysteryGift[MaxCardsPresent];
-            var Info = new EncryptedMysteryGiftAlbum(gifts, flags, seed);
+            bool[]? flags = new bool[MaxReceivedFlag];
+            DataMysteryGift[]? gifts = new DataMysteryGift[MaxCardsPresent];
+            EncryptedMysteryGiftAlbum? Info = new EncryptedMysteryGiftAlbum(gifts, flags, seed);
 
             // 0x100 Bytes for Used Flags
             for (int i = 0; i < Info.Flags.Length; i++)
@@ -48,7 +48,7 @@ namespace PKHeX.Core
             // 12 PGFs
             for (int i = 0; i < Info.Gifts.Length; i++)
             {
-                var data = new byte[PGF.Size];
+                byte[]? data = new byte[PGF.Size];
                 Array.Copy(wcData, CardStart + (i * PGF.Size), data, 0, PGF.Size);
                 Info.Gifts[i] = new PGF(data);
             }

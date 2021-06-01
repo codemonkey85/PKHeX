@@ -115,7 +115,7 @@ namespace PKHeX.Core
                 if (GetFlag(OFS_SEEN + (i * BitSeenSize), species - 1))
                     return;
             }
-            var gender = SAV.Personal[species].RandomGender() & 1;
+            int gender = SAV.Personal[species].RandomGender() & 1;
             SetAllDexSeenFlags(species - 1, 0, gender, false);
         }
 
@@ -167,7 +167,7 @@ namespace PKHeX.Core
 
         protected virtual void SetDisplayedFlag(int baseBit, int formBit, bool value, int shift)
         {
-            var bit = formBit >= 0 ? formBit : baseBit;
+            int bit = formBit >= 0 ? formBit : baseBit;
             if (!value)
             {
                 SetDisplayed(bit, shift, false);
@@ -264,7 +264,7 @@ namespace PKHeX.Core
         {
             SetSeen(species, seen);
 
-            var entry = SAV.Personal[species];
+            PersonalInfo? entry = SAV.Personal[species];
             int baseBit = species - 1;
             int fc = entry.FormCount;
             for (int f = 0; f < fc; f++)

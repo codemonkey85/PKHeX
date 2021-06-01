@@ -16,15 +16,15 @@ namespace PKHeX.WinForms.Controls
         {
             Manipulator = new BoxManipulatorWF(sav);
             SAV = sav;
-            var categories = BoxManipUtil.ManipCategories;
-            var names = BoxManipUtil.ManipCategoryNames;
+            IReadOnlyList<IBoxManip>[]? categories = BoxManipUtil.ManipCategories;
+            string[]? names = BoxManipUtil.ManipCategoryNames;
             for (int i = 0; i < categories.Length; i++)
             {
-                var category = categories[i];
-                var sprite = TopLevelImages[i];
-                var name = names[i];
-                var parent = new ToolStripMenuItem {Name = $"mnu_{name}", Text = name, Image = sprite};
-                foreach (var item in category)
+                IReadOnlyList<IBoxManip>? category = categories[i];
+                Image? sprite = TopLevelImages[i];
+                string? name = names[i];
+                ToolStripMenuItem? parent = new ToolStripMenuItem {Name = $"mnu_{name}", Text = name, Image = sprite};
+                foreach (IBoxManip? item in category)
                     AddItem(sav, parent, item);
                 Items.Add(parent);
             }
@@ -32,9 +32,9 @@ namespace PKHeX.WinForms.Controls
 
         private void AddItem(ISaveFileProvider sav, ToolStripDropDownItem parent, IBoxManip item)
         {
-            var name = item.Type.ToString();
-            ManipTypeImage.TryGetValue(item.Type, out var img);
-            var tsi = new ToolStripMenuItem { Name = $"mnu_{name}", Text = name, Image = img };
+            string? name = item.Type.ToString();
+            ManipTypeImage.TryGetValue(item.Type, out Image? img);
+            ToolStripMenuItem? tsi = new ToolStripMenuItem { Name = $"mnu_{name}", Text = name, Image = img };
             tsi.Click += (s, e) => Manipulator.Execute(item, sav.CurrentBox, All, Reverse);
             parent.DropDownItems.Add(tsi);
             CustomItems.Add(new ItemVisibility(tsi, item));
@@ -100,7 +100,7 @@ namespace PKHeX.WinForms.Controls
 
         public void ToggleVisibility()
         {
-            foreach (var s in CustomItems)
+            foreach (ItemVisibility? s in CustomItems)
                 s.SetVisibility(SAV.SAV);
         }
 

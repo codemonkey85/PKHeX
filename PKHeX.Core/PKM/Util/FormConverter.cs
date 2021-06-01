@@ -705,7 +705,7 @@ namespace PKHeX.Core
 
         public static string[] GetAlcremieFormList(IReadOnlyList<string> forms)
         {
-            var result = new string[63];
+            string[]? result = new string[63];
             // seed form0 with the pattern
             result[0 * 7] = forms[(int) Alcremie]; // Vanilla Cream
             result[1 * 7] = forms[RubyCream];

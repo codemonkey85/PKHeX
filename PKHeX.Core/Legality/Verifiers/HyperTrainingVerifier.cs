@@ -11,7 +11,7 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm is not IHyperTrain t)
                 return; // No Hyper Training before Gen7
 

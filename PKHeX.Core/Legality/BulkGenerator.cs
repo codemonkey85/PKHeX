@@ -11,7 +11,7 @@ namespace PKHeX.Core
     {
         public static List<PKM> GetLivingDex(this SaveFile sav)
         {
-            var speciesToGenerate = Enumerable.Range(1, sav.MaxSpeciesID);
+            IEnumerable<int>? speciesToGenerate = Enumerable.Range(1, sav.MaxSpeciesID);
             return GetLivingDex(sav, speciesToGenerate);
         }
 
@@ -22,18 +22,18 @@ namespace PKHeX.Core
 
         public static List<PKM> GetLivingDex(this ITrainerInfo tr, IEnumerable<int> speciesToGenerate, PKM blank)
         {
-            var result = new List<PKM>();
-            var destType = blank.GetType();
-            foreach (var s in speciesToGenerate)
+            List<PKM>? result = new List<PKM>();
+            Type? destType = blank.GetType();
+            foreach (int s in speciesToGenerate)
             {
-                var pk = blank.Clone();
+                PKM? pk = blank.Clone();
                 pk.Species = s;
                 pk.Gender = pk.GetSaneGender();
 
-                var pi = pk.PersonalInfo;
+                PersonalInfo? pi = pk.PersonalInfo;
                 for (int f = 0; f < pi.FormCount; f++)
                 {
-                    var entry = tr.GetLivingEntry(pk, s, f, destType);
+                    PKM? entry = tr.GetLivingEntry(pk, s, f, destType);
                     if (entry == null)
                         continue;
                     result.Add(entry);
@@ -49,11 +49,11 @@ namespace PKHeX.Core
             template.Form = form;
             template.Gender = template.GetSaneGender();
 
-            var f = EncounterMovesetGenerator.GeneratePKMs(template, tr).FirstOrDefault();
+            PKM? f = EncounterMovesetGenerator.GeneratePKMs(template, tr).FirstOrDefault();
             if (f == null)
                 return null;
 
-            var result = PKMConverter.ConvertToType(f, destType, out _);
+            PKM? result = PKMConverter.ConvertToType(f, destType, out _);
             if (result == null)
                 return null;
 

@@ -59,7 +59,7 @@ namespace PKHeX.Core
             int max = GetFlagCount(type);
             if ((uint)index > max)
                 throw new ArgumentException(nameof(index));
-            var start = GetFlagStart(type);
+            int start = GetFlagStart(type);
             return start + index;
         }
 
@@ -68,21 +68,21 @@ namespace PKHeX.Core
             int max = GetWorkCount(type);
             if ((uint)index > max)
                 throw new ArgumentException(nameof(index));
-            var start = GetWorkStart(type);
+            int start = GetWorkStart(type);
             return start + index;
         }
 
         public bool GetFlag(int index)
         {
-            var offset = Offset + FlagStart + (index >> 3);
-            var current = Data[offset];
+            int offset = Offset + FlagStart + (index >> 3);
+            byte current = Data[offset];
             return (current & (1 << (index & 7))) != 0;
         }
 
         public void SetFlag(int index, bool value = true)
         {
-            var offset = Offset + FlagStart + (index >> 3);
-            var bit = 1 << (index & 7);
+            int offset = Offset + FlagStart + (index >> 3);
+            int bit = 1 << (index & 7);
             if (value)
                 Data[offset] |= (byte)bit;
             else

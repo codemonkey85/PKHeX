@@ -44,7 +44,7 @@ namespace PKHeX.Core
 
         public static IReadOnlyList<EvolutionMethod[]> GetArray(byte[] data)
         {
-            var evos = new EvolutionMethod[Legal.MaxSpeciesID_3 + 1][];
+            EvolutionMethod[][]? evos = new EvolutionMethod[Legal.MaxSpeciesID_3 + 1][];
             evos[0] = Array.Empty<EvolutionMethod>();
             for (int i = 1; i <= Legal.MaxSpeciesIndex_3; i++)
             {
@@ -68,7 +68,7 @@ namespace PKHeX.Core
                     continue;
                 }
 
-                var set = new EvolutionMethod[count];
+                EvolutionMethod[]? set = new EvolutionMethod[count];
                 for (int j = 0; j < set.Length; j++)
                     set[j] = GetMethod(data, offset + (j * size));
                 evos[g4species] = set;

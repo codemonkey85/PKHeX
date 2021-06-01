@@ -30,7 +30,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var cards = new DataMysteryGift[MaxCardsPresent];
+                DataMysteryGift[]? cards = new DataMysteryGift[MaxCardsPresent];
                 for (int i = 0; i < cards.Length; i++)
                     cards[i] = GetGift(i);
                 return cards;
@@ -50,8 +50,8 @@ namespace PKHeX.Core
             if ((uint)index > MaxCardsPresent)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            var offset = GetGiftOffset(index);
-            var data = SAV.GetData(offset, WC7.Size);
+            int offset = GetGiftOffset(index);
+            byte[]? data = SAV.GetData(offset, WC7.Size);
             return new WC7(data);
         }
 

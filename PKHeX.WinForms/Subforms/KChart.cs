@@ -24,7 +24,7 @@ namespace PKHeX.WinForms
 
             Array.Resize(ref species, SAV.Personal.TableLength);
 
-            var forms = SAV.Personal.GetFormList(species, SAV.MaxSpeciesID);
+            string[][]? forms = SAV.Personal.GetFormList(species, SAV.MaxSpeciesID);
             species = SAV.Personal.GetPersonalEntryList(forms, species, SAV.MaxSpeciesID, out baseForm, out formVal);
 
             DGV.Rows.Clear();
@@ -38,14 +38,14 @@ namespace PKHeX.WinForms
 
         private void PopEntry(int index)
         {
-            var p = SAV.Personal[index];
+            PersonalInfo? p = SAV.Personal[index];
             if (p.HP == 0)
                 return;
 
             int s = index > SAV.MaxSpeciesID ? baseForm[index] : index;
-            var f = index <= SAV.MaxSpeciesID ? 0 : formVal[index];
+            int f = index <= SAV.MaxSpeciesID ? 0 : formVal[index];
 
-            var row = new DataGridViewRow();
+            DataGridViewRow? row = new DataGridViewRow();
             row.CreateCells(DGV);
 
             int r = 0;
@@ -70,7 +70,7 @@ namespace PKHeX.WinForms
             row.Cells[r++].Value = p.SPD.ToString("000");
             row.Cells[r].Style.BackColor = ImageUtil.ColorBaseStat(p.SPE);
             row.Cells[r++].Value = p.SPE.ToString("000");
-            var abils = p.Abilities;
+            IReadOnlyList<int>? abils = p.Abilities;
             row.Cells[r++].Value = GetAbility(abils, 0);
             row.Cells[r++].Value = GetAbility(abils, 1);
             row.Cells[r].Value = GetAbility(abils, 2);

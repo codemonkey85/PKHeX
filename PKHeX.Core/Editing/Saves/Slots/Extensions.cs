@@ -6,13 +6,13 @@ namespace PKHeX.Core
     {
         public static IReadOnlyList<PKM> GetAllPKM(this SaveFile sav)
         {
-            var result = new List<PKM>();
+            List<PKM>? result = new List<PKM>();
             if (sav.HasBox)
                 result.AddRange(sav.BoxData);
             if (sav.HasParty)
                 result.AddRange(sav.PartyData);
 
-            var extra = sav.GetExtraPKM();
+            PKM[]? extra = sav.GetExtraPKM();
             result.AddRange(extra);
             result.RemoveAll(z => z.Species == 0);
             return result;
@@ -22,7 +22,7 @@ namespace PKHeX.Core
 
         public static PKM[] GetExtraPKM(this SaveFile sav, IList<SlotInfoMisc> slots)
         {
-            var arr = new PKM[slots.Count];
+            PKM[]? arr = new PKM[slots.Count];
             for (int i = 0; i < slots.Count; i++)
                 arr[i] = slots[i].Read(sav);
             return arr;
@@ -30,7 +30,7 @@ namespace PKHeX.Core
 
         public static List<SlotInfoMisc> GetExtraSlots(this SaveFile sav, bool all = false)
         {
-            var slots = GetExtraSlotsUnsafe(sav, all);
+            List<SlotInfoMisc>? slots = GetExtraSlotsUnsafe(sav, all);
             for (int i = 0; i < slots.Count;)
             {
                 if (slots[i].Offset < 0)
@@ -76,7 +76,7 @@ namespace PKHeX.Core
 
         private static List<SlotInfoMisc> GetExtraSlots4(SAV4 sav)
         {
-            var list = new List<SlotInfoMisc>
+            List<SlotInfoMisc>? list = new List<SlotInfoMisc>
             {
                 new(sav.General, 0, sav.GTS) {Type = StorageSlotType.GTS},
             };
@@ -137,7 +137,7 @@ namespace PKHeX.Core
 
         private static List<SlotInfoMisc> GetExtraSlots7(SAV7 sav, bool all)
         {
-            var list = new List<SlotInfoMisc>
+            List<SlotInfoMisc>? list = new List<SlotInfoMisc>
             {
                 new(sav.Data, 0, sav.AllBlocks[07].Offset) {Type = StorageSlotType.GTS},
                 new(sav.Data, 0, sav.GetFusedSlotOffset(0)) {Type = StorageSlotType.Fused}
@@ -161,9 +161,9 @@ namespace PKHeX.Core
 
         private static List<SlotInfoMisc> GetExtraSlots8(ISaveBlock8Main sav)
         {
-            var fused = sav.Fused;
-            var dc = sav.Daycare;
-            var list = new List<SlotInfoMisc>
+            Fused8? fused = sav.Fused;
+            Daycare8? dc = sav.Daycare;
+            List<SlotInfoMisc>? list = new List<SlotInfoMisc>
             {
                 new(fused.Data, 0, Fused8.GetFusedSlotOffset(0), true) {Type = StorageSlotType.Fused},
                 new(fused.Data, 1, Fused8.GetFusedSlotOffset(1), true) {Type = StorageSlotType.Fused},
@@ -177,8 +177,8 @@ namespace PKHeX.Core
 
             if (sav is SAV8SWSH {SaveRevision: >= 2} s8)
             {
-                var block = s8.Blocks.GetBlockSafe(SaveBlockAccessor8SWSH.KFusedCalyrex);
-                var c = new SlotInfoMisc(block.Data, 3, 0, true) {Type = StorageSlotType.Fused};
+                SCBlock? block = s8.Blocks.GetBlockSafe(SaveBlockAccessor8SWSH.KFusedCalyrex);
+                SlotInfoMisc? c = new SlotInfoMisc(block.Data, 3, 0, true) {Type = StorageSlotType.Fused};
                 list.Insert(3, c);
             }
 

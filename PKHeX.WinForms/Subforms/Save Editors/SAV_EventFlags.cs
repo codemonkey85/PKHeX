@@ -21,7 +21,7 @@ namespace PKHeX.WinForms
             InitializeComponent();
             WinFormsUtil.TranslateInterface(this, Main.CurrentLanguage);
 
-            var editor = Editor = new EventWorkspace(sav);
+            EventWorkspace? editor = Editor = new EventWorkspace(sav);
             DragEnter += Main_DragEnter;
             DragDrop += Main_DragDrop;
 
@@ -72,7 +72,7 @@ namespace PKHeX.WinForms
 
         private void AddFlagList(EventLabelCollection list, bool[] values)
         {
-            var labels = list.Flag;
+            IReadOnlyList<NamedEventValue>? labels = list.Flag;
             if (labels.Count == 0)
             {
                 TLP_Flags.Controls.Add(new Label { Text = MsgResearchRequired, Name = "TLP_Flags_Research", ForeColor = Color.Red, AutoSize = true }, 0, 0);
@@ -81,9 +81,9 @@ namespace PKHeX.WinForms
 
             for (int i = 0; i < labels.Count; i++)
             {
-                var (name, index) = labels[i];
-                var lbl = new Label { Text = name, Margin = Padding.Empty, AutoSize = true };
-                var chk = new CheckBox
+                (string name, int index) = labels[i];
+                Label? lbl = new Label { Text = name, Margin = Padding.Empty, AutoSize = true };
+                CheckBox? chk = new CheckBox
                 {
                     CheckAlign = ContentAlignment.MiddleLeft,
                     Margin = Padding.Empty,
@@ -106,18 +106,18 @@ namespace PKHeX.WinForms
 
         private void AddConstList(EventLabelCollection list, ushort[] values)
         {
-            var labels = list.Work;
+            IReadOnlyList<NamedEventWork>? labels = list.Work;
             if (labels.Count == 0)
             {
                 TLP_Const.Controls.Add(new Label { Text = MsgResearchRequired, Name = "TLP_Const_Research", ForeColor = Color.Red, AutoSize = true }, 0, 0);
                 return;
             }
 
-            for (var i = 0; i < labels.Count; i++)
+            for (int i = 0; i < labels.Count; i++)
             {
-                var entry = labels[i];
-                var lbl = new Label { Text = entry.Name, Margin = Padding.Empty, AutoSize = true };
-                var mtb = new NumericUpDown
+                NamedEventWork? entry = labels[i];
+                Label? lbl = new Label { Text = entry.Name, Margin = Padding.Empty, AutoSize = true };
+                NumericUpDown? mtb = new NumericUpDown
                 {
                     Maximum = ushort.MaxValue,
                     Minimum = ushort.MinValue,
@@ -125,8 +125,8 @@ namespace PKHeX.WinForms
                     Width = 50,
                 };
 
-                var map = entry.PredefinedValues.Select(z => new ComboItem(z.Name, z.Value)).ToList();
-                var cb = new ComboBox
+                List<ComboItem>? map = entry.PredefinedValues.Select(z => new ComboItem(z.Name, z.Value)).ToList();
+                ComboBox? cb = new ComboBox
                 {
                     Margin = Padding.Empty,
                     Width = 150,
@@ -145,8 +145,8 @@ namespace PKHeX.WinForms
                         return;
 
                     updating = true;
-                    var value = (ushort) mtb.Value;
-                    var (_, valueID) = map.Find(z => z.Value == value) ?? map[0];
+                    ushort value = (ushort) mtb.Value;
+                    (string _, int valueID) = map.Find(z => z.Value == value) ?? map[0];
                     if (WinFormsUtil.GetIndex(cb) != valueID)
                         cb.SelectedValue = valueID;
 
@@ -159,7 +159,7 @@ namespace PKHeX.WinForms
                 {
                     if (editing || updating)
                         return;
-                    var value = WinFormsUtil.GetIndex(cb);
+                    int value = WinFormsUtil.GetIndex(cb);
                     mtb.Value = value is NamedEventConst.CustomMagicValue ? 0 : value;
                 };
 
@@ -178,9 +178,9 @@ namespace PKHeX.WinForms
             if (editing)
                 return;
             editing = true;
-            var index = (int) NUD_Flag.Value;
+            int index = (int) NUD_Flag.Value;
             Editor.Flags[index] = c_CustomFlag.Checked;
-            if (FlagDict.TryGetValue(index, out var chk))
+            if (FlagDict.TryGetValue(index, out CheckBox? chk))
                 chk.Checked = c_CustomFlag.Checked;
             editing = false;
         }
@@ -195,8 +195,8 @@ namespace PKHeX.WinForms
 
         private void ChangeConstantIndex(object sender, EventArgs e)
         {
-            var constants = Editor.Values;
-            var index = CB_Stats.SelectedIndex;
+            ushort[]? constants = Editor.Values;
+            int index = CB_Stats.SelectedIndex;
             MT_Stat.Text = constants[index].ToString();
         }
 
@@ -205,10 +205,10 @@ namespace PKHeX.WinForms
             if (editing)
                 return;
             editing = true;
-            var index = CB_Stats.SelectedIndex;
-            var parse = ushort.TryParse(MT_Stat.Text, out var value) ? value : (ushort)0;
+            int index = CB_Stats.SelectedIndex;
+            ushort parse = ushort.TryParse(MT_Stat.Text, out ushort value) ? value : (ushort)0;
             Editor.Values[index] = parse;
-            if (WorkDict.TryGetValue(index, out var mtb))
+            if (WorkDict.TryGetValue(index, out NumericUpDown? mtb))
                 mtb.Value = parse;
             editing = false;
         }
@@ -221,20 +221,20 @@ namespace PKHeX.WinForms
 
         private void OpenSAV(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog();
+            using OpenFileDialog? ofd = new OpenFileDialog();
             if (ofd.ShowDialog() == DialogResult.OK)
                 LoadSAV(sender, ofd.FileName);
         }
 
         private void LoadSAV(object sender, string path)
         {
-            var dest = sender == B_LoadOld ? TB_OldSAV : TB_NewSAV;
+            TextBox? dest = sender == B_LoadOld ? TB_OldSAV : TB_NewSAV;
             dest.Text = path;
         }
 
         private void DiffSaves()
         {
-            var diff = new EventBlockDiff(TB_OldSAV.Text, TB_NewSAV.Text);
+            EventBlockDiff? diff = new EventBlockDiff(TB_OldSAV.Text, TB_NewSAV.Text);
             if (!string.IsNullOrWhiteSpace(diff.Message))
             {
                 WinFormsUtil.Alert(diff.Message);
@@ -263,8 +263,8 @@ namespace PKHeX.WinForms
         private void Main_DragDrop(object sender, DragEventArgs e)
         {
             string[] files = (string[])e.Data.GetData(DataFormats.FileDrop);
-            var dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, Name, "Yes: Old Save" + Environment.NewLine + "No: New Save");
-            var button = dr == DialogResult.Yes ? B_LoadOld : B_LoadNew;
+            DialogResult dr = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, Name, "Yes: Old Save" + Environment.NewLine + "No: New Save");
+            Button? button = dr == DialogResult.Yes ? B_LoadOld : B_LoadNew;
             LoadSAV(button, files[0]);
         }
     }

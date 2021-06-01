@@ -30,7 +30,7 @@ namespace PKHeX.Core
 
         public static void SetConsoleRegionData3DS(IRegionOrigin pkm)
         {
-            var trainer = Trainer is IRegionOrigin r ? r : Trainer67;
+            IRegionOrigin? trainer = Trainer is IRegionOrigin r ? r : Trainer67;
             pkm.ConsoleRegion = trainer.ConsoleRegion;
             pkm.Country = trainer.Country;
             pkm.Region = trainer.Region;
@@ -38,7 +38,7 @@ namespace PKHeX.Core
 
         public static void SetFirstCountryRegion(IGeoTrack pkm)
         {
-            var trainer = Trainer is IRegionOrigin r ? r : Trainer67;
+            IRegionOrigin? trainer = Trainer is IRegionOrigin r ? r : Trainer67;
             pkm.Geo1_Country = trainer.Country;
             pkm.Geo1_Region = trainer.Region;
         }
@@ -218,7 +218,7 @@ namespace PKHeX.Core
                 return pk;
             }
 
-            var pkm = ConvertPKM(pk, destType, fromType, out comment);
+            PKM? pkm = ConvertPKM(pk, destType, fromType, out comment);
             if (!AllowIncompatibleConversion || pkm != null)
                 return pkm;
 
@@ -242,9 +242,9 @@ namespace PKHeX.Core
 
             // All types that inherit PKM have the generation specifier as the last char in their class name.
             int destGeneration = destName[^1] - '0';
-            var pkm = ConvertPKM(pk, destType, destGeneration, ref comment);
-            var msg = pkm == null ? MsgPKMConvertFailFormat : MsgPKMConvertSuccess;
-            var formatted = string.Format(msg, srcName, destName);
+            PKM? pkm = ConvertPKM(pk, destType, destGeneration, ref comment);
+            string? msg = pkm == null ? MsgPKMConvertFailFormat : MsgPKMConvertSuccess;
+            string? formatted = string.Format(msg, srcName, destName);
             comment = comment.Length != 0 ? formatted : string.Concat(formatted, Environment.NewLine, comment);
             return pkm;
         }
@@ -278,8 +278,8 @@ namespace PKHeX.Core
 
                 // Invalid
                 case PK2 pk2 when pk.Species > Legal.MaxSpeciesID_1:
-                    var lang = pk2.Japanese ? (int)LanguageID.Japanese : (int)LanguageID.English;
-                    var name = SpeciesName.GetSpeciesName(pk2.Species, lang);
+                    int lang = pk2.Japanese ? (int)LanguageID.Japanese : (int)LanguageID.English;
+                    string? name = SpeciesName.GetSpeciesName(pk2.Species, lang);
                     comment = string.Format(MsgPKMConvertFailFormat, name, destType.Name);
                     return null;
 
@@ -394,7 +394,7 @@ namespace PKHeX.Core
                 c = GetIncompatibleGBMessage(pk, target.Japanese);
                 return false;
             }
-            var convert = ConvertToType(pk, target.GetType(), out c);
+            PKM? convert = ConvertToType(pk, target.GetType(), out c);
             if (convert == null)
             {
                 pkm = target;
@@ -408,8 +408,8 @@ namespace PKHeX.Core
 
         public static string GetIncompatibleGBMessage(PKM pk, bool destJapanese)
         {
-            var src = destJapanese ? MsgPKMConvertInternational : MsgPKMConvertJapanese;
-            var dest = !destJapanese ? MsgPKMConvertInternational : MsgPKMConvertJapanese;
+            string? src = destJapanese ? MsgPKMConvertInternational : MsgPKMConvertJapanese;
+            string? dest = !destJapanese ? MsgPKMConvertInternational : MsgPKMConvertJapanese;
             return string.Format(MsgPKMConvertIncompatible, src, pk.GetType().Name, dest);
         }
 
@@ -422,8 +422,8 @@ namespace PKHeX.Core
         /// <returns>New instance of a blank <see cref="PKM"/> object.</returns>
         public static PKM GetBlank(Type type)
         {
-            var constructors = type.GetTypeInfo().DeclaredConstructors.Where(z => !z.IsStatic);
-            var argCount = constructors.Min(z => z.GetParameters().Length);
+            System.Collections.Generic.IEnumerable<ConstructorInfo>? constructors = type.GetTypeInfo().DeclaredConstructors.Where(z => !z.IsStatic);
+            int argCount = constructors.Min(z => z.GetParameters().Length);
             return (PKM)Activator.CreateInstance(type, new object[argCount]);
         }
 
@@ -438,7 +438,7 @@ namespace PKHeX.Core
 
         public static PKM GetBlank(int gen)
         {
-            var type = Type.GetType($"PKHeX.Core.PK{gen}");
+            Type? type = Type.GetType($"PKHeX.Core.PK{gen}");
             if (type is null)
                 throw new InvalidCastException($"Unable to get the type for PK{gen}.");
 

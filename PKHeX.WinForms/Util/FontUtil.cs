@@ -36,10 +36,10 @@ namespace PKHeX.WinForms
 
         public static Font GetPKXFont(float size = 11f)
         {
-            if (GeneratedFonts.TryGetValue(size, out var f))
+            if (GeneratedFonts.TryGetValue(size, out Font? f))
                 return f;
-            var family = CustomFonts.Families.Length == 0 ? FontFamily.GenericSansSerif : CustomFonts.Families[0];
-            var font = new Font(family, size);
+            FontFamily? family = CustomFonts.Families.Length == 0 ? FontFamily.GenericSansSerif : CustomFonts.Families[0];
+            Font? font = new Font(family, size);
             GeneratedFonts.Add(size, font);
             return font;
         }

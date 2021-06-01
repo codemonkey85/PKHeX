@@ -46,10 +46,10 @@ namespace PKHeX.Core
 
         private static byte[] GetRawQR(int species, int form, bool shiny, int gender)
         {
-            var basedata = (byte[])BaseQR.Clone();
+            byte[]? basedata = (byte[])BaseQR.Clone();
             BitConverter.GetBytes((ushort)species).CopyTo(basedata, 0x28);
 
-            var pi = PersonalTable.USUM.GetFormEntry(species, form);
+            PersonalInfo? pi = PersonalTable.USUM.GetFormEntry(species, form);
             bool biGender = false;
             if (pi.OnlyMale)
                 gender = 0;
@@ -90,8 +90,8 @@ namespace PKHeX.Core
             pk7.EncryptedPartyData.CopyTo(data, 0x30); // Copy in pokemon data
             GetRawQR(pk7.Species, pk7.Form, pk7.IsShiny, pk7.Gender).CopyTo(data, 0x140);
 
-            var span = new ReadOnlySpan<byte>(data, 0, 0x1A0);
-            var chk = Checksums.CRC16Invert(span);
+            ReadOnlySpan<byte> span = new ReadOnlySpan<byte>(data, 0, 0x1A0);
+            ushort chk = Checksums.CRC16Invert(span);
             BitConverter.GetBytes(chk).CopyTo(data, 0x1A0);
             return data;
         }

@@ -67,7 +67,7 @@ namespace PKHeX.WinForms.Controls
 
         private void MT_CP_TextChanged(object sender, EventArgs e)
         {
-            if (int.TryParse(MT_CP.Text, out var cp) && pkm != null)
+            if (int.TryParse(MT_CP.Text, out int cp) && pkm != null)
                 pkm.Stat_CP = Math.Min(65535, cp);
         }
 
@@ -105,7 +105,7 @@ namespace PKHeX.WinForms.Controls
                 return;
             if (CHK_Auto.Checked)
                 pkm.ResetHeight();
-            else if (float.TryParse(TB_HeightAbs.Text, out var result))
+            else if (float.TryParse(TB_HeightAbs.Text, out float result))
                 pkm.HeightAbsolute = result;
         }
 
@@ -115,13 +115,13 @@ namespace PKHeX.WinForms.Controls
                 return;
             if (CHK_Auto.Checked)
                 pkm.ResetWeight();
-            else if (float.TryParse(TB_WeightAbs.Text, out var result))
+            else if (float.TryParse(TB_WeightAbs.Text, out float result))
                 pkm.WeightAbsolute = result;
         }
 
         public void ToggleVisibility(PKM pk)
         {
-            var pb7 = pk is PB7;
+            bool pb7 = pk is PB7;
             FLP_CP.Visible = L_CP.Visible = TB_HeightAbs.Visible = TB_WeightAbs.Visible = pb7;
         }
     }

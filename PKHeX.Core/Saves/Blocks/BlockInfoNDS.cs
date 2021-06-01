@@ -33,7 +33,7 @@ namespace PKHeX.Core
         protected override void SetChecksum(byte[] data)
         {
             ushort chk = GetChecksum(data);
-            var bytes = BitConverter.GetBytes(chk);
+            byte[]? bytes = BitConverter.GetBytes(chk);
             bytes.CopyTo(data, ChecksumOffset);
             bytes.CopyTo(data, ChecksumMirror);
         }

@@ -129,9 +129,9 @@ namespace PKHeX.WinForms
             }
             else if (SAV is SAV5 s)
             {
-                foreach (var control in new Control[] {L_Coins, B_MaxCoins, MT_Coins})
+                foreach (Control? control in new Control[] {L_Coins, B_MaxCoins, MT_Coins})
                 {
-                    var pos = control.Location;
+                    System.Drawing.Point pos = control.Location;
                     GB_Badges.Controls.Add(control);
                     control.Location = pos;
                     control.Visible = true;
@@ -139,7 +139,7 @@ namespace PKHeX.WinForms
                 L_Coins.Text = "BP"; // no translation boo
                 MT_Coins.Text = s.BattleSubway.BP.ToString();
 
-                var pd = s.PlayerData;
+                PlayerData5? pd = s.PlayerData;
                 NUD_M.Value = pd.M;
                 NUD_X.Value = pd.X;
                 NUD_Z.Value = pd.Z;
@@ -153,7 +153,7 @@ namespace PKHeX.WinForms
                 cba[i].Checked = (badgeval & 1 << i) != 0;
             }
 
-            DateUtil.GetDateTime2000(SAV.SecondsToStart, out var date, out var time);
+            DateUtil.GetDateTime2000(SAV.SecondsToStart, out DateTime date, out DateTime time);
             CAL_AdventureStartDate.Value = date;
             CAL_AdventureStartTime.Value = time;
 
@@ -248,7 +248,7 @@ namespace PKHeX.WinForms
             {
                 if (MapUpdated)
                 {
-                    var pd = s.PlayerData;
+                    PlayerData5? pd = s.PlayerData;
                     pd.M = (int)NUD_M.Value;
                     pd.X = (int)NUD_X.Value;
                     pd.Z = (int)NUD_Z.Value;

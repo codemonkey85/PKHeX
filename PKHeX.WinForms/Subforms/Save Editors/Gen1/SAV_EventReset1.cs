@@ -21,19 +21,19 @@ namespace PKHeX.WinForms
 
         private void InitializeButtons()
         {
-            var pairs = Overworld.GetFlagPairs().OrderBy(z => z.Name);
-            foreach (var pair in pairs)
+            IOrderedEnumerable<FlagPairG1Detail>? pairs = Overworld.GetFlagPairs().OrderBy(z => z.Name);
+            foreach (FlagPairG1Detail? pair in pairs)
             {
-                var split = pair.Name.Split('_');
-                var specName = split[0][G1OverworldSpawner.FlagPropertyPrefix.Length..];
+                string[]? split = pair.Name.Split('_');
+                string? specName = split[0][G1OverworldSpawner.FlagPropertyPrefix.Length..];
 
                 // convert species name to current localization language
                 int species = SpeciesName.GetSpeciesID(specName);
-                var pkmname = GameInfo.Strings.specieslist[species];
+                string? pkmname = GameInfo.Strings.specieslist[species];
 
                 if (split.Length != 1)
                     pkmname += $" {split[1]}";
-                var b = new Button
+                Button? b = new Button
                 {
                     Text = pkmname, Enabled = pair.IsHidden,
                     Size = new Size((Width / 2) - 25, 22),

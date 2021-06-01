@@ -164,7 +164,7 @@
 
         protected T ConvertTo<T>() where T : G4PKM, new()
         {
-            var pk = new T
+            T? pk = new T
             {
                 PID = PID,
                 Species = Species,

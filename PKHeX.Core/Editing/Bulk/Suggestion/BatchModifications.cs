@@ -13,7 +13,7 @@ namespace PKHeX.Core
 
         public static ModifyResult SetSuggestedRelearnData(BatchInfo info, string propValue)
         {
-            var pk = info.Entity;
+            PKM? pk = info.Entity;
             if (pk.Format >= 8)
             {
                 pk.ClearRecordFlags();
@@ -29,7 +29,7 @@ namespace PKHeX.Core
 
         public static ModifyResult SetSuggestedRibbons(BatchInfo info, string value)
         {
-            var pk = info.Entity;
+            PKM? pk = info.Entity;
             if (IsNone(value))
                 RibbonApplicator.RemoveAllValidRibbons(pk);
             else // All
@@ -39,8 +39,8 @@ namespace PKHeX.Core
 
         public static ModifyResult SetSuggestedMetData(BatchInfo info)
         {
-            var pk = info.Entity;
-            var encounter = EncounterSuggestion.GetSuggestedMetInfo(pk);
+            PKM? pk = info.Entity;
+            EncounterSuggestionData? encounter = EncounterSuggestion.GetSuggestedMetInfo(pk);
             if (encounter == null)
                 return ModifyResult.Error;
 

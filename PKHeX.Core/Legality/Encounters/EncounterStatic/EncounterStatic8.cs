@@ -22,8 +22,8 @@ namespace PKHeX.Core
 
         protected override bool IsMatchLevel(PKM pkm, DexLevel evo)
         {
-            var met = pkm.Met_Level;
-            var lvl = Level;
+            int met = pkm.Met_Level;
+            int lvl = Level;
             if (met == lvl)
                 return true;
             if (lvl < 60 && EncounterArea8.IsBoostedArea60(Location))
@@ -41,13 +41,13 @@ namespace PKHeX.Core
         protected override void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
             base.ApplyDetails(sav, criteria, pk);
-            var req = GetRequirement(pk);
+            OverworldCorrelation8Requirement req = GetRequirement(pk);
             if (req != MustHave)
             {
                 pk.SetRandomEC();
                 return;
             }
-            var shiny = Shiny == Shiny.Random ? Shiny.FixedValue : Shiny;
+            Shiny shiny = Shiny == Shiny.Random ? Shiny.FixedValue : Shiny;
             Overworld8RNG.ApplyDetails(pk, criteria, shiny, FlawlessIVCount);
         }
 
@@ -74,11 +74,11 @@ namespace PKHeX.Core
 
         public override EncounterMatchRating GetMatchRating(PKM pkm)
         {
-            var rating = base.GetMatchRating(pkm);
+            EncounterMatchRating rating = base.GetMatchRating(pkm);
             if (rating != EncounterMatchRating.Match)
                 return rating;
 
-            var req = GetRequirement(pkm);
+            OverworldCorrelation8Requirement req = GetRequirement(pkm);
             bool correlation = IsOverworldCorrelationCorrect(pkm);
             if ((req == MustHave) != correlation)
                 return EncounterMatchRating.Deferred;

@@ -16,7 +16,7 @@ namespace PKHeX.Core
         /// <param name="length">Length of array to read.</param>
         public static int ToInt32BE(byte[] input, int offset, int length)
         {
-            var span = new ReadOnlySpan<byte>(input, offset, length);
+            ReadOnlySpan<byte> span = new ReadOnlySpan<byte>(input, offset, length);
             return ToInt32BE(span);
         }
 
@@ -24,7 +24,7 @@ namespace PKHeX.Core
         public static int ToInt32BE(ReadOnlySpan<byte> input)
         {
             int result = 0;
-            foreach (var b in input)
+            foreach (byte b in input)
                 PushDigits(ref result, b);
             return result;
         }
@@ -58,7 +58,7 @@ namespace PKHeX.Core
         /// <remarks>Big Endian instead of Little Endian</remarks>
         public static int ToInt32LE(byte[] data, int offset, int length)
         {
-            var span = new ReadOnlySpan<byte>(data, offset, length);
+            ReadOnlySpan<byte> span = new ReadOnlySpan<byte>(data, offset, length);
             return ToInt32LE(span);
         }
 

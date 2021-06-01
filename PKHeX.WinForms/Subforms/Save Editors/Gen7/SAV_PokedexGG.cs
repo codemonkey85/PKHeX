@@ -31,9 +31,9 @@ namespace PKHeX.WinForms
 
             Dex = SAV.Blocks.Zukan;
 
-            var Species = GameInfo.Strings.Species;
-            var names = Dex.GetEntryNames(Species);
-            foreach (var n in names)
+            IReadOnlyList<string>? Species = GameInfo.Strings.Species;
+            IList<string>? names = Dex.GetEntryNames(Species);
+            foreach (string? n in names)
                 LB_Species.Items.Add(n);
 
             RecordUsed = new[] { CHK_RMinHeight, CHK_RMaxHeight, CHK_RMinWeight, CHK_RMaxWeight };
@@ -95,7 +95,7 @@ namespace PKHeX.WinForms
 
             editing = true;
             int fspecies = LB_Species.SelectedIndex + 1;
-            var bspecies = Dex.GetBaseSpecies(fspecies);
+            int bspecies = Dex.GetBaseSpecies(fspecies);
             int form = LB_Forms.SelectedIndex;
             if (form > 0)
             {
@@ -132,11 +132,11 @@ namespace PKHeX.WinForms
             LB_Forms.Items.Clear();
 
             int fspecies = LB_Species.SelectedIndex + 1;
-            var bspecies = Dex.GetBaseSpecies(fspecies);
+            int bspecies = Dex.GetBaseSpecies(fspecies);
             bool hasForms = FormInfo.HasFormSelection(SAV.Personal[bspecies], bspecies, 7);
             LB_Forms.Enabled = hasForms;
             if (!hasForms) return false;
-            var ds = FormConverter.GetFormList(bspecies, GameInfo.Strings.types, GameInfo.Strings.forms, Main.GenderSymbols, SAV.Generation).ToList();
+            List<string>? ds = FormConverter.GetFormList(bspecies, GameInfo.Strings.types, GameInfo.Strings.forms, Main.GenderSymbols, SAV.Generation).ToList();
             if (ds.Count == 1 && string.IsNullOrEmpty(ds[0]))
             {
                 // empty
@@ -264,7 +264,7 @@ namespace PKHeX.WinForms
 
         private void LoadRecord(int species, int form)
         {
-            bool hasRecord = Zukan7b.TryGetSizeEntryIndex(species, form, out var index);
+            bool hasRecord = Zukan7b.TryGetSizeEntryIndex(species, form, out int index);
             GB_SizeRecords.Visible = hasRecord;
             if (!hasRecord)
                 return;
@@ -283,7 +283,7 @@ namespace PKHeX.WinForms
 
         private void SetRecord(int species, int form)
         {
-            bool hasRecord = Zukan7b.TryGetSizeEntryIndex(species, form, out var index);
+            bool hasRecord = Zukan7b.TryGetSizeEntryIndex(species, form, out int index);
             if (!hasRecord)
                 return;
 
@@ -297,10 +297,10 @@ namespace PKHeX.WinForms
 
         private void CHK_RUsed_CheckedChanged(object sender, EventArgs e)
         {
-            var ck = (CheckBox) sender;
+            CheckBox? ck = (CheckBox) sender;
             int index = Array.IndexOf(RecordUsed, ck);
-            var h = RecordHeight[index];
-            var w = RecordWeight[index];
+            NumericUpDown? h = RecordHeight[index];
+            NumericUpDown? w = RecordWeight[index];
 
             h.Enabled = w.Enabled = ck.Checked;
             if (!editing && !ck.Checked)
@@ -345,7 +345,7 @@ namespace PKHeX.WinForms
 
             if (ModifierKeys == Keys.Control)
             {
-                foreach (var chk in new[] { CHK_P6, CHK_P7, CHK_P8, CHK_P9 })
+                foreach (CheckBox? chk in new[] { CHK_P6, CHK_P7, CHK_P8, CHK_P9 })
                     chk.Checked = false;
             }
             else if (!(CHK_P6.Checked || CHK_P7.Checked || CHK_P8.Checked || CHK_P9.Checked))
@@ -394,18 +394,18 @@ namespace PKHeX.WinForms
                 CHK_P2.Checked = CHK_P4.Checked = CHK_P3.Checked = CHK_P5.Checked = false;
                 CHK_P6.Checked = CHK_P7.Checked = CHK_P8.Checked = CHK_P9.Checked = false;
 
-                foreach (var ck in RecordUsed)
+                foreach (CheckBox? ck in RecordUsed)
                     ck.Checked = false;
             }
         }
 
         private void SetAll(object sender, int lang)
         {
-            var indexes = GetLegalSpecies();
-            foreach (var species in indexes)
+            IEnumerable<int>? indexes = GetLegalSpecies();
+            foreach (int species in indexes)
             {
                 int index = species - 1;
-                var gt = Dex.GetBaseSpeciesGenderValue(index);
+                int gt = Dex.GetBaseSpeciesGenderValue(index);
                 LB_Species.SelectedIndex = index;
                 SetSeen(sender, gt, false);
                 if (sender != mnuSeenAll)
@@ -418,8 +418,8 @@ namespace PKHeX.WinForms
                     continue; // ignore starter (setdex doesn't set buddy bit; totem raticate is not emitted below).
 
                 // Set forme flags
-                var entries = Dex.GetAllFormEntries(species).Where(z => z >= SAV.MaxSpeciesID).Distinct();
-                foreach (var f in entries)
+                IEnumerable<int>? entries = Dex.GetAllFormEntries(species).Where(z => z >= SAV.MaxSpeciesID).Distinct();
+                foreach (int f in entries)
                 {
                     LB_Species.SelectedIndex = f;
                     SetSeen(sender, gt, true);
@@ -433,9 +433,9 @@ namespace PKHeX.WinForms
         {
             if (!GB_SizeRecords.Enabled)
                 return;
-            for (var i = 0; i < RecordUsed.Length; i++)
+            for (int i = 0; i < RecordUsed.Length; i++)
             {
-                var ck = RecordUsed[i];
+                CheckBox? ck = RecordUsed[i];
                 if (ck.Checked)
                     continue;
                 ck.Checked = true;
@@ -446,7 +446,7 @@ namespace PKHeX.WinForms
 
         private static IEnumerable<int> GetLegalSpecies()
         {
-            foreach (var z in Enumerable.Range(1, 151))
+            foreach (int z in Enumerable.Range(1, 151))
                 yield return z;
             yield return 808;
             yield return 809;
@@ -474,7 +474,7 @@ namespace PKHeX.WinForms
             if (mnuComplete == sender)
             {
                 // Seen All
-                foreach (var chk in new[] { CHK_P2, CHK_P3, CHK_P4, CHK_P5 })
+                foreach (CheckBox? chk in new[] { CHK_P2, CHK_P3, CHK_P4, CHK_P5 })
                     chk.Checked = chk.Enabled;
             }
             else

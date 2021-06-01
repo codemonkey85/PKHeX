@@ -12,15 +12,15 @@ namespace PKHeX.Core
 
         private static Dictionary<string, string> BuildLookup(IReadOnlyCollection<string> manifestNames)
         {
-            var result = new Dictionary<string, string>(manifestNames.Count);
-            foreach (var resName in manifestNames)
+            Dictionary<string, string>? result = new Dictionary<string, string>(manifestNames.Count);
+            foreach (string? resName in manifestNames)
             {
-                var period = resName.LastIndexOf('.', resName.Length - 5);
-                var start = period + 1;
+                int period = resName.LastIndexOf('.', resName.Length - 5);
+                int start = period + 1;
                 System.Diagnostics.Debug.Assert(start != 0);
 
                 // text file fetch excludes ".txt" (mixed case...); other extensions are used (all lowercase).
-                var fileName = resName.EndsWith(".txt") ? resName[start..^4].ToLower() : resName[start..];
+                string? fileName = resName.EndsWith(".txt") ? resName[start..^4].ToLower() : resName[start..];
                 result.Add(fileName, resName);
             }
             return result;
@@ -141,9 +141,9 @@ namespace PKHeX.Core
 
         public static string[] GetStringList(string fileName)
         {
-            if (IsStringListCached(fileName, out var result))
+            if (IsStringListCached(fileName, out string[]? result))
                 return result;
-            var txt = GetStringResource(fileName); // Fetch File, \n to list.
+            string? txt = GetStringResource(fileName); // Fetch File, \n to list.
             return LoadStringList(fileName, txt);
         }
 
@@ -165,7 +165,7 @@ namespace PKHeX.Core
             for (int i = 0; i < raw.Length; i++)
             {
                 // check for extra trimming; not all resources are "clean" with only \n line breaks.
-                var line = raw[i];
+                string? line = raw[i];
                 if (line.Length == 0)
                     continue;
                 if (line[^1] == '\r')
@@ -185,27 +185,27 @@ namespace PKHeX.Core
 
         public static byte[] GetBinaryResource(string name)
         {
-            if (!resourceNameMap.TryGetValue(name, out var resName))
+            if (!resourceNameMap.TryGetValue(name, out string? resName))
                 return Array.Empty<byte>();
 
-            using var resource = thisAssembly.GetManifestResourceStream(resName);
+            using Stream? resource = thisAssembly.GetManifestResourceStream(resName);
             if (resource is null)
                 return Array.Empty<byte>();
 
-            var buffer = new byte[resource.Length];
+            byte[]? buffer = new byte[resource.Length];
             resource.Read(buffer, 0, (int)resource.Length);
             return buffer;
         }
 
         public static string? GetStringResource(string name)
         {
-            if (!resourceNameMap.TryGetValue(name.ToLower(), out var resourceName))
+            if (!resourceNameMap.TryGetValue(name.ToLower(), out string? resourceName))
                 return null;
 
-            using var resource = thisAssembly.GetManifestResourceStream(resourceName);
+            using Stream? resource = thisAssembly.GetManifestResourceStream(resourceName);
             if (resource is null)
                 return null;
-            using var reader = new StreamReader(resource);
+            using StreamReader? reader = new StreamReader(resource);
             return reader.ReadToEnd();
         }
     }

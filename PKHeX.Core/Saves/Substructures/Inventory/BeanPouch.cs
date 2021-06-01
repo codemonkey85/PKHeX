@@ -14,8 +14,8 @@ namespace PKHeX.Core
 
         public static string[] GetBeanList()
         {
-            var colors = Enum.GetNames(typeof(BeanColor));
-            var beans = new List<string>();
+            string[]? colors = Enum.GetNames(typeof(BeanColor));
+            List<string>? beans = new List<string>();
             // 7 regular, 7 patterned, one rainbow
             beans.AddRange(colors.Select(z => $"{z} Bean"));
             beans.AddRange(colors.Select(z => $"{z} Patterned Bean"));

@@ -10,9 +10,9 @@ namespace PKHeX.Core
 
         public static Learnset GetLearnset(GameVersion game, int species, int form)
         {
-            var pt = Personal(game);
-            var index = pt.GetFormIndex(species, form);
-            var sets = Learnsets(game);
+            PersonalTable? pt = Personal(game);
+            int index = pt.GetFormIndex(species, form);
+            Learnset[]? sets = Learnsets(game);
             return sets[index];
         }
 

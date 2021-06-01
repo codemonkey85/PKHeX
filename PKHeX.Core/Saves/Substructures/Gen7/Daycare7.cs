@@ -36,7 +36,7 @@
                 if (value.Length != DaycareSeedSize)
                     return;
 
-                var data = Util.GetBytesFromHexString(value);
+                byte[]? data = Util.GetBytesFromHexString(value);
                 SAV.SetData(data, Offset + 0x1DC);
             }
         }

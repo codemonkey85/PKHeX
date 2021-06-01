@@ -25,7 +25,7 @@ namespace PKHeX.Core
 
         internal static EncounterArea7g[] GetArea(byte[][] data)
         {
-            var areas = new EncounterArea7g[data.Length];
+            EncounterArea7g[]? areas = new EncounterArea7g[data.Length];
             for (int i = 0; i < areas.Length; i++)
                 areas[i] = GetArea(data[i]);
             return areas;
@@ -35,15 +35,15 @@ namespace PKHeX.Core
 
         private static EncounterArea7g GetArea(byte[] data)
         {
-            var sf = BitConverter.ToUInt16(data, 0);
+            ushort sf = BitConverter.ToUInt16(data, 0);
             int species = sf & 0x7FF;
             int form = sf >> 11;
 
-            var result = new EncounterSlot7GO[(data.Length - 2) / entrySize];
-            var area = new EncounterArea7g(species, form) { Slots = result };
+            EncounterSlot7GO[]? result = new EncounterSlot7GO[(data.Length - 2) / entrySize];
+            EncounterArea7g? area = new EncounterArea7g(species, form) { Slots = result };
             for (int i = 0; i < result.Length; i++)
             {
-                var offset = (i * entrySize) + 2;
+                int offset = (i * entrySize) + 2;
                 result[i] = ReadSlot(data, offset, area, species, form);
             }
 
@@ -54,10 +54,10 @@ namespace PKHeX.Core
         {
             int start = BitConverter.ToInt32(data, offset);
             int end = BitConverter.ToInt32(data, offset + 4);
-            var sg = data[offset + 8];
-            var shiny = (Shiny)(sg & 0x3F);
-            var gender = (Gender)(sg >> 6);
-            var type = (PogoType)data[offset + 9];
+            byte sg = data[offset + 8];
+            Shiny shiny = (Shiny)(sg & 0x3F);
+            Gender gender = (Gender)(sg >> 6);
+            PogoType type = (PogoType)data[offset + 9];
             return new EncounterSlot7GO(area, species, form, start, end, shiny, gender, type);
         }
 
@@ -66,17 +66,17 @@ namespace PKHeX.Core
             // Find the first chain that has slots defined.
             // Since it is possible to evolve before transferring, we only need the highest evolution species possible.
             // PoGoEncTool has already extrapolated the evolutions to separate encounters!
-            var sf = chain.FirstOrDefault(z => z.Species == Species && z.Form == Form);
+            EvoCriteria? sf = chain.FirstOrDefault(z => z.Species == Species && z.Form == Form);
             if (sf == null)
                 yield break;
 
-            var stamp = EncounterSlotGO.GetTimeStamp(pkm.Met_Year + 2000, pkm.Met_Month, pkm.Met_Day);
-            var met = Math.Max(sf.MinLevel, pkm.Met_Level);
+            int stamp = EncounterSlotGO.GetTimeStamp(pkm.Met_Year + 2000, pkm.Met_Month, pkm.Met_Day);
+            int met = Math.Max(sf.MinLevel, pkm.Met_Level);
             EncounterSlot? deferredIV = null;
 
-            foreach (var s in Slots)
+            foreach (EncounterSlot? s in Slots)
             {
-                var slot = (EncounterSlot7GO)s;
+                EncounterSlot7GO? slot = (EncounterSlot7GO)s;
                 if (!slot.IsLevelWithinRange(met))
                     continue;
                 //if (!slot.IsBallValid(ball)) -- can have any of the in-game balls due to re-capture

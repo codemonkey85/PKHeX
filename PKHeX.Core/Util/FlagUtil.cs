@@ -27,8 +27,8 @@
         public static void SetFlag(byte[] arr, int offset, int bitIndex, bool value)
         {
             bitIndex &= 7; // ensure bit access is 0-7
-            var current = arr[offset] & ~(1 << bitIndex);
-            var newValue = current | ((value ? 1 : 0) << bitIndex);
+            int current = arr[offset] & ~(1 << bitIndex);
+            int newValue = current | ((value ? 1 : 0) << bitIndex);
             arr[offset] = (byte)newValue;
         }
     }

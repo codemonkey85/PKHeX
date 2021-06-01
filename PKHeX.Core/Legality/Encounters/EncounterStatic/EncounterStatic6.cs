@@ -26,13 +26,13 @@
                 return false;
 
             // Cosplay Pikachu is given from multiple locations
-            var loc = pkm.Met_Location;
+            int loc = pkm.Met_Location;
             return loc is 180 or 186 or 194;
         }
 
         protected override bool IsMatchEggLocation(PKM pkm)
         {
-            var eggloc = pkm.Egg_Location;
+            int eggloc = pkm.Egg_Location;
             if (!EggEncounter)
                 return eggloc == EggLocation;
 
@@ -50,7 +50,7 @@
         protected override void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
             base.ApplyDetails(sav, criteria, pk);
-            var pk6 = (PK6)pk;
+            PK6? pk6 = (PK6)pk;
             this.CopyContestStatsTo(pk6);
             pk6.SetRandomMemory6();
             pk6.SetRandomEC();

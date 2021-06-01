@@ -42,7 +42,7 @@ namespace PKHeX.Core
                 if (value.Length != GameSyncIDSize)
                     throw new ArgumentException(nameof(value));
 
-                var data = Util.GetBytesFromHexString(value);
+                byte[]? data = Util.GetBytesFromHexString(value);
                 SAV.SetData(data, Offset + 0x10);
             }
         }
@@ -55,7 +55,7 @@ namespace PKHeX.Core
                 if (value.Length != NexUniqueIDSize)
                     throw new ArgumentException(nameof(value));
 
-                var data = Util.GetBytesFromHexString(value);
+                byte[]? data = Util.GetBytesFromHexString(value);
                 SAV.SetData(data, Offset + 0x18);
             }
         }

@@ -11,8 +11,8 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var enc = data.EncounterOriginal;
+            PKM? pkm = data.pkm;
+            IEncounterable? enc = data.EncounterOriginal;
             if (enc is MysteryGift gift)
             {
                 if (gift.Level != pkm.Met_Level && pkm.HasOriginalMetLocation)
@@ -46,7 +46,7 @@ namespace PKHeX.Core
                     return;
                 }
 
-                var reqEXP = enc is EncounterStatic {Version: GameVersion.C}
+                uint reqEXP = enc is EncounterStatic {Version: GameVersion.C}
                     ? 125 // Gen2 Dizzy Punch gifts always have 125 EXP, even if it's more than the Lv5 exp required.
                     : Experience.GetEXP(elvl, pkm.PersonalInfo.EXPGrowth);
                 if (reqEXP != pkm.EXP)
@@ -65,8 +65,8 @@ namespace PKHeX.Core
 
         public void VerifyG1(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var enc = data.EncounterMatch;
+            PKM? pkm = data.pkm;
+            IEncounterable? enc = data.EncounterMatch;
             if (pkm.IsEgg)
             {
                 const int elvl = 5;
@@ -94,14 +94,14 @@ namespace PKHeX.Core
             if (ParseSettings.ActiveTrainer.Generation >= 3 || ParseSettings.AllowGBCartEra)
                 return;
 
-            var pkm = data.pkm;
-            var mustevolve = pkm.TradebackStatus == TradebackType.WasTradeback || (pkm.Format == 1 && !ParseSettings.IsFromActiveTrainer(pkm)) || GBRestrictions.IsTradedKadabraG1(pkm);
+            PKM? pkm = data.pkm;
+            bool mustevolve = pkm.TradebackStatus == TradebackType.WasTradeback || (pkm.Format == 1 && !ParseSettings.IsFromActiveTrainer(pkm)) || GBRestrictions.IsTradedKadabraG1(pkm);
             if (!mustevolve)
                 return;
 
             // Pokemon have been traded but it is not evolved, trade evolutions are sequential dex numbers
-            var evolved = ParseSettings.SpeciesStrings[pkm.Species + 1];
-            var unevolved = ParseSettings.SpeciesStrings[pkm.Species];
+            string? evolved = ParseSettings.SpeciesStrings[pkm.Species + 1];
+            string? unevolved = ParseSettings.SpeciesStrings[pkm.Species];
             data.AddLine(GetInvalid(string.Format(LEvoTradeReqOutsider, unevolved, evolved)));
         }
     }

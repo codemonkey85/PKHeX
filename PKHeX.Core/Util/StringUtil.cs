@@ -39,7 +39,7 @@ namespace PKHeX.Core
         {
             if (length < 0)
                 length = items.Count - start;
-            var result = new int[length];
+            int[]? result = new int[length];
             for (int i = 0; i < result.Length; i++)
                 result[i] = FindIndexIgnoreCase(arr, items[start + i]);
             return result;
@@ -50,7 +50,7 @@ namespace PKHeX.Core
             if (string1.Length != string2.Length)
                 return false;
             const CompareOptions options = CompareOptions.IgnoreCase | CompareOptions.IgnoreNonSpace | CompareOptions.IgnoreSymbols | CompareOptions.IgnoreWidth;
-            var compare = CompareInfo.Compare(string1, string2, options);
+            int compare = CompareInfo.Compare(string1, string2, options);
             return compare == 0;
         }
 
@@ -61,7 +61,7 @@ namespace PKHeX.Core
         {
             if (nth != 1)
                 start = line.IndexOfNth(separator, nth - 1, start + 1);
-            var end = line.IndexOfNth(separator, 1, start + 1);
+            int end = line.IndexOfNth(separator, 1, start + 1);
             return end == -1 ? line[(start + 1)..] : line[(start + 1)..end];
         }
 
@@ -83,12 +83,12 @@ namespace PKHeX.Core
         /// </summary>
         public static byte[] ToByteArray(this string toTransform)
         {
-            var result = new byte[toTransform.Length / 2];
+            byte[]? result = new byte[toTransform.Length / 2];
             for (int i = 0; i < result.Length; i++)
             {
-                var ofs = i << 1;
-                var _0 = toTransform[ofs + 0];
-                var _1 = toTransform[ofs + 1];
+                int ofs = i << 1;
+                char _0 = toTransform[ofs + 0];
+                char _1 = toTransform[ofs + 1];
                 result[i] = DecodeTuple(_0, _1);
             }
             return result;

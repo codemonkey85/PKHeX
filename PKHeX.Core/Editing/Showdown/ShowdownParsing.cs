@@ -42,7 +42,7 @@ namespace PKHeX.Core
             if (form <= 0)
                 return string.Empty;
 
-            var forms = FormConverter.GetFormList(species, strings.Types, strings.forms, genderForms, format);
+            string[]? forms = FormConverter.GetFormList(species, strings.Types, strings.forms, genderForms, format);
             return form >= forms.Length ? string.Empty : forms[form];
         }
 
@@ -122,8 +122,8 @@ namespace PKHeX.Core
         {
             // exported sets always have >4 moves; new List will always require 1 resizing, allocate 2x to save 1 reallocation.
             // intro, nature, ability, (ivs, evs, shiny, level) 4*moves
-            var setLines = new List<string>(8);
-            foreach (var line in lines)
+            List<string>? setLines = new List<string>(8);
+            foreach (string? line in lines)
             {
                 if (!string.IsNullOrWhiteSpace(line))
                 {
@@ -174,7 +174,7 @@ namespace PKHeX.Core
         /// <returns>Multi-line string</returns>
         public static string GetLocalizedPreviewText(PKM pk, string language)
         {
-            var set = new ShowdownSet(pk);
+            ShowdownSet? set = new ShowdownSet(pk);
             if (pk.Format <= 2) // Nature preview from IVs
                 set.Nature = Experience.GetNatureVC(pk.EXP);
             return set.LocalizedText(language);

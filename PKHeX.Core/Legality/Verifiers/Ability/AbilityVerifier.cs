@@ -12,7 +12,7 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var result = VerifyAbility(data);
+            CheckResult? result = VerifyAbility(data);
             data.AddLine(result);
         }
 
@@ -27,8 +27,8 @@ namespace PKHeX.Core
 
         private CheckResult VerifyAbility(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var pi = data.PersonalInfo;
+            PKM? pkm = data.pkm;
+            PersonalInfo? pi = data.PersonalInfo;
 
             // Check ability is possible (within bounds)
             int ability = pkm.Ability;
@@ -36,12 +36,12 @@ namespace PKHeX.Core
             if (abilval < 0)
                 return GetInvalid(LAbilityUnexpected);
 
-            var abilities = pi.Abilities;
+            IReadOnlyList<int>? abilities = pi.Abilities;
             int format = pkm.Format;
             if (format >= 6)
             {
                 // Check AbilityNumber is a single set bit
-                var num = pkm.AbilityNumber;
+                int num = pkm.AbilityNumber;
                 if (!(num != 0 && (num & (num - 1)) == 0)) // not [!zero, and power of 2]
                     return GetInvalid(LAbilityMismatchFlag);
 
@@ -59,8 +59,8 @@ namespace PKHeX.Core
                     if (abilities[0] == abilities[1] && num != 1)
                     {
                         // Check if any pre-evolution could have it flipped.
-                        var evos = data.Info.EvoChainsAllGens[6];
-                        var pt = GameData.GetPersonal(GameUtil.GetVersion(pkm.Format));
+                        IReadOnlyList<EvoCriteria>? evos = data.Info.EvoChainsAllGens[6];
+                        PersonalTable? pt = GameData.GetPersonal(GameUtil.GetVersion(pkm.Format));
                         if (!GetWasDual(evos, pt, pkm))
                             return GetInvalid(LAbilityMismatchFlag);
                     }
@@ -74,13 +74,13 @@ namespace PKHeX.Core
                     if (CanAbilityPatch(format, abilities, pkm.Species))
                         return GetValid(LAbilityPatchUsed);
 
-                    var e = data.EncounterOriginal;
+                    IEncounterable? e = data.EncounterOriginal;
                     if (e.Species != pkm.Species && CanAbilityPatch(format, PKX.Personal.GetFormEntry(e.Species, e.Form).Abilities, e.Species))
                         return GetValid(LAbilityPatchUsed);
                 }
             }
 
-            var enc = data.EncounterMatch;
+            IEncounterable? enc = data.EncounterMatch;
             if (enc is MysteryGift {Generation: >= 4} g)
                 return VerifyAbilityMG(data, g, abilities);
 
@@ -92,13 +92,13 @@ namespace PKHeX.Core
 
         private static bool GetWasDual(IReadOnlyList<EvoCriteria> evos, PersonalTable pt, ISpeciesForm pk)
         {
-            foreach (var evo in evos)
+            foreach (EvoCriteria? evo in evos)
             {
                 if (evo.Species == pk.Species)
                     continue;
 
-                var pe = pt.GetFormEntry(evo.Species, evo.Form);
-                var abils = pe.Abilities;
+                PersonalInfo? pe = pt.GetFormEntry(evo.Species, evo.Form);
+                IReadOnlyList<int>? abils = pe.Abilities;
                 if (CanAbilityCapsule(6, abils))
                     return true;
             }
@@ -108,8 +108,8 @@ namespace PKHeX.Core
 
         private CheckResult VerifyAbility(LegalityAnalysis data, IReadOnlyList<int> abilities, int abilnum)
         {
-            var enc = data.EncounterMatch;
-            var eabil = GetEncounterFixedAbilityNumber(enc);
+            IEncounterable? enc = data.EncounterMatch;
+            int eabil = GetEncounterFixedAbilityNumber(enc);
             if (eabil >= 0)
             {
                 if ((data.pkm.AbilityNumber == 4) != (eabil == 4))
@@ -118,7 +118,7 @@ namespace PKHeX.Core
                     return VerifyFixedAbility(data, abilities, AbilityState.CanMismatch, eabil, abilnum);
             }
 
-            var gen = data.Info.Generation;
+            int gen = data.Info.Generation;
             return gen switch
             {
                 5 => VerifyAbility5(data, enc, abilities),
@@ -131,9 +131,9 @@ namespace PKHeX.Core
 
         private CheckResult VerifyAbility345(LegalityAnalysis data, IEncounterable enc, IReadOnlyList<int> abilities, int abilnum)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             int format = pkm.Format;
-            var state = AbilityState.MustMatch;
+            AbilityState state = AbilityState.MustMatch;
             if (format is (3 or 4 or 5) && abilities[0] != abilities[1]) // 3-4/5 and have 2 distinct abilities now
                 state = VerifyAbilityPreCapsule(data, abilities);
 
@@ -155,7 +155,7 @@ namespace PKHeX.Core
 
         private CheckResult VerifyFixedAbility(LegalityAnalysis data, IReadOnlyList<int> abilities, AbilityState state, int EncounterAbility, int abilval)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (data.Info.EncounterMatch.Generation >= 6)
             {
                 if (IsAbilityCapsuleModified(pkm, abilities, EncounterAbility))
@@ -204,7 +204,7 @@ namespace PKHeX.Core
 
         private AbilityState VerifyAbilityPreCapsule(LegalityAnalysis data, IReadOnlyList<int> abilities)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             // CXD pokemon can have any ability without matching PID
             if (pkm.Version == (int)GameVersion.CXD && pkm.Format == 3)
                 return AbilityState.CanMismatch;
@@ -227,15 +227,15 @@ namespace PKHeX.Core
 
         private AbilityState VerifyAbilityGen3Transfer(LegalityAnalysis data, IReadOnlyList<int> abilities, int maxGen3Species)
         {
-            var pkm = data.pkm;
-            var pers = (PersonalInfoG3)PersonalTable.E[maxGen3Species];
+            PKM? pkm = data.pkm;
+            PersonalInfoG3? pers = (PersonalInfoG3)PersonalTable.E[maxGen3Species];
             if (pers.Ability1 != pers.Ability2) // Excluding Colosseum/XD, a Gen3 pkm must match PID if it has 2 unique abilities
                 return pkm.Version == (int) GameVersion.CXD ? AbilityState.CanMismatch : AbilityState.MustMatch;
 
             if (pkm.Species != maxGen3Species) // it has evolved in either gen 4 or gen 5; the ability must match PID
                 return AbilityState.MustMatch;
 
-            var chain = data.Info.EvoChainsAllGens;
+            IReadOnlyList<EvoCriteria>[]? chain = data.Info.EvoChainsAllGens;
             bool evolved45 = chain[4].Count > 1 || (pkm.Format == 5 && chain[5].Count > 1);
             if (evolved45)
             {
@@ -259,11 +259,11 @@ namespace PKHeX.Core
             if (g is PCD d)
                 return VerifyAbilityPCD(data, abilities, d);
 
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (g is PGT) // Ranger Manaphy
                 return (pkm.Format >= 6 ? (pkm.AbilityNumber == 1) : (pkm.AbilityNumber < 4)) ? VALID : GetInvalid(LAbilityMismatchGift);
 
-            var cardType = g.AbilityType;
+            int cardType = g.AbilityType;
             if (cardType == 4) // 1/2/H
                 return VALID;
             int abilNumber = pkm.AbilityNumber;
@@ -287,7 +287,7 @@ namespace PKHeX.Core
                     return GetValid(LAbilityCapsuleUsed);
 
                 // Maybe was evolved after using ability capsule.
-                var evos = data.Info.EvoChainsAllGens[pkm.Format];
+                IReadOnlyList<EvoCriteria>? evos = data.Info.EvoChainsAllGens[pkm.Format];
                 if (GetWasDual(evos, PKX.Personal, pkm))
                     return GetValid(LAbilityCapsuleUsed);
             }
@@ -297,8 +297,8 @@ namespace PKHeX.Core
 
         private CheckResult VerifyAbilityPCD(LegalityAnalysis data, IReadOnlyList<int> abilities, PCD pcd)
         {
-            var pkm = data.pkm;
-            var format = pkm.Format;
+            PKM? pkm = data.pkm;
+            int format = pkm.Format;
             if (format >= 6)
             {
                 if (CanAbilityCapsule(format, abilities))
@@ -321,7 +321,7 @@ namespace PKHeX.Core
 
         private CheckResult VerifyAbility5(LegalityAnalysis data, IEncounterable enc, IReadOnlyList<int> abilities)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             switch (enc)
             {
                 case EncounterSlot w:
@@ -337,13 +337,13 @@ namespace PKHeX.Core
                         return GetInvalid(LAbilityHiddenUnavailable);
                     break;
             }
-            var state = pkm.Format == 5 ? AbilityState.MustMatch : AbilityState.CanMismatch;
+            AbilityState state = pkm.Format == 5 ? AbilityState.MustMatch : AbilityState.CanMismatch;
             return CheckMatch(data.pkm, abilities, 5, state);
         }
 
         private CheckResult VerifyAbility6(LegalityAnalysis data, IEncounterable enc)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (pkm.AbilityNumber != 4)
                 return VALID;
 
@@ -362,7 +362,7 @@ namespace PKHeX.Core
 
         private CheckResult VerifyAbility7(LegalityAnalysis data, IEncounterable enc)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             if (enc is EncounterSlot slot && pkm.AbilityNumber == 4)
             {
                 bool valid = slot.Area.Type == SlotType.SOS;
@@ -394,7 +394,7 @@ namespace PKHeX.Core
             // Check that the ability bit is correct.
             if (pkm is G3PKM g3)
             {
-                var abit = g3.AbilityBit;
+                bool abit = g3.AbilityBit;
                 if (abilities[0] == abilities[1]) // Not a dual ability
                 {
                     // Must not have the Ability bit flag set.
@@ -423,7 +423,7 @@ namespace PKHeX.Core
 
         private CheckResult GetPIDAbilityMatch(PKM pkm, IReadOnlyList<int> abilities)
         {
-            var abil = abilities[pkm.AbilityNumber >> 1];
+            int abil = abilities[pkm.AbilityNumber >> 1];
             if (abil != pkm.Ability)
                 return GetInvalid(LAbilityMismatchPID);
 
@@ -455,7 +455,7 @@ namespace PKHeX.Core
                 return false;
 
             // Can alter ability index if it is different from the other abilities.
-            var h = abilities[2];
+            int h = abilities[2];
             if (h != abilities[0] || h != abilities[1])
                 return true;
 

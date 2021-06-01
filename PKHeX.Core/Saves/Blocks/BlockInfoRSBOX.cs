@@ -24,14 +24,14 @@ namespace PKHeX.Core
 
         protected override bool ChecksumValid(byte[] data)
         {
-            var chk = GetChecksum(data);
-            var old = BigEndian.ToUInt32(data, Offset);
+            uint chk = GetChecksum(data);
+            uint old = BigEndian.ToUInt32(data, Offset);
             return chk == old;
         }
 
         protected override void SetChecksum(byte[] data)
         {
-            var chk = GetChecksum(data);
+            uint chk = GetChecksum(data);
             data[Offset + 0] = (byte)(chk >> 24);
             data[Offset + 1] = (byte)(chk >> 16);
             data[Offset + 2] = (byte)(chk >> 8);
@@ -41,7 +41,7 @@ namespace PKHeX.Core
         private uint GetChecksum(byte[] data)
         {
             int start = Offset + 4;
-            var span = new ReadOnlySpan<byte>(data, start, ChecksumRegionSize);
+            ReadOnlySpan<byte> span = new ReadOnlySpan<byte>(data, start, ChecksumRegionSize);
             return Checksums.CheckSum16BigInvert(span);
         }
     }

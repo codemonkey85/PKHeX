@@ -42,7 +42,7 @@ namespace PKHeX.Core
 
         public WR7[] GetRecords()
         {
-            var arr = new WR7[RecordMax];
+            WR7[]? arr = new WR7[RecordMax];
             for (int i = 0; i < arr.Length; i++)
                 arr[i] = GetRecord(i);
             return arr;
@@ -57,14 +57,14 @@ namespace PKHeX.Core
         public bool GetFlag(int flag)
         {
             int ofs = GetFlagOffset(flag);
-            var mask = 1 << (flag & 7);
+            int mask = 1 << (flag & 7);
             return (Data[ofs] & mask) != 0;
         }
 
         public void SetFlag(int flag, bool value)
         {
             int ofs = GetFlagOffset(flag);
-            var mask = 1 << (flag & 7);
+            int mask = 1 << (flag & 7);
             if (value)
                 Data[ofs] |= (byte)mask;
             else
@@ -73,7 +73,7 @@ namespace PKHeX.Core
 
         public bool[] GetFlags()
         {
-            var value = new bool[FlagCountMax];
+            bool[]? value = new bool[FlagCountMax];
             for (int i = 0; i < value.Length; i++)
                 value[i] = GetFlag(i);
             return value;

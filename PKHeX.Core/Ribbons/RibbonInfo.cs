@@ -45,9 +45,9 @@ namespace PKHeX.Core
         public static IReadOnlyList<RibbonInfo> GetRibbonInfo(PKM pkm)
         {
             // Get a list of all Ribbon Attributes in the PKM
-            var riblist = new List<RibbonInfo>();
-            var names = ReflectUtil.GetPropertiesStartWithPrefix(pkm.GetType(), PropertyPrefix);
-            foreach (var name in names)
+            List<RibbonInfo>? riblist = new List<RibbonInfo>();
+            IEnumerable<string>? names = ReflectUtil.GetPropertiesStartWithPrefix(pkm.GetType(), PropertyPrefix);
+            foreach (string? name in names)
             {
                 object? RibbonValue = ReflectUtil.GetValue(pkm, name);
                 if (RibbonValue is int x)

@@ -82,7 +82,7 @@ namespace PKHeX.Core
 
         private void SetSpeciesValues(int value)
         {
-            var updated = SpeciesConverter.SetG1Species(value);
+            byte updated = SpeciesConverter.SetG1Species(value);
             if (SpeciesID1 == updated)
                 return;
 
@@ -146,7 +146,7 @@ namespace PKHeX.Core
 
         public PK7 ConvertToPK7()
         {
-            var pk7 = new PK7
+            PK7? pk7 = new PK7
             {
                 EncryptionConstant = Util.Rand32(),
                 Species = Species,
@@ -179,7 +179,7 @@ namespace PKHeX.Core
             PKMConverter.SetConsoleRegionData3DS(pk7);
             PKMConverter.SetFirstCountryRegion(pk7);
             pk7.HealPP();
-            var lang = TransferLanguage(PKMConverter.Language);
+            int lang = TransferLanguage(PKMConverter.Language);
             pk7.Language = lang;
             pk7.Nickname = SpeciesName.GetSpeciesNameGeneration(pk7.Species, lang, pk7.Format);
             if (RawOT[0] == StringConverter12.G1TradeOTCode) // In-game Trade
@@ -187,12 +187,12 @@ namespace PKHeX.Core
             pk7.OT_Friendship = pk7.HT_Friendship = PersonalTable.SM[Species].BaseFriendship;
 
             // IVs
-            var new_ivs = new int[6];
+            int[]? new_ivs = new int[6];
             int flawless = Species == (int)Core.Species.Mew ? 5 : 3;
-            var rnd = Util.Rand;
-            for (var i = 0; i < new_ivs.Length; i++)
+            Random? rnd = Util.Rand;
+            for (int i = 0; i < new_ivs.Length; i++)
                 new_ivs[i] = rnd.Next(32);
-            for (var i = 0; i < flawless; i++)
+            for (int i = 0; i < flawless; i++)
                 new_ivs[i] = 31;
             Util.Shuffle(new_ivs);
             pk7.IVs = new_ivs;

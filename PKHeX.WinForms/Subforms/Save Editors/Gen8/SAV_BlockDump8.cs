@@ -25,7 +25,7 @@ namespace PKHeX.WinForms
             PG_BlockView.Size = RTB_Hex.Size;
 
             // Get an external source of names if available.
-            var extra = GetExtraKeyNames();
+            IEnumerable<string>? extra = GetExtraKeyNames();
             Metadata = new SCBlockMetadata(SAV.Blocks, extra);
 
             CB_Key.InitializeBinding();
@@ -47,13 +47,13 @@ namespace PKHeX.WinForms
 
         private static IEnumerable<string> GetExtraKeyNames()
         {
-            var extra = Main.Settings.Advanced.PathBlockKeyListSWSH;
+            string? extra = Main.Settings.Advanced.PathBlockKeyListSWSH;
             return File.Exists(extra) ? File.ReadLines(extra) : Array.Empty<string>();
         }
 
         private void CB_Key_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var key = (uint)WinFormsUtil.GetIndex(CB_Key);
+            uint key = (uint)WinFormsUtil.GetIndex(CB_Key);
             CurrentBlock = SAV.Blocks.GetBlock(key);
             UpdateBlockSummaryControls();
             if (CurrentBlock.Type.IsBoolean())
@@ -69,11 +69,11 @@ namespace PKHeX.WinForms
 
         private void UpdateBlockSummaryControls()
         {
-            var block = CurrentBlock;
+            SCBlock? block = CurrentBlock;
             L_Detail_R.Text = GetBlockSummary(block);
             RTB_Hex.Text = string.Join(" ", block.Data.Select(z => $"{z:X2}"));
 
-            var blockName = Metadata.GetBlockName(block, out var obj);
+            string? blockName = Metadata.GetBlockName(block, out SaveBlock? obj);
             if (blockName != null)
             {
                 L_BlockName.Visible = true;
@@ -89,7 +89,7 @@ namespace PKHeX.WinForms
                 // Show a PropertyGrid to edit
                 if (obj != null)
                 {
-                    var props = ReflectUtil.GetPropertiesCanWritePublicDeclared(obj.GetType());
+                    IEnumerable<string>? props = ReflectUtil.GetPropertiesCanWritePublicDeclared(obj.GetType());
                     if (props.Count() > 1)
                     {
                         PG_BlockView.Visible = true;
@@ -98,7 +98,7 @@ namespace PKHeX.WinForms
                     }
                 }
 
-                var o = SCBlockMetadata.GetEditableBlockObject(block);
+                object? o = SCBlockMetadata.GetEditableBlockObject(block);
                 if (o != null)
                 {
                     PG_BlockView.Visible = true;
@@ -111,9 +111,9 @@ namespace PKHeX.WinForms
 
         private void CB_TypeToggle_SelectedIndexChanged(object sender, EventArgs e)
         {
-            var block = CurrentBlock;
-            var cType = block.Type;
-            var cValue = (SCTypeCode)WinFormsUtil.GetIndex(CB_TypeToggle);
+            SCBlock? block = CurrentBlock;
+            SCTypeCode cType = block.Type;
+            SCTypeCode cValue = (SCTypeCode)WinFormsUtil.GetIndex(CB_TypeToggle);
             if (cType == cValue)
                 return;
             block.Type = cValue;
@@ -122,30 +122,30 @@ namespace PKHeX.WinForms
 
         private void B_ExportAll_Click(object sender, EventArgs e)
         {
-            using var fbd = new FolderBrowserDialog();
+            using FolderBrowserDialog? fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() != DialogResult.OK)
                 return;
-            var path = fbd.SelectedPath;
-            var blocks = SAV.AllBlocks;
+            string? path = fbd.SelectedPath;
+            IReadOnlyList<SCBlock>? blocks = SAV.AllBlocks;
             ExportAllBlocks(blocks, path);
         }
 
         private static void ExportAllBlocks(IEnumerable<SCBlock> blocks, string path)
         {
-            foreach (var b in blocks.Where(z => z.Data.Length != 0))
+            foreach (SCBlock? b in blocks.Where(z => z.Data.Length != 0))
                 File.WriteAllBytes(Path.Combine(path, $"{GetBlockFileNameWithoutExtension(b)}.bin"), b.Data);
         }
 
         private void B_ImportFolder_Click(object sender, EventArgs e)
         {
-            using var fbd = new FolderBrowserDialog();
+            using FolderBrowserDialog? fbd = new FolderBrowserDialog();
             if (fbd.ShowDialog() != DialogResult.OK)
                 return;
 
-            var failed = ImportBlocksFromFolder(fbd.SelectedPath, SAV);
+            List<string>? failed = ImportBlocksFromFolder(fbd.SelectedPath, SAV);
             if (failed.Count != 0)
             {
-                var msg = string.Join(Environment.NewLine, failed);
+                string? msg = string.Join(Environment.NewLine, failed);
                 WinFormsUtil.Error("Failed to import:", msg);
             }
         }
@@ -155,14 +155,14 @@ namespace PKHeX.WinForms
 
         private void B_ExportAllSingle_Click(object sender, EventArgs e)
         {
-            using var sfd = new SaveFileDialog { FileName = "raw.bin" };
+            using SaveFileDialog? sfd = new SaveFileDialog { FileName = "raw.bin" };
             if (sfd.ShowDialog() != DialogResult.OK)
                 return;
 
-            var path = sfd.FileName;
+            string? path = sfd.FileName;
 
-            var blocks = SAV.Blocks.BlockInfo;
-            var option = SCBlockExportOption.None;
+            IReadOnlyList<SCBlock>? blocks = SAV.Blocks.BlockInfo;
+            SCBlockExportOption option = SCBlockExportOption.None;
             if (CHK_DataOnly.Checked)
                 option |= SCBlockExportOption.DataOnly;
             if (CHK_Key.Checked)
@@ -177,7 +177,7 @@ namespace PKHeX.WinForms
 
         private void B_LoadOld_Click(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog { FileName = "main" };
+            using OpenFileDialog? ofd = new OpenFileDialog { FileName = "main" };
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
             TB_OldSAV.Text = ofd.FileName;
@@ -187,7 +187,7 @@ namespace PKHeX.WinForms
 
         private void B_LoadNew_Click(object sender, EventArgs e)
         {
-            using var ofd = new OpenFileDialog { FileName = "main" };
+            using OpenFileDialog? ofd = new OpenFileDialog { FileName = "main" };
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
             TB_NewSAV.Text = ofd.FileName;
@@ -197,33 +197,33 @@ namespace PKHeX.WinForms
 
         private void CompareSaves()
         {
-            var p1 = TB_OldSAV.Text;
-            var p2 = TB_NewSAV.Text;
+            string? p1 = TB_OldSAV.Text;
+            string? p2 = TB_NewSAV.Text;
 
-            var f1 = new FileInfo(p1);
+            FileInfo? f1 = new FileInfo(p1);
             if (!SaveUtil.IsSizeValid((int)f1.Length))
                 return;
-            var f2 = new FileInfo(p1);
+            FileInfo? f2 = new FileInfo(p1);
             if (!SaveUtil.IsSizeValid((int)f2.Length))
                 return;
 
-            var s1 = SaveUtil.GetVariantSAV(p1);
+            SaveFile? s1 = SaveUtil.GetVariantSAV(p1);
             if (s1 is not SAV8SWSH w1)
                 return;
-            var s2 = SaveUtil.GetVariantSAV(p2);
+            SaveFile? s2 = SaveUtil.GetVariantSAV(p2);
             if (s2 is not SAV8SWSH w2)
                 return;
 
             // Get an external source of names if available.
-            var extra = GetExtraKeyNames();
-            var compare = new SCBlockCompare(w1.Blocks, w2.Blocks, extra);
+            IEnumerable<string>? extra = GetExtraKeyNames();
+            SCBlockCompare? compare = new SCBlockCompare(w1.Blocks, w2.Blocks, extra);
             richTextBox1.Lines = compare.Summary().ToArray();
         }
 
         private static void ExportSelectBlock(SCBlock block)
         {
-            var name = GetBlockFileNameWithoutExtension(block);
-            using var sfd = new SaveFileDialog {FileName = $"{name}.bin"};
+            string? name = GetBlockFileNameWithoutExtension(block);
+            using SaveFileDialog? sfd = new SaveFileDialog {FileName = $"{name}.bin"};
             if (sfd.ShowDialog() != DialogResult.OK)
                 return;
             File.WriteAllBytes(sfd.FileName, block.Data);
@@ -231,21 +231,21 @@ namespace PKHeX.WinForms
 
         private static void ImportSelectBlock(SCBlock blockTarget)
         {
-            var key = blockTarget.Key;
-            var data = blockTarget.Data;
-            using var ofd = new OpenFileDialog {FileName = $"{key:X8}.bin"};
+            uint key = blockTarget.Key;
+            byte[]? data = blockTarget.Data;
+            using OpenFileDialog? ofd = new OpenFileDialog {FileName = $"{key:X8}.bin"};
             if (ofd.ShowDialog() != DialogResult.OK)
                 return;
 
-            var path = ofd.FileName;
-            var file = new FileInfo(path);
+            string? path = ofd.FileName;
+            FileInfo? file = new FileInfo(path);
             if (file.Length != data.Length)
             {
                 WinFormsUtil.Error(string.Format(MessageStrings.MsgFileSize, $"0x{file.Length:X8}"));
                 return;
             }
 
-            var bytes = File.ReadAllBytes(path);
+            byte[]? bytes = File.ReadAllBytes(path);
             bytes.CopyTo(data, 0);
         }
 
@@ -261,7 +261,7 @@ namespace PKHeX.WinForms
             if (e.KeyCode != Keys.Enter)
                 return;
 
-            var text = CB_Key.Text;
+            string? text = CB_Key.Text;
             if (text.Length != 8)
                 return;
 

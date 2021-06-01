@@ -17,10 +17,10 @@ namespace PKHeX.Core
         {
             if (data.Length != SIZE)
                 return false;
-            var chk = BitConverter.ToUInt32(data, SIZE - 4);
+            uint chk = BitConverter.ToUInt32(data, SIZE - 4);
             if (chk > 0xF7080)
                 return false; // max if all are FF
-            var expect = GetChecksum8(data);
+            uint expect = GetChecksum8(data);
             return chk == expect;
         }
 
@@ -43,7 +43,7 @@ namespace PKHeX.Core
 
         public PK3[] GetTeam(int teamIndex, int ofs)
         {
-            var team = new PK3[6];
+            PK3[]? team = new PK3[6];
             for (int p = 0; p < 6; p++)
             {
                 int offset = ofs + (PokeCrypto.SIZE_3PARTY * p);

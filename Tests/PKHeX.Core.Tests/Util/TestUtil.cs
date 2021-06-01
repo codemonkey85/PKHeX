@@ -7,10 +7,10 @@ namespace PKHeX.Tests
     {
         public static string GetRepoPath()
         {
-            var folder = Directory.GetCurrentDirectory();
+            string? folder = Directory.GetCurrentDirectory();
             while (!folder.EndsWith(nameof(Tests)))
             {
-                var dir = Directory.GetParent(folder);
+                DirectoryInfo? dir = Directory.GetParent(folder);
                 if (dir == null)
                     throw new ArgumentNullException(nameof(dir));
                 folder = dir.FullName;

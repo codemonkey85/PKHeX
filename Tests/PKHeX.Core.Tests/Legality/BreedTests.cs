@@ -13,7 +13,7 @@ namespace PKHeX.Tests.Legality
     {
         private static int[] GetMoves(Move[] moves)
         {
-            var result = new int[4];
+            int[]? result = new int[4];
             for (int i = 0; i < moves.Length; i++)
                 result[i] = (int) moves[i];
             return result;
@@ -34,12 +34,12 @@ namespace PKHeX.Tests.Legality
         [InlineData(OR, Rotom, 0, Astonish, ThunderWave, ThunderShock, ConfuseRay)]
         public void VerifyBreed(GameVersion game, Species species, int form, params Move[] movelist)
         {
-            var gen = game.GetGeneration();
-            var moves = GetMoves(movelist);
-            var test = MoveBreed.Process(gen, (int) species, form, game, moves, out var valid);
+            int gen = game.GetGeneration();
+            int[]? moves = GetMoves(movelist);
+            object? test = MoveBreed.Process(gen, (int) species, form, game, moves, out bool valid);
             valid.Should().BeTrue();
 
-            var x = ((byte[])test);
+            byte[]? x = ((byte[])test);
 
             if (gen != 2)
                 x.SequenceEqual(x.OrderBy(z => z)).Should().BeTrue();
@@ -54,9 +54,9 @@ namespace PKHeX.Tests.Legality
         [InlineData(OR, Rotom, 0, ThunderWave, ThunderShock, ConfuseRay, Discharge)] // no inheriting levelup
         public void CheckBad(GameVersion game, Species species, int form, params Move[] movelist)
         {
-            var gen = game.GetGeneration();
-            var moves = GetMoves(movelist);
-            var test = MoveBreed.Process(gen, (int)species, form, game, moves);
+            int gen = game.GetGeneration();
+            int[]? moves = GetMoves(movelist);
+            bool test = MoveBreed.Process(gen, (int)species, form, game, moves);
             test.Should().BeFalse();
         }
 
@@ -65,12 +65,12 @@ namespace PKHeX.Tests.Legality
         [InlineData(UM, Charmander, 0, Ember, BellyDrum, Scratch, Growl)] // swap order, inherit + egg moves
         public void CheckFix(GameVersion game, Species species, int form, params Move[] movelist)
         {
-            var gen = game.GetGeneration();
-            var moves = GetMoves(movelist);
+            int gen = game.GetGeneration();
+            int[]? moves = GetMoves(movelist);
 
-            var test = MoveBreed.Process(gen, (int)species, form, game, moves, out var valid);
+            object? test = MoveBreed.Process(gen, (int)species, form, game, moves, out bool valid);
             valid.Should().BeFalse();
-            var reorder = MoveBreed.GetExpectedMoves(gen, (int)species, form, game, moves, test);
+            int[]? reorder = MoveBreed.GetExpectedMoves(gen, (int)species, form, game, moves, test);
 
             // fixed order should be different now.
             reorder.SequenceEqual(moves).Should().BeFalse();

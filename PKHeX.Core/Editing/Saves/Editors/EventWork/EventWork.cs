@@ -17,14 +17,14 @@ namespace PKHeX.Core
             if (pieces.Count < 3)
                 return;
 
-            var items = pieces[2]
+            IEnumerable<string[]>? items = pieces[2]
                 .Split(',')
                 .Select(z => z.Split(':'))
                 .Where(z => z.Length == 2);
 
-            foreach (var s in items)
+            foreach (string[]? s in items)
             {
-                if (int.TryParse(s[0], out var val))
+                if (int.TryParse(s[0], out int val))
                     Options.Add(new EventWorkVal(s[1], val));
             }
         }

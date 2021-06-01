@@ -115,11 +115,11 @@ namespace PKHeX.Core
                 return true;
 
             // Exclude evolution paths that did not require a move w/level-up evolution
-            var enc = info.EncounterOriginal;
-            if (!SpeciesEvolutionWithMove.TryGetValue(enc.Species, out var entry))
+            IEncounterable? enc = info.EncounterOriginal;
+            if (!SpeciesEvolutionWithMove.TryGetValue(enc.Species, out MoveEvolution entry))
                 return true;
 
-            var move = entry.Move;
+            int move = entry.Move;
             if (move == 0)
             {
                 // Other evolutions are fine.
@@ -128,32 +128,32 @@ namespace PKHeX.Core
             }
 
             // Check if the move was already known when it was originally encountered.
-            var gen = info.Generation;
-            var index = entry.ReferenceIndex;
+            int gen = info.Generation;
+            int index = entry.ReferenceIndex;
             if (enc is EncounterEgg)
             {
                 if (CanEggHatchWithEvolveMove[index][gen])
                 {
-                    var result = move == 0 ? IsMoveInherited(pkm, info, FairyMoves) : IsMoveInherited(pkm, info, move);
+                    bool result = move == 0 ? IsMoveInherited(pkm, info, FairyMoves) : IsMoveInherited(pkm, info, move);
                     if (result)
                         return true;
                 }
             }
             else if (enc is IMoveset s)
             {
-                var result = move == 0 ? s.Moves.Any(FairyMoves.Contains) : s.Moves.Contains(move);
+                bool result = move == 0 ? s.Moves.Any(FairyMoves.Contains) : s.Moves.Contains(move);
                 if (result)
                     return true;
             }
 
             // Current level must be at least the minimum post-evolution level.
-            var lvl = GetMinLevelKnowRequiredMove(pkm, gen, index);
+            int lvl = GetMinLevelKnowRequiredMove(pkm, gen, index);
             return pkm.CurrentLevel >= lvl;
         }
 
         private static int GetMinLevelKnowRequiredMove(PKM pkm, int gen, int index)
         {
-            var lvl = GetLevelLearnMove(pkm, gen, index);
+            int lvl = GetLevelLearnMove(pkm, gen, index);
 
             // If has original met location the minimum evolution level is one level after met level
             // Gen 3 pokemon in gen 4 games: minimum level is one level after transfer to generation 4
@@ -167,12 +167,12 @@ namespace PKHeX.Core
         private static int GetLevelLearnMove(PKM pkm, int gen, int index)
         {
             // Get the minimum level in any generation when the pokemon could learn the evolve move
-            var levels = MinLevelEvolutionWithMove[index];
-            var lvl = 101;
-            var end = pkm.Format;
+            byte[]? levels = MinLevelEvolutionWithMove[index];
+            int lvl = 101;
+            int end = pkm.Format;
             for (int g = gen; g <= end; g++)
             {
-                var l = levels[g];
+                byte l = levels[g];
                 if (l == 0)
                     continue;
                 if (l == 2)
@@ -213,7 +213,7 @@ namespace PKHeX.Core
         {
             // If the pokemon does not currently have the move, it could have been an egg move that was forgotten.
             // This requires the pokemon to not have 4 other moves identified as egg moves or inherited level up moves.
-            var fromEggCount = info.Moves.Count(m => m.IsEggSource);
+            int fromEggCount = info.Moves.Count(m => m.IsEggSource);
             return fromEggCount < 4;
         }
     }

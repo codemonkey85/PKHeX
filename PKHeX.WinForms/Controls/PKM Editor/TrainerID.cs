@@ -15,12 +15,12 @@ namespace PKHeX.WinForms.Controls
 
         public void UpdateTSV()
         {
-            var tsv = GetTSV();
+            int tsv = GetTSV();
             if (tsv < 0)
                 return;
 
             string IDstr = $"TSV: {tsv:d4}";
-            var repack = (uint)((Trainer.SID * 1_000_000) + Trainer.TID);
+            uint repack = (uint)((Trainer.SID * 1_000_000) + Trainer.TID);
 
             string supplement = Format < 7
                 ? $"G7ID: ({repack / 1_000_000:D4}){repack % 1_000_000:D6}"
@@ -37,7 +37,7 @@ namespace PKHeX.WinForms.Controls
         {
             if (Format <= 2)
                 return -1;
-            var xor = Trainer.SID ^ Trainer.TID;
+            int xor = Trainer.SID ^ Trainer.TID;
             if (Format <= 5)
                 return xor >> 3;
             return xor >> 4;
@@ -78,7 +78,7 @@ namespace PKHeX.WinForms.Controls
 
         private void LoadTID7(int tid, int sid)
         {
-            var repack = (uint)((sid << 16) | tid);
+            uint repack = (uint)((sid << 16) | tid);
             sid = (int)(repack / 1_000_000);
             tid = (int)(repack % 1_000_000);
 
@@ -91,9 +91,9 @@ namespace PKHeX.WinForms.Controls
             if (format == Format)
                 return;
 
-            var controls = GetControlsForFormat(format);
+            IEnumerable<Control>? controls = GetControlsForFormat(format);
             FLP.Controls.Clear(); int i = 0;
-            foreach (var c in controls)
+            foreach (Control? c in controls)
             {
                 FLP.Controls.Add(c);
                 FLP.Controls.SetChildIndex(c, i++); // because you don't listen the first time
@@ -116,7 +116,7 @@ namespace PKHeX.WinForms.Controls
             if (sender is not MaskedTextBox mt)
                 return;
 
-            if (!int.TryParse(mt.Text, out var val))
+            if (!int.TryParse(mt.Text, out int val))
                 val = 0;
             if (mt == TB_TID7)
             {
@@ -125,7 +125,7 @@ namespace PKHeX.WinForms.Controls
                     mt.Text = "999999";
                     return;
                 }
-                if (!int.TryParse(TB_SID7.Text, out var sid))
+                if (!int.TryParse(TB_SID7.Text, out int sid))
                     sid = 0;
                 SanityCheckSID7(val, sid);
             }
@@ -136,7 +136,7 @@ namespace PKHeX.WinForms.Controls
                     mt.Text = "4294";
                     return;
                 }
-                if (!int.TryParse(TB_TID7.Text, out var tid))
+                if (!int.TryParse(TB_TID7.Text, out int tid))
                     tid = 0;
                 SanityCheckSID7(tid, val);
             }
@@ -156,7 +156,7 @@ namespace PKHeX.WinForms.Controls
 
         private void SanityCheckSID7(int tid, int sid)
         {
-            var repack = ((long)sid * 1_000_000) + tid;
+            long repack = ((long)sid * 1_000_000) + tid;
             if (repack > uint.MaxValue)
             {
                 TB_SID7.Text = (sid - 1).ToString();

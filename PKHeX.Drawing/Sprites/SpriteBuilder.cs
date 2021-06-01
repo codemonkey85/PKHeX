@@ -68,7 +68,7 @@ namespace PKHeX.Drawing
             if (generation == 3 && species == (int)Species.Deoxys) // Deoxys, special consideration for Gen3 save files
                 form = GetDeoxysForm(Game);
 
-            var baseImage = GetBaseImage(species, form, gender, formarg, isShiny, generation);
+            Image? baseImage = GetBaseImage(species, form, gender, formarg, isShiny, generation);
             return GetSprite(baseImage, species, heldItem, isEgg, isShiny, generation, isBoxBGRed, isAltShiny);
         }
 
@@ -85,7 +85,7 @@ namespace PKHeX.Drawing
 
         private Image GetBaseImage(int species, int form, int gender, uint formarg, bool shiny, int generation)
         {
-            var img = FormInfo.IsTotemForm(species, form, generation)
+            Image? img = FormInfo.IsTotemForm(species, form, generation)
                         ? GetBaseImageTotem(species, form, gender, formarg, shiny, generation)
                         : GetBaseImageDefault(species, form, gender, formarg, shiny, generation);
             return img ?? GetBaseImageFallback(species, form, gender, formarg, shiny, generation);
@@ -93,8 +93,8 @@ namespace PKHeX.Drawing
 
         private Image? GetBaseImageTotem(int species, int form, int gender, uint formarg, bool shiny, int generation)
         {
-            var baseform = FormInfo.GetTotemBaseForm(species, form);
-            var baseImage = GetBaseImageDefault(species, baseform, gender, formarg, shiny, generation);
+            int baseform = FormInfo.GetTotemBaseForm(species, form);
+            Image? baseImage = GetBaseImageDefault(species, baseform, gender, formarg, shiny, generation);
             if (baseImage == null)
                 return null;
             return ImageUtil.ToGrayscale(baseImage);
@@ -102,7 +102,7 @@ namespace PKHeX.Drawing
 
         private Image? GetBaseImageDefault(int species, int form, int gender, uint formarg, bool shiny, int generation)
         {
-            var file = GetSpriteAll(species, form, gender, formarg, shiny, generation);
+            string? file = GetSpriteAll(species, form, gender, formarg, shiny, generation);
             return (Image?)Resources.ResourceManager.GetObject(file);
         }
 
@@ -110,13 +110,13 @@ namespace PKHeX.Drawing
         {
             if (shiny) // try again without shiny
             {
-                var img = GetBaseImageDefault(species, form, gender, formarg, false, generation);
+                Image? img = GetBaseImageDefault(species, form, gender, formarg, false, generation);
                 if (img != null)
                     return img;
             }
 
             // try again without form
-            var baseImage = (Image?)Resources.ResourceManager.GetObject(GetSpriteStringSpeciesOnly(species));
+            Image? baseImage = (Image?)Resources.ResourceManager.GetObject(GetSpriteStringSpeciesOnly(species));
             if (baseImage == null) // failed again
                 return Unknown;
             return ImageUtil.LayerImage(baseImage, Unknown, 0, 0, UnknownFormTransparency);
@@ -142,7 +142,7 @@ namespace PKHeX.Drawing
         private static Image LayerOverImageShiny(Image baseImage, bool isBoxBGRed, bool altShiny)
         {
             // Add shiny star to top left of image.
-            var rare = isBoxBGRed ? Resources.rare_icon_alt : Resources.rare_icon;
+            Bitmap? rare = isBoxBGRed ? Resources.rare_icon_alt : Resources.rare_icon;
             if (altShiny)
                 rare = Resources.rare_icon_2;
             return ImageUtil.LayerImage(baseImage, rare, 0, 0, ShinyTransparency);
@@ -160,13 +160,13 @@ namespace PKHeX.Drawing
             // Partially transparent species.
             baseImage = ImageUtil.ChangeOpacity(baseImage, EggUnderLayerTransparency);
             // Add the egg layer over-top with full opacity.
-            var egg = GetEggSprite(species);
+            Bitmap? egg = GetEggSprite(species);
             return ImageUtil.LayerImage(baseImage, egg, 0, 0);
         }
 
         private Image LayerOverImageEggAsItem(Image baseImage, int species)
         {
-            var egg = GetEggSprite(species);
+            Bitmap? egg = GetEggSprite(species);
             return ImageUtil.LayerImage(baseImage, egg, EggItemShiftX, EggItemShiftY); // similar to held item, since they can't have any
         }
     }

@@ -22,7 +22,7 @@ namespace PKHeX.Core
             Galar = galar;
             Rigel1 = rigel1;
             Rigel2 = rigel2;
-            var revision = GetRevision();
+            int revision = GetRevision();
             DexLookup = GetDexLookup(PersonalTable.SWSH, revision);
         }
 
@@ -51,11 +51,11 @@ namespace PKHeX.Core
 
         private static Dictionary<int, Zukan8Index> GetDexLookup(PersonalTable pt, int dexRevision)
         {
-            var lookup = new Dictionary<int, Zukan8Index>();
+            Dictionary<int, Zukan8Index>? lookup = new Dictionary<int, Zukan8Index>();
             for (int i = 1; i <= pt.MaxSpeciesID; i++)
             {
-                var p = (PersonalInfoSWSH) pt[i];
-                var index = p.PokeDexIndex;
+                PersonalInfoSWSH? p = (PersonalInfoSWSH) pt[i];
+                int index = p.PokeDexIndex;
                 if (index != 0)
                 {
                     lookup.Add(i, new Zukan8Index(Zukan8Type.Galar, index));
@@ -65,7 +65,7 @@ namespace PKHeX.Core
                 if (dexRevision == 0)
                     continue;
 
-                var armor = p.ArmorDexIndex;
+                int armor = p.ArmorDexIndex;
                 if (armor != 0)
                 {
                     lookup.Add(i, new Zukan8Index(Zukan8Type.Armor, armor));
@@ -75,7 +75,7 @@ namespace PKHeX.Core
                 if (dexRevision == 1)
                     continue;
 
-                var crown = p.CrownDexIndex;
+                int crown = p.CrownDexIndex;
                 if (crown != 0)
                 {
                     lookup.Add(i, new Zukan8Index(Zukan8Type.Crown, crown));
@@ -87,11 +87,11 @@ namespace PKHeX.Core
 
         public static List<Zukan8EntryInfo> GetRawIndexes(PersonalTable pt, int dexRevision)
         {
-            var result = new List<Zukan8EntryInfo>();
+            List<Zukan8EntryInfo>? result = new List<Zukan8EntryInfo>();
             for (int i = 1; i <= pt.MaxSpeciesID; i++)
             {
-                var p = (PersonalInfoSWSH)pt[i];
-                var index = p.PokeDexIndex;
+                PersonalInfoSWSH? p = (PersonalInfoSWSH)pt[i];
+                int index = p.PokeDexIndex;
                 if (index != 0)
                     result.Add(new Zukan8EntryInfo(i, new Zukan8Index(Zukan8Type.Galar, index)));
             }
@@ -100,8 +100,8 @@ namespace PKHeX.Core
 
             for (int i = 1; i <= pt.MaxSpeciesID; i++)
             {
-                var p = (PersonalInfoSWSH)pt[i];
-                var index = p.ArmorDexIndex;
+                PersonalInfoSWSH? p = (PersonalInfoSWSH)pt[i];
+                int index = p.ArmorDexIndex;
                 if (index != 0)
                     result.Add(new Zukan8EntryInfo(i, new Zukan8Index(Zukan8Type.Armor, index)));
             }
@@ -110,8 +110,8 @@ namespace PKHeX.Core
 
             for (int i = 1; i <= pt.MaxSpeciesID; i++)
             {
-                var p = (PersonalInfoSWSH)pt[i];
-                var index = p.CrownDexIndex;
+                PersonalInfoSWSH? p = (PersonalInfoSWSH)pt[i];
+                int index = p.CrownDexIndex;
                 if (index != 0)
                     result.Add(new Zukan8EntryInfo(i, new Zukan8Index(Zukan8Type.Crown, index)));
             }
@@ -130,12 +130,12 @@ namespace PKHeX.Core
 #if DEBUG
         public IList<string> GetEntryNames(IReadOnlyList<string> speciesNames)
         {
-            var dex = new List<string>();
-            foreach (var d in DexLookup)
+            List<string>? dex = new List<string>();
+            foreach (KeyValuePair<int, Zukan8Index> d in DexLookup)
             {
-                var species = d.Key;
-                var entry = d.Value;
-                var name = entry.GetEntryName(speciesNames, species);
+                int species = d.Key;
+                Zukan8Index entry = d.Value;
+                string? name = entry.GetEntryName(speciesNames, species);
                 dex.Add(name);
             }
             dex.Sort();
@@ -182,7 +182,7 @@ namespace PKHeX.Core
 
         public override bool GetSeen(int species)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return false;
 
             return GetSeen(entry);
@@ -194,7 +194,7 @@ namespace PKHeX.Core
             int offset = entry.Offset;
             for (int i = 0; i < SeenRegionCount; i++)
             {
-                var ofs = offset + (SeenRegionSize * i);
+                int ofs = offset + (SeenRegionSize * i);
                 if (BitConverter.ToUInt64(data, ofs) != 0)
                     return true;
             }
@@ -204,7 +204,7 @@ namespace PKHeX.Core
 
         public bool GetSeenRegion(int species, int form, int region)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return false;
 
             return GetSeenRegion(entry, form, region);
@@ -217,16 +217,16 @@ namespace PKHeX.Core
             if ((uint)form > 63)
                 return false;
 
-            var dex = entry.DexType;
-            var offset = entry.Offset;
-            var data = GetDexBlock(dex);
-            var ofs = SeenRegionSize * region;
+            Zukan8Type dex = entry.DexType;
+            int offset = entry.Offset;
+            byte[]? data = GetDexBlock(dex);
+            int ofs = SeenRegionSize * region;
             return GetFlag(data, offset + ofs, form);
         }
 
         public void SetSeenRegion(int species, int form, int region, bool value = true)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return;
 
             SetSeenRegion(entry, form, region, value);
@@ -239,9 +239,9 @@ namespace PKHeX.Core
             if ((uint) form > 63)
                 return;
 
-            var data = GetDexBlock(entry.DexType);
+            byte[]? data = GetDexBlock(entry.DexType);
             int index = entry.Offset;
-            var ofs = SeenRegionSize * region;
+            int ofs = SeenRegionSize * region;
             SetFlag(data, index + ofs, form, value);
         }
 
@@ -261,7 +261,7 @@ namespace PKHeX.Core
 
         private bool GetCaughtFlagID(int species, int bit)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return false;
 
             return GetCaughtFlagID(entry, bit);
@@ -269,13 +269,13 @@ namespace PKHeX.Core
 
         private bool GetCaughtFlagID(Zukan8Index entry, int bit)
         {
-            var data = GetDexBlock(entry.DexType);
+            byte[]? data = GetDexBlock(entry.DexType);
             return GetFlag(data, entry.Offset + OFS_CAUGHT, bit);
         }
 
         public void SetCaughtFlagID(int species, int bit, bool value = true)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return;
 
             SetCaughtFlagID(entry, bit, value);
@@ -283,7 +283,7 @@ namespace PKHeX.Core
 
         public void SetCaughtFlagID(Zukan8Index entry, int bit, bool value = true)
         {
-            var data = GetDexBlock(entry.DexType);
+            byte[]? data = GetDexBlock(entry.DexType);
             SetFlag(data, entry.Offset + OFS_CAUGHT, bit, value);
         }
 
@@ -307,7 +307,7 @@ namespace PKHeX.Core
 
         public uint GetFormDisplayed(int species)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return 0;
 
             return GetFormDisplayed(entry);
@@ -315,15 +315,15 @@ namespace PKHeX.Core
 
         public uint GetFormDisplayed(Zukan8Index entry)
         {
-            var data = GetDexBlock(entry.DexType);
-            var index = entry.Offset;
-            var val = BitConverter.ToUInt32(data, index + OFS_CAUGHT);
+            byte[]? data = GetDexBlock(entry.DexType);
+            int index = entry.Offset;
+            uint val = BitConverter.ToUInt32(data, index + OFS_CAUGHT);
             return (val >> 15) & 0x1FFF; // (0x1FFF is really overkill, GameFreak)
         }
 
         public void SetFormDisplayed(int species, uint value = 0)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return;
 
             SetFormDisplayed(entry, value);
@@ -331,16 +331,16 @@ namespace PKHeX.Core
 
         public void SetFormDisplayed(Zukan8Index entry, uint value = 0)
         {
-            var data = GetDexBlock(entry.DexType);
-            var index = entry.Offset;
-            var val = BitConverter.ToUInt32(data, index + OFS_CAUGHT);
+            byte[]? data = GetDexBlock(entry.DexType);
+            int index = entry.Offset;
+            uint val = BitConverter.ToUInt32(data, index + OFS_CAUGHT);
             uint nv = (val & ~(0x1FFFu << 15)) | ((value & 0x1FFF) << 15);
             BitConverter.GetBytes(nv).CopyTo(data, index + OFS_CAUGHT);
         }
 
         public uint GetGenderDisplayed(int species)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return 0;
 
             return GetGenderDisplayed(entry);
@@ -348,15 +348,15 @@ namespace PKHeX.Core
 
         public uint GetGenderDisplayed(Zukan8Index entry)
         {
-            var data = GetDexBlock(entry.DexType);
-            var index = entry.Offset;
-            var val = BitConverter.ToUInt32(data, index + OFS_CAUGHT);
+            byte[]? data = GetDexBlock(entry.DexType);
+            int index = entry.Offset;
+            uint val = BitConverter.ToUInt32(data, index + OFS_CAUGHT);
             return (val >> 29) & 3;
         }
 
         public void SetGenderDisplayed(int species, uint value = 0)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return;
 
             SetGenderDisplayed(entry, value);
@@ -364,9 +364,9 @@ namespace PKHeX.Core
 
         public void SetGenderDisplayed(Zukan8Index entry, uint value = 0)
         {
-            var data = GetDexBlock(entry.DexType);
-            var index = entry.Offset;
-            var val = BitConverter.ToUInt32(data, index + OFS_CAUGHT);
+            byte[]? data = GetDexBlock(entry.DexType);
+            int index = entry.Offset;
+            uint val = BitConverter.ToUInt32(data, index + OFS_CAUGHT);
             uint nv = (val & ~(3u << 29)) | ((value & 3) << 29);
             BitConverter.GetBytes(nv).CopyTo(data, index + OFS_CAUGHT);
         }
@@ -391,7 +391,7 @@ namespace PKHeX.Core
 
         private bool GetFlag28(int species, int bit)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return false;
 
             return GetFlag28(entry, bit);
@@ -399,7 +399,7 @@ namespace PKHeX.Core
 
         public void SetFlag28(int species, int bit, bool value = true)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return;
 
             SetFlag28(entry, bit, value);
@@ -407,13 +407,13 @@ namespace PKHeX.Core
 
         private bool GetFlag28(Zukan8Index entry, int bit)
         {
-            var data = GetDexBlock(entry.DexType);
+            byte[]? data = GetDexBlock(entry.DexType);
             return GetFlag(data, entry.Offset + OFS_UNK1, bit);
         }
 
         public void SetFlag28(Zukan8Index entry, int bit, bool value = true)
         {
-            var data = GetDexBlock(entry.DexType);
+            byte[]? data = GetDexBlock(entry.DexType);
             SetFlag(data, entry.Offset + OFS_UNK1, bit, value);
         }
 
@@ -432,7 +432,7 @@ namespace PKHeX.Core
 
         private uint GetU32(int species, int ofs)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return 0;
 
             return GetU32(entry, ofs);
@@ -440,15 +440,15 @@ namespace PKHeX.Core
 
         private uint GetU32(Zukan8Index entry, int ofs)
         {
-            var dex = entry.DexType;
-            var index = entry.Offset;
-            var data = GetDexBlock(dex);
+            Zukan8Type dex = entry.DexType;
+            int index = entry.Offset;
+            byte[]? data = GetDexBlock(dex);
             return BitConverter.ToUInt32(data, index + ofs);
         }
 
         private void SetU32(int species, uint value, int ofs)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return;
 
             SetU32(entry, value, ofs);
@@ -456,9 +456,9 @@ namespace PKHeX.Core
 
         private void SetU32(Zukan8Index entry, uint value, int ofs)
         {
-            var dex = entry.DexType;
-            var index = entry.Offset;
-            var data = GetDexBlock(dex);
+            Zukan8Type dex = entry.DexType;
+            int index = entry.Offset;
+            byte[]? data = GetDexBlock(dex);
             BitConverter.GetBytes(value).CopyTo(data, index + ofs);
         }
 
@@ -473,13 +473,13 @@ namespace PKHeX.Core
 
             bool owned = GetCaught(species);
 
-            var gender = pkm.Gender;
+            int gender = pkm.Gender;
             bool shiny = pkm.IsShiny;
             int form = pkm.Form;
-            var language = pkm.Language;
+            int language = pkm.Language;
 
-            var g = gender & 1;
-            var s = shiny ? 2 : 0;
+            int g = gender & 1;
+            int s = shiny ? 2 : 0;
             if (species == (int)Species.Alcremie)
             {
                 form *= 7;
@@ -502,7 +502,7 @@ namespace PKHeX.Core
                 SetGenderDisplayed(species, (uint)g);
             }
 
-            var count = GetBattledCount(species);
+            uint count = GetBattledCount(species);
             if (count == 0)
                 SetBattledCount(species, 1);
         }
@@ -516,7 +516,7 @@ namespace PKHeX.Core
 
         public override void CaughtNone()
         {
-            foreach (var kvp in DexLookup)
+            foreach (KeyValuePair<int, Zukan8Index> kvp in DexLookup)
                 CaughtNone(kvp.Key);
         }
 
@@ -534,10 +534,10 @@ namespace PKHeX.Core
 
         private void SeenAll(int species, int fc, bool shinyToo, bool value = true)
         {
-            var pt = PersonalTable.SWSH;
+            PersonalTable? pt = PersonalTable.SWSH;
             for (int form = 0; form < fc; form++)
             {
-                var pi = pt.GetFormEntry(species, form);
+                PersonalInfo? pi = pt.GetFormEntry(species, form);
                 SeenAll(species, form, value, pi, shinyToo);
             }
 
@@ -561,7 +561,7 @@ namespace PKHeX.Core
             }
             else
             {
-                var index = pi.OnlyFemale ? 1 : 0;
+                int index = pi.OnlyFemale ? 1 : 0;
                 SetSeenRegion(species, bitIndex, 0 + index);
                 if (!shinyToo)
                     return;
@@ -579,16 +579,16 @@ namespace PKHeX.Core
 
         public override void CompleteDex(bool shinyToo = false)
         {
-            foreach (var kvp in DexLookup)
+            foreach (KeyValuePair<int, Zukan8Index> kvp in DexLookup)
                 SetDexEntryAll(kvp.Key, shinyToo);
         }
 
         public override void CaughtAll(bool shinyToo = false)
         {
             SeenAll(shinyToo);
-            foreach (var kvp in DexLookup)
+            foreach (KeyValuePair<int, Zukan8Index> kvp in DexLookup)
             {
-                var species = kvp.Key;
+                int species = kvp.Key;
                 SetAllCaught(species, true, shinyToo);
             }
         }
@@ -601,7 +601,7 @@ namespace PKHeX.Core
 
             if (value)
             {
-                var pi = PersonalTable.SWSH[species];
+                PersonalInfo? pi = PersonalTable.SWSH[species];
                 if (shinyToo)
                     SetDisplayShiny(species);
 
@@ -617,17 +617,17 @@ namespace PKHeX.Core
 
         public override void SetAllSeen(bool value = true, bool shinyToo = false)
         {
-            foreach (var kvp in DexLookup)
+            foreach (KeyValuePair<int, Zukan8Index> kvp in DexLookup)
             {
-                var species = kvp.Key;
+                int species = kvp.Key;
                 SetAllSeen(species, value, shinyToo);
             }
         }
 
         private void SetAllSeen(int species, bool value = true, bool shinyToo = false)
         {
-            var pi = PersonalTable.SWSH[species];
-            var fc = pi.FormCount;
+            PersonalInfo? pi = PersonalTable.SWSH[species];
+            int fc = pi.FormCount;
             if (species == (int) Species.Eternatus)
                 fc = 1; // ignore gigantamax
             SeenAll(species, fc, shinyToo, value);
@@ -661,7 +661,7 @@ namespace PKHeX.Core
 
         public override void ClearDexEntryAll(int species)
         {
-            if (!GetEntry(species, out var entry))
+            if (!GetEntry(species, out Zukan8Index entry))
                 return;
 
             ClearDexEntryAll(entry);
@@ -669,15 +669,15 @@ namespace PKHeX.Core
 
         private void ClearDexEntryAll(Zukan8Index entry)
         {
-            var data = GetDexBlock(entry.DexType);
+            byte[]? data = GetDexBlock(entry.DexType);
             Array.Clear(data, entry.Offset, EntrySize);
         }
 
         public void SetAllBattledCount(uint count = 500)
         {
-            foreach (var kvp in DexLookup)
+            foreach (KeyValuePair<int, Zukan8Index> kvp in DexLookup)
             {
-                var species = kvp.Key;
+                int species = kvp.Key;
                 SetBattledCount(species, count);
             }
         }
@@ -740,7 +740,7 @@ namespace PKHeX.Core
 
         private int GetSavedIndex()
         {
-            var index = Index;
+            int index = Index;
             if (index < 1)
                 throw new IndexOutOfRangeException();
 

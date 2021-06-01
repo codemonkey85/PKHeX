@@ -65,7 +65,7 @@ namespace PKHeX.Core
             {
                 if (value > RotoRallyScoreMax)
                     value = RotoRallyScoreMax;
-                var data = BitConverter.GetBytes(value);
+                byte[]? data = BitConverter.GetBytes(value);
                 SAV.SetData(Data, data, 0x28);
                 // set to the other block since it doesn't have an accessor
                 ((SAV8SWSH)SAV).SetValue(SaveBlockAccessor8SWSH.KRotoRally, (uint)value);
@@ -81,7 +81,7 @@ namespace PKHeX.Core
             {
                 if (value > MaxPokemonCaught)
                     value = MaxPokemonCaught;
-                var data = BitConverter.GetBytes(value);
+                byte[]? data = BitConverter.GetBytes(value);
                 SAV.SetData(Data, data, 0x2C);
             }
         }

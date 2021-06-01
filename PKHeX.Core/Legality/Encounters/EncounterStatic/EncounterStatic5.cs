@@ -29,7 +29,7 @@ namespace PKHeX.Core
 
         protected override bool IsMatchEggLocation(PKM pkm)
         {
-            var eggloc = pkm.Egg_Location;
+            int eggloc = pkm.Egg_Location;
             if (!EggEncounter)
                 return eggloc == EggLocation;
 

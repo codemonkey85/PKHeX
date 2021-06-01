@@ -34,7 +34,7 @@ namespace PKHeX.Core
                 return false;
             }
 
-            var msg = message.ToLower();
+            string? msg = message.ToLower();
             // Check dictionary
             lock (dictLock)
             {
@@ -43,7 +43,7 @@ namespace PKHeX.Core
             }
 
             // not in dictionary, check patterns
-            foreach (var pattern in Patterns)
+            foreach (string? pattern in Patterns)
             {
                 if (!Regex.IsMatch(msg, pattern))
                     continue;

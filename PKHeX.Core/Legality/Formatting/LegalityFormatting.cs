@@ -24,7 +24,7 @@ namespace PKHeX.Core
 
         public static void AddValidSecondaryChecks(IEnumerable<CheckResult> results, List<string> lines)
         {
-            var outputLines = results
+            IEnumerable<string>? outputLines = results
                 .Where(chk => chk.Valid && chk.Comment != L_AValid)
                 .OrderBy(chk => chk.Judgement) // Fishy sorted to top
                 .Select(chk => chk.Format(L_F0_1));
@@ -33,10 +33,10 @@ namespace PKHeX.Core
 
         public static void AddValidMovesRelearn(LegalInfo info, List<string> lines)
         {
-            var moves = info.Relearn;
+            CheckResult[]? moves = info.Relearn;
             for (int i = 0; i < moves.Length; i++)
             {
-                var move = moves[i];
+                CheckResult? move = moves[i];
                 if (!move.Valid)
                     continue;
                 lines.Add(move.Format(L_F0_RM_1_2, i + 1));
@@ -45,14 +45,14 @@ namespace PKHeX.Core
 
         public static void AddValidMoves(LegalInfo info, List<string> lines, in int currentFormat)
         {
-            var moves = info.Moves;
+            CheckMoveResult[]? moves = info.Moves;
             for (int i = 0; i < moves.Length; i++)
             {
-                var move = moves[i];
+                CheckMoveResult? move = moves[i];
                 if (!move.Valid)
                     continue;
-                var msg = move.Format(L_F0_M_1_2, i + 1);
-                var gen = move.Generation;
+                string? msg = move.Format(L_F0_M_1_2, i + 1);
+                int gen = move.Generation;
                 if (currentFormat != gen)
                     msg += $" [Gen{gen}]";
                 lines.Add(msg);
@@ -64,7 +64,7 @@ namespace PKHeX.Core
         /// </summary>
         public static void AddEncounterInfo(LegalityAnalysis la, List<string> lines)
         {
-            var enc = la.EncounterOriginal;
+            IEncounterable? enc = la.EncounterOriginal;
 
             // Name
             lines.Add(string.Format(L_FEncounterType_0, enc.GetEncounterName()));
@@ -72,7 +72,7 @@ namespace PKHeX.Core
                 lines.Add(g.CardHeader);
 
             // Location
-            var loc = enc.GetEncounterLocation();
+            string? loc = enc.GetEncounterLocation();
             if (!string.IsNullOrEmpty(loc))
                 lines.Add(string.Format(L_F0_1, "Location", loc));
 
@@ -86,7 +86,7 @@ namespace PKHeX.Core
 
         public static void AddEncounterInfoPIDIV(LegalityAnalysis la, List<string> lines)
         {
-            var info = la.Info;
+            LegalInfo? info = la.Info;
             if (!info.PIDParsed)
                 info.PIDIV = MethodFinder.Analyze(la.pkm);
             AddEncounterInfoPIDIV(lines, info.PIDIV);
@@ -101,8 +101,8 @@ namespace PKHeX.Core
 
         public static string GetEncounterName(this IEncounterable enc)
         {
-            var str = ParseSettings.SpeciesStrings;
-            var name = (uint) enc.Species < str.Count ? str[enc.Species] : enc.Species.ToString();
+            IReadOnlyList<string>? str = ParseSettings.SpeciesStrings;
+            string? name = (uint) enc.Species < str.Count ? str[enc.Species] : enc.Species.ToString();
             return $"{enc.LongName} ({name})";
         }
 
@@ -118,15 +118,15 @@ namespace PKHeX.Core
             if (la.Valid)
                 return;
 
-            var matches = info.InvalidMatches;
+            List<EncounterRejected>? matches = info.InvalidMatches;
             if (matches is null)
                 return;
 
             lines.Add("Other match(es):");
-            foreach (var m in matches)
+            foreach (EncounterRejected? m in matches)
             {
-                var enc = m.Encounter;
-                var desc = $"{enc.LongName}: {m.Reason}";
+                IEncounterable? enc = m.Encounter;
+                string? desc = $"{enc.LongName}: {m.Reason}";
                 lines.Add(desc);
             }
         }

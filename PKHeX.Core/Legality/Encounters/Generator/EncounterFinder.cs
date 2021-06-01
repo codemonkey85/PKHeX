@@ -23,23 +23,23 @@ namespace PKHeX.Core
         /// </returns>
         public static void FindVerifiedEncounter(PKM pkm, LegalInfo info)
         {
-            var encounters = EncounterGenerator.GetEncounters(pkm, info);
+            System.Collections.Generic.IEnumerable<IEncounterable>? encounters = EncounterGenerator.GetEncounters(pkm, info);
 
-            using var encounter = new PeekEnumerator<IEncounterable>(encounters);
+            using PeekEnumerator<IEncounterable>? encounter = new PeekEnumerator<IEncounterable>(encounters);
             if (!encounter.PeekIsNext())
             {
                 VerifyWithoutEncounter(pkm, info);
                 return;
             }
 
-            var first = encounter.Current;
-            var EncounterValidator = EncounterVerifier.GetEncounterVerifierMethod(first.Generation);
+            IEncounterable? first = encounter.Current;
+            System.Func<PKM, IEncounterable, CheckResult>? EncounterValidator = EncounterVerifier.GetEncounterVerifierMethod(first.Generation);
             while (encounter.MoveNext())
             {
-                var enc = encounter.Current;
+                IEncounterable? enc = encounter.Current;
 
                 // Check for basic compatibility.
-                var e = EncounterValidator(pkm, enc);
+                CheckResult? e = EncounterValidator(pkm, enc);
                 if (!e.Valid && encounter.PeekIsNext())
                 {
                     info.Reject(e);
@@ -56,7 +56,7 @@ namespace PKHeX.Core
                 if (enc is not IEncounterMatch mx)
                     break;
 
-                var match = mx.GetMatchRating(pkm);
+                EncounterMatchRating match = mx.GetMatchRating(pkm);
                 if (match != EncounterMatchRating.PartialMatch)
                     break;
 
@@ -89,7 +89,7 @@ namespace PKHeX.Core
         /// <returns>Indication whether or not the encounter passes secondary checks</returns>
         private static bool VerifySecondaryChecks(PKM pkm, LegalInfo info, PeekEnumerator<IEncounterable> iterator)
         {
-            var relearn = info.Relearn;
+            CheckResult[]? relearn = info.Relearn;
             if (pkm.Format >= 6)
             {
                 VerifyRelearnMoves.VerifyRelearn(pkm, info.EncounterOriginal, relearn);
@@ -106,7 +106,7 @@ namespace PKHeX.Core
             if (info.Moves.Any(z => !z.Valid) && iterator.PeekIsNext())
                 return false;
 
-            var evo = EvolutionVerifier.VerifyEvolution(pkm, info);
+            CheckResult? evo = EvolutionVerifier.VerifyEvolution(pkm, info);
             if (!evo.Valid && iterator.PeekIsNext())
                 return false;
 

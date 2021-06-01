@@ -107,15 +107,15 @@ namespace PKHeX.WinForms
 
         public override string ToString()
         {
-            var props = ReflectUtil.GetAllPropertyInfoCanWritePublic(typeof(DrawConfig));
-            var lines = new List<string>();
-            foreach (var p in props)
+            IEnumerable<System.Reflection.PropertyInfo>? props = ReflectUtil.GetAllPropertyInfoCanWritePublic(typeof(DrawConfig));
+            List<string>? lines = new List<string>();
+            foreach (System.Reflection.PropertyInfo? p in props)
             {
                 if (p.PropertyType == typeof(BrushSet))
                     continue;
 
-                var name = p.Name;
-                var value = p.PropertyType == typeof(Color) ? ((Color)p.GetValue(this)!).ToArgb() : p.GetValue(this);
+                string? name = p.Name;
+                object? value = p.PropertyType == typeof(Color) ? ((Color)p.GetValue(this)!).ToArgb() : p.GetValue(this);
                 lines.Add($"{name}\t{value}");
             }
             return string.Join("\n", lines);

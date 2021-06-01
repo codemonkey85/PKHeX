@@ -12,7 +12,7 @@ namespace PKHeX.WinForms.Controls
 
             if (Entity is SK2 sk2)
             {
-                var sav = RequestSaveFile;
+                SaveFile? sav = RequestSaveFile;
                 CoerceStadium2Language(sk2, sav);
             }
             LoadMisc1(pk2);
@@ -35,7 +35,7 @@ namespace PKHeX.WinForms.Controls
             if (sk2.Japanese == (sav.Language == 1))
                 return;
 
-            var la = new LegalityAnalysis(sk2);
+            LegalityAnalysis? la = new LegalityAnalysis(sk2);
             if (la.Valid || !sk2.IsPossible(sav.Language == 1))
                 return;
 
@@ -44,7 +44,7 @@ namespace PKHeX.WinForms.Controls
             if (la.Valid)
                 return;
 
-            var lang = SpeciesName.GetSpeciesNameLanguage(sk2.Species, sk2.Nickname, 2);
+            int lang = SpeciesName.GetSpeciesNameLanguage(sk2.Species, sk2.Nickname, 2);
             if (lang >= 1 && (lang == 1 != sk2.Japanese)) // force match language
                 sk2.SwapLanguage();
             else if (sk2.Japanese != (sav.Language == 1)) // force match save file

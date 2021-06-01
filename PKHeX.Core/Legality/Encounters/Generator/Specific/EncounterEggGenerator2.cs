@@ -9,9 +9,9 @@ namespace PKHeX.Core
     {
         public static IEnumerable<EncounterEgg> GenerateEggs(PKM pkm, bool all = false)
         {
-            var table = EvolutionTree.GetEvolutionTree(pkm, 2);
+            EvolutionTree? table = EvolutionTree.GetEvolutionTree(pkm, 2);
             int maxSpeciesOrigin = Legal.GetMaxSpeciesOrigin(2);
-            var evos = table.GetValidPreEvolutions(pkm, maxLevel: 100, maxSpeciesOrigin: maxSpeciesOrigin, skipChecks: true);
+            List<EvoCriteria>? evos = table.GetValidPreEvolutions(pkm, maxLevel: 100, maxSpeciesOrigin: maxSpeciesOrigin, skipChecks: true);
             return GenerateEggs(pkm, evos, all);
         }
 
@@ -21,14 +21,14 @@ namespace PKHeX.Core
             if (!Breeding.CanHatchAsEgg(species))
                 yield break;
 
-            var canBeEgg = all || GetCanBeEgg(pkm);
+            bool canBeEgg = all || GetCanBeEgg(pkm);
             if (!canBeEgg)
                 yield break;
 
             // Gen2 was before split-breed species existed; try to ensure that the egg we try and match to can actually originate in the game.
             // Species must be < 251
             // Form must be 0 (Unown cannot breed).
-            var baseID = chain[^1];
+            EvoCriteria? baseID = chain[^1];
             if ((baseID.Species >= Legal.MaxSpeciesID_2 || baseID.Form != 0) && chain.Count != 1)
                 baseID = chain[^2];
             if (baseID.Form != 0)
@@ -96,8 +96,8 @@ namespace PKHeX.Core
 
         private static bool IsEvolutionValid(PKM pkm)
         {
-            var curr = EvolutionChain.GetValidPreEvolutions(pkm, minLevel: 5);
-            var poss = EvolutionChain.GetValidPreEvolutions(pkm, maxLevel: 100, minLevel: 5, skipChecks: true);
+            List<EvoCriteria>? curr = EvolutionChain.GetValidPreEvolutions(pkm, minLevel: 5);
+            List<EvoCriteria>? poss = EvolutionChain.GetValidPreEvolutions(pkm, maxLevel: 100, minLevel: 5, skipChecks: true);
             return curr.Count >= poss.Count;
         }
     }

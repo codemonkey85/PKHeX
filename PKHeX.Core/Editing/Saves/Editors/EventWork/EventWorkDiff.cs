@@ -23,8 +23,8 @@ namespace PKHeX.Core
         {
             if (!SanityCheckFiles(f1, f2))
                 return;
-            var s1 = SaveUtil.GetVariantSAV(f1);
-            var s2 = SaveUtil.GetVariantSAV(f2);
+            SaveFile? s1 = SaveUtil.GetVariantSAV(f1);
+            SaveFile? s2 = SaveUtil.GetVariantSAV(f2);
             if (s1 == null || s2 == null || s1.GetType() != s2.GetType())
             {
                 Message = MsgSaveDifferentTypes;
@@ -70,8 +70,8 @@ namespace PKHeX.Core
 
             bool[] oldBits = s1.GetEventFlags();
             bool[] newBits = s2.GetEventFlags();
-            var oldConst = s1.GetEventConsts();
-            var newConst = s2.GetEventConsts();
+            ushort[]? oldConst = s1.GetEventConsts();
+            ushort[]? newConst = s2.GetEventConsts();
 
             for (int i = 0; i < newBits.Length; i++)
             {
@@ -95,8 +95,8 @@ namespace PKHeX.Core
         {
             if (!SanityCheckFiles(f1, f2))
                 return;
-            var s1 = SaveUtil.GetVariantSAV(f1);
-            var s2 = SaveUtil.GetVariantSAV(f2);
+            SaveFile? s1 = SaveUtil.GetVariantSAV(f1);
+            SaveFile? s2 = SaveUtil.GetVariantSAV(f2);
             if (s1 == null || s2 == null || s1.GetType() != s2.GetType())
             {
                 Message = MsgSaveDifferentTypes;
@@ -121,13 +121,13 @@ namespace PKHeX.Core
         {
             if (S1 == null)
                 return Array.Empty<string>();
-            var ew = ((SAV7b)S1).Blocks.EventWork;
+            EventWork7b? ew = ((SAV7b)S1).Blocks.EventWork;
 
-            var fOn = SetFlags.Select(z => new FlagSummary(z, ew).ToString());
-            var fOff = ClearedFlags.Select(z => new FlagSummary(z, ew).ToString());
-            var wt = WorkChanged.Select((z, i) => new WorkSummary(z, ew, WorkDiff[i]).ToString());
+            IEnumerable<string>? fOn = SetFlags.Select(z => new FlagSummary(z, ew).ToString());
+            IEnumerable<string>? fOff = ClearedFlags.Select(z => new FlagSummary(z, ew).ToString());
+            IEnumerable<string>? wt = WorkChanged.Select((z, i) => new WorkSummary(z, ew, WorkDiff[i]).ToString());
 
-            var list = new List<string> { "Flags: ON", "=========" };
+            List<string>? list = new List<string> { "Flags: ON", "=========" };
             list.AddRange(fOn);
             if (SetFlags.Count == 0)
                 list.Add("None.");
@@ -159,7 +159,7 @@ namespace PKHeX.Core
 
             public FlagSummary(int rawIndex, EventWork7b ew)
             {
-                Type = ew.GetFlagType(rawIndex, out var subIndex);
+                Type = ew.GetFlagType(rawIndex, out int subIndex);
                 Index = subIndex;
                 Raw = rawIndex;
             }
@@ -176,7 +176,7 @@ namespace PKHeX.Core
 
             public WorkSummary(int rawIndex, EventWork7b ew, string text)
             {
-                Type = ew.GetFlagType(rawIndex, out var subIndex);
+                Type = ew.GetFlagType(rawIndex, out int subIndex);
                 Index = subIndex;
                 Raw = rawIndex;
                 Text = text;

@@ -15,8 +15,8 @@ namespace PKHeX.Core
         public override void Verify(LegalityAnalysis data)
         {
             // Flag VC (Gen1/2) ribbons using Gen7 origin rules.
-            var enc = data.EncounterMatch;
-            var pkm = data.pkm;
+            IEncounterable? enc = data.EncounterMatch;
+            PKM? pkm = data.pkm;
 
             // Check Unobtainable Ribbons
             if (pkm.IsEgg)
@@ -26,10 +26,10 @@ namespace PKHeX.Core
                 return;
             }
 
-            var result = GetIncorrectRibbons(pkm, enc);
+            List<string>? result = GetIncorrectRibbons(pkm, enc);
             if (result.Count != 0)
             {
-                var msg = string.Join(Environment.NewLine, result);
+                string? msg = string.Join(Environment.NewLine, result);
                 data.AddLine(GetInvalid(msg));
             }
             else
@@ -42,11 +42,11 @@ namespace PKHeX.Core
         {
             List<string> missingRibbons = new();
             List<string> invalidRibbons = new();
-            var ribs = GetRibbonResults(pkm, enc);
-            foreach (var bad in ribs)
+            IEnumerable<RibbonResult>? ribs = GetRibbonResults(pkm, enc);
+            foreach (RibbonResult? bad in ribs)
                 (bad.Invalid ? invalidRibbons : missingRibbons).Add(bad.Name);
 
-            var result = new List<string>();
+            List<string>? result = new List<string>();
             if (missingRibbons.Count > 0)
                 result.Add(string.Format(LRibbonFMissing_0, string.Join(", ", missingRibbons).Replace(RibbonInfo.PropertyPrefix, string.Empty)));
             if (invalidRibbons.Count > 0)
@@ -56,13 +56,13 @@ namespace PKHeX.Core
 
         private static bool GetIncorrectRibbonsEgg(PKM pkm, IEncounterable enc)
         {
-            var names = ReflectUtil.GetPropertiesStartWithPrefix(pkm.GetType(), RibbonInfo.PropertyPrefix);
+            IEnumerable<string>? names = ReflectUtil.GetPropertiesStartWithPrefix(pkm.GetType(), RibbonInfo.PropertyPrefix);
             if (enc is IRibbonSetEvent3 event3)
                 names = names.Except(event3.RibbonNames());
             if (enc is IRibbonSetEvent4 event4)
                 names = names.Except(event4.RibbonNames());
 
-            foreach (var value in names.Select(name => ReflectUtil.GetValue(pkm, name)))
+            foreach (object? value in names.Select(name => ReflectUtil.GetValue(pkm, name)))
             {
                 if (value is null)
                     continue;
@@ -111,39 +111,39 @@ namespace PKHeX.Core
             {
                 if (!IsAllowedBattleFrontier(pkm.Species, pkm.Form, 4) || gen > 4)
                 {
-                    foreach (var z in GetInvalidRibbonsNone(u4.RibbonBitsAbility(), u4.RibbonNamesAbility()))
+                    foreach (RibbonResult? z in GetInvalidRibbonsNone(u4.RibbonBitsAbility(), u4.RibbonNamesAbility()))
                         yield return z;
                 }
 
-                var c3 = u4.RibbonBitsContest3();
-                var c3n = u4.RibbonNamesContest3();
-                var iter3 = gen == 3 ? GetMissingContestRibbons(c3, c3n) : GetInvalidRibbonsNone(c3, c3n);
-                foreach (var z in iter3)
+                bool[]? c3 = u4.RibbonBitsContest3();
+                string[]? c3n = u4.RibbonNamesContest3();
+                IEnumerable<RibbonResult>? iter3 = gen == 3 ? GetMissingContestRibbons(c3, c3n) : GetInvalidRibbonsNone(c3, c3n);
+                foreach (RibbonResult? z in iter3)
                     yield return z;
 
-                var c4 = u4.RibbonBitsContest4();
-                var c4n = u4.RibbonNamesContest4();
-                var iter4 = (gen is 3 or 4) && IsAllowedInContest4(pkm.Species) ? GetMissingContestRibbons(c4, c4n) : GetInvalidRibbonsNone(c4, c4n);
-                foreach (var z in iter4)
+                bool[]? c4 = u4.RibbonBitsContest4();
+                string[]? c4n = u4.RibbonNamesContest4();
+                IEnumerable<RibbonResult>? iter4 = (gen is 3 or 4) && IsAllowedInContest4(pkm.Species) ? GetMissingContestRibbons(c4, c4n) : GetInvalidRibbonsNone(c4, c4n);
+                foreach (RibbonResult? z in iter4)
                     yield return z;
             }
             if (pkm is IRibbonSetCommon4 s4)
             {
                 bool inhabited4 = gen is 3 or 4;
-                var iterate = GetInvalidRibbons4Any(pkm, s4, gen);
+                IEnumerable<RibbonResult>? iterate = GetInvalidRibbons4Any(pkm, s4, gen);
                 if (!inhabited4)
                     iterate = iterate.Concat(GetInvalidRibbonsNone(s4.RibbonBitsOnly(), s4.RibbonNamesOnly()));
-                foreach (var z in iterate)
+                foreach (RibbonResult? z in iterate)
                     yield return z;
             }
             if (pkm is IRibbonSetCommon6 s6)
             {
                 bool inhabited6 = gen is >= 3 and <= 6;
 
-                var iterate = inhabited6
+                IEnumerable<RibbonResult>? iterate = inhabited6
                     ? GetInvalidRibbons6Any(pkm, s6, gen, enc)
                     : GetInvalidRibbonsNone(s6.RibbonBits(), s6.RibbonNamesBool());
-                foreach (var z in iterate)
+                foreach (RibbonResult? z in iterate)
                     yield return z;
 
                 if (!inhabited6)
@@ -164,8 +164,8 @@ namespace PKHeX.Core
             if (pkm is IRibbonSetCommon7 s7)
             {
                 bool inhabited7 = gen <= 7 && !pkm.GG;
-                var iterate = inhabited7 ? GetInvalidRibbons7Any(pkm, s7) : GetInvalidRibbonsNone(s7.RibbonBits(), s7.RibbonNames());
-                foreach (var z in iterate)
+                IEnumerable<RibbonResult>? iterate = inhabited7 ? GetInvalidRibbons7Any(pkm, s7) : GetInvalidRibbonsNone(s7.RibbonBits(), s7.RibbonNames());
+                foreach (RibbonResult? z in iterate)
                     yield return z;
             }
             if (pkm is IRibbonSetCommon3 s3)
@@ -180,8 +180,8 @@ namespace PKHeX.Core
             if (pkm is IRibbonSetCommon8 s8)
             {
                 bool inhabited8 = gen <= 8;
-                var iterate = inhabited8 ? GetInvalidRibbons8Any(pkm, s8, enc) : GetInvalidRibbonsNone(s8.RibbonBits(), s8.RibbonNames());
-                foreach (var z in iterate)
+                IEnumerable<RibbonResult>? iterate = inhabited8 ? GetInvalidRibbons8Any(pkm, s8, enc) : GetInvalidRibbonsNone(s8.RibbonBits(), s8.RibbonNames());
+                foreach (RibbonResult? z in iterate)
                     yield return z;
             }
         }
@@ -214,28 +214,28 @@ namespace PKHeX.Core
 
             if (noDaily)
             {
-                foreach (var z in GetInvalidRibbonsNone(s4.RibbonBitsDaily(), s4.RibbonNamesDaily()))
+                foreach (RibbonResult? z in GetInvalidRibbonsNone(s4.RibbonBitsDaily(), s4.RibbonNamesDaily()))
                     yield return z;
             }
 
             if (noCosmetic)
             {
-                foreach (var z in GetInvalidRibbonsNone(s4.RibbonBitsCosmetic(), s4.RibbonNamesCosmetic()))
+                foreach (RibbonResult? z in GetInvalidRibbonsNone(s4.RibbonBitsCosmetic(), s4.RibbonNamesCosmetic()))
                     yield return z;
             }
         }
 
         private static IEnumerable<RibbonResult> GetInvalidRibbons6Any(PKM pkm, IRibbonSetCommon6 s6, int gen, IEncounterable enc)
         {
-            foreach (var p in GetInvalidRibbons6Memory(pkm, s6, gen, enc))
+            foreach (RibbonResult? p in GetInvalidRibbons6Memory(pkm, s6, gen, enc))
                 yield return p;
 
             bool untraded = pkm.IsUntraded;
-            var iter = untraded ? GetInvalidRibbons6Untraded(pkm, s6) : GetInvalidRibbons6Traded(pkm, s6);
-            foreach (var p in iter)
+            IEnumerable<RibbonResult>? iter = untraded ? GetInvalidRibbons6Untraded(pkm, s6) : GetInvalidRibbons6Traded(pkm, s6);
+            foreach (RibbonResult? p in iter)
                 yield return p;
 
-            var contest = s6.RibbonBitsContest();
+            bool[]? contest = s6.RibbonBitsContest();
             bool allContest = contest.All(z => z);
             if ((allContest ^ s6.RibbonContestStar) && !(untraded && pkm.XY)) // if not already checked
                 yield return new RibbonResult(nameof(s6.RibbonContestStar), s6.RibbonContestStar);
@@ -244,11 +244,11 @@ namespace PKHeX.Core
             // Affection is discarded on PK7->PK8 in favor of friendship, which can be lowered.
             if (pkm is IAffection a)
             {
-                var affect = a.OT_Affection;
-                var contMemory = s6.RibbonNamesContest();
+                int affect = a.OT_Affection;
+                string[]? contMemory = s6.RibbonNamesContest();
                 int contCount = 0;
-                var present = contMemory.Where((_, i) => contest[i] && affect < 20 * ++contCount);
-                foreach (var rib in present)
+                IEnumerable<string>? present = contMemory.Where((_, i) => contest[i] && affect < 20 * ++contCount);
+                foreach (string? rib in present)
                     yield return new RibbonResult(rib);
             }
 
@@ -267,7 +267,7 @@ namespace PKHeX.Core
             if (!hasChampMemory || s6.RibbonBattlerSkillful || s6.RibbonBattlerExpert)
                 yield break;
 
-            var result = new RibbonResult(nameof(s6.RibbonBattlerSkillful), false);
+            RibbonResult? result = new RibbonResult(nameof(s6.RibbonBattlerSkillful), false);
             result.Combine(new RibbonResult(nameof(s6.RibbonBattlerExpert)));
             yield return result;
         }
@@ -336,7 +336,7 @@ namespace PKHeX.Core
             if (!hasChampMemory || s6.RibbonChampionKalos || s6.RibbonChampionG6Hoenn)
                 yield break;
 
-            var result = new RibbonResult(nameof(s6.RibbonChampionKalos), false);
+            RibbonResult? result = new RibbonResult(nameof(s6.RibbonChampionKalos), false);
             result.Combine(new RibbonResult(nameof(s6.RibbonChampionG6Hoenn)));
             yield return result;
         }
@@ -406,7 +406,7 @@ namespace PKHeX.Core
                 return false;
 
             // Clamp to permitted species
-            var species = pkm.Species;
+            int species = pkm.Species;
             if (species > Legal.MaxSpeciesID_8_R2)
                 return false;
             if (Legal.Legends.Contains(species))
@@ -422,7 +422,7 @@ namespace PKHeX.Core
                         return false;
                 }
             }
-            var pi = (PersonalInfoSWSH)PersonalTable.SWSH[species];
+            PersonalInfoSWSH? pi = (PersonalInfoSWSH)PersonalTable.SWSH[species];
             return pi.IsPresentInGame;
         }
 
@@ -430,9 +430,9 @@ namespace PKHeX.Core
         {
             if (pkm is not IRibbonSetEvent3 set1)
                 yield break;
-            var names = set1.RibbonNames();
-            var sb = set1.RibbonBits();
-            var eb = enc is IRibbonSetEvent3 e3 ? e3.RibbonBits() : new bool[sb.Length];
+            string[]? names = set1.RibbonNames();
+            bool[]? sb = set1.RibbonBits();
+            bool[]? eb = enc is IRibbonSetEvent3 e3 ? e3.RibbonBits() : new bool[sb.Length];
 
             if (enc.Generation == 3)
             {
@@ -458,9 +458,9 @@ namespace PKHeX.Core
         {
             if (pkm is not IRibbonSetEvent4 set2)
                 yield break;
-            var names = set2.RibbonNames();
-            var sb = set2.RibbonBits();
-            var eb = enc is IRibbonSetEvent4 e4 ? e4.RibbonBits() : new bool[sb.Length];
+            string[]? names = set2.RibbonNames();
+            bool[]? sb = set2.RibbonBits();
+            bool[]? eb = enc is IRibbonSetEvent4 e4 ? e4.RibbonBits() : new bool[sb.Length];
 
             if (enc is EncounterStatic7 {Species: (int)Species.Magearna})
                 eb[1] = true; // require Wishing Ribbon

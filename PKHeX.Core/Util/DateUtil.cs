@@ -54,7 +54,7 @@ namespace PKHeX.Core
 
         public static string ConvertDateValueToString(int value, int secondsBias = -1)
         {
-            var sb = new System.Text.StringBuilder();
+            System.Text.StringBuilder? sb = new System.Text.StringBuilder();
             if (value >= SecondsPerDay)
                 sb.Append(value / SecondsPerDay).Append("d ");
             sb.Append(new DateTime(0).AddSeconds(value).ToString("HH:mm:ss"));
@@ -72,8 +72,8 @@ namespace PKHeX.Core
         /// <returns>Date within the specified range, inclusive.</returns>
         public static DateTime GetRandomDateWithin(DateTime start, DateTime end, Random r)
         {
-            var delta = end - start;
-            var bias = r.Next(delta.Days + 1);
+            TimeSpan delta = end - start;
+            int bias = r.Next(delta.Days + 1);
             return start.AddDays(bias);
         }
 

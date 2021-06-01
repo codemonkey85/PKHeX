@@ -15,8 +15,8 @@ namespace PKHeX.Core
 
         private static bool GetHasFooterDSV(byte[] input)
         {
-            var signature = FOOTER_DSV;
-            var start = input.Length - signature.Length;
+            byte[]? signature = FOOTER_DSV;
+            int start = input.Length - signature.Length;
             return input.AsSpan(start).SequenceEqual(signature);
         }
 
@@ -27,7 +27,7 @@ namespace PKHeX.Core
             if (!GetHasFooterDSV(input))
                 return null;
 
-            var footer = input.SliceEnd(SaveUtil.SIZE_G4RAW);
+            byte[]? footer = input.SliceEnd(SaveUtil.SIZE_G4RAW);
             input = input.Slice(0, SaveUtil.SIZE_G4RAW);
 
             return new SaveHandlerSplitResult(input, Array.Empty<byte>(), footer);

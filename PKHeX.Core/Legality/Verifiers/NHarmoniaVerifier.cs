@@ -11,7 +11,7 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             bool checksRequired = data.EncounterMatch is EncounterStatic5N;
             if (pkm is PK5 pk5)
             {
@@ -39,10 +39,10 @@ namespace PKHeX.Core
         {
             if (pkm.TID != 00002 || pkm.SID != 00000)
                 return false;
-            var ot = pkm.OT_Name;
+            string? ot = pkm.OT_Name;
             if (ot.Length != 1)
                 return false;
-            var c = EncounterStatic5N.GetOT(pkm.Language);
+            string? c = EncounterStatic5N.GetOT(pkm.Language);
             return c == ot;
         }
     }

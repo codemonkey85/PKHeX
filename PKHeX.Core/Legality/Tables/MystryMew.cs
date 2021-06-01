@@ -42,7 +42,7 @@ namespace PKHeX.Core
         public static uint GetSeed(uint random, PIDType type = PIDType.BACD_U)
         {
             uint restricted = random % (uint)Seeds.Length;
-            var seed = (uint)Seeds[restricted];
+            uint seed = (uint)Seeds[restricted];
             if (type == PIDType.BACD_R)
                 return seed;
 

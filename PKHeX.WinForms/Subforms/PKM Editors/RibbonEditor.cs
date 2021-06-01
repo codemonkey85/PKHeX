@@ -28,10 +28,10 @@ namespace PKHeX.WinForms
 
             if (pk is PK8 pk8)
             {
-                var names = Enum.GetNames(typeof(RibbonIndex));
-                var values = (RibbonIndex[])Enum.GetValues(typeof(RibbonIndex));
-                var items = names.Select((z, i) => new ComboItem(RibbonStrings.GetName("Ribbon"+z), (int) values[i])).OrderBy(z => z.Text);
-                var ds = new List<ComboItem> {new(GameInfo.GetStrings(Main.CurrentLanguage).Move[0], -1)};
+                string[]? names = Enum.GetNames(typeof(RibbonIndex));
+                RibbonIndex[]? values = (RibbonIndex[])Enum.GetValues(typeof(RibbonIndex));
+                IOrderedEnumerable<ComboItem>? items = names.Select((z, i) => new ComboItem(RibbonStrings.GetName("Ribbon"+z), (int) values[i])).OrderBy(z => z.Text);
+                List<ComboItem>? ds = new List<ComboItem> {new(GameInfo.GetStrings(Main.CurrentLanguage).Move[0], -1)};
                 ds.AddRange(items.ToArray());
                 CB_Affixed.InitializeBinding();
                 CB_Affixed.DataSource = ds;
@@ -65,26 +65,26 @@ namespace PKHeX.WinForms
             TLP_Ribbons.RowCount = 0;
 
             // Add Ribbons
-            foreach (var rib in riblist)
+            foreach (RibbonInfo? rib in riblist)
                 AddRibbonSprite(rib);
-            foreach (var rib in riblist.OrderBy(z => RibbonStrings.GetName(z.Name)))
+            foreach (RibbonInfo? rib in riblist.OrderBy(z => RibbonStrings.GetName(z.Name)))
                 AddRibbonChoice(rib);
 
             // Force auto-size
-            foreach (var style in TLP_Ribbons.RowStyles.OfType<RowStyle>())
+            foreach (RowStyle? style in TLP_Ribbons.RowStyles.OfType<RowStyle>())
                 style.SizeType = SizeType.AutoSize;
-            foreach (var style in TLP_Ribbons.ColumnStyles.OfType<ColumnStyle>())
+            foreach (ColumnStyle? style in TLP_Ribbons.ColumnStyles.OfType<ColumnStyle>())
                 style.SizeType = SizeType.AutoSize;
         }
 
         private void AddRibbonSprite(RibbonInfo rib)
         {
-            var name = rib.Name;
-            var pb = new PictureBox { AutoSize = false, Size = new Size(40,40), BackgroundImageLayout = ImageLayout.Center, Visible = false, Name = PrefixPB + name };
-            var img = SpriteUtil.GetRibbonSprite(name);
+            string? name = rib.Name;
+            PictureBox? pb = new PictureBox { AutoSize = false, Size = new Size(40,40), BackgroundImageLayout = ImageLayout.Center, Visible = false, Name = PrefixPB + name };
+            Image? img = SpriteUtil.GetRibbonSprite(name);
             pb.BackgroundImage = img;
 
-            var display = RibbonStrings.GetName(name);
+            string? display = RibbonStrings.GetName(name);
             pb.MouseEnter += (s, e) => tipName.SetToolTip(pb, display);
             FLP_Ribbons.Controls.Add(pb);
         }
@@ -95,7 +95,7 @@ namespace PKHeX.WinForms
             int row = TLP_Ribbons.RowCount;
             TLP_Ribbons.RowCount++;
 
-            var label = new Label
+            Label? label = new Label
             {
                 Anchor = AnchorStyles.Left,
                 Name = PrefixLabel + rib.Name,
@@ -114,7 +114,7 @@ namespace PKHeX.WinForms
 
         private void AddRibbonNumericUpDown(RibbonInfo rib, int row)
         {
-            var nud = new NumericUpDown
+            NumericUpDown? nud = new NumericUpDown
             {
                 Anchor = AnchorStyles.Right,
                 Name = PrefixNUD + rib.Name,
@@ -137,7 +137,7 @@ namespace PKHeX.WinForms
 
         private void AddRibbonCheckBox(RibbonInfo rib, int row, Control label)
         {
-            var chk = new CheckBox
+            CheckBox? chk = new CheckBox
             {
                 Anchor = AnchorStyles.Right,
                 Name = PrefixCHK + rib.Name,
@@ -158,7 +158,7 @@ namespace PKHeX.WinForms
 
         private void Save()
         {
-            foreach (var rib in riblist)
+            foreach (RibbonInfo? rib in riblist)
                 ReflectUtil.SetValue(pkm, rib.Name, rib.RibbonCount < 0 ? rib.HasRibbon : (object) rib.RibbonCount);
 
             if (pkm is PK8 pk8)
@@ -175,9 +175,9 @@ namespace PKHeX.WinForms
                 return;
             }
 
-            foreach (var c in TLP_Ribbons.Controls.OfType<CheckBox>())
+            foreach (CheckBox? c in TLP_Ribbons.Controls.OfType<CheckBox>())
                 c.Checked = true;
-            foreach (var n in TLP_Ribbons.Controls.OfType<NumericUpDown>())
+            foreach (NumericUpDown? n in TLP_Ribbons.Controls.OfType<NumericUpDown>())
                 n.Value = n.Maximum;
         }
 
@@ -193,9 +193,9 @@ namespace PKHeX.WinForms
             }
 
             CB_Affixed.SelectedValue = -1;
-            foreach (var c in TLP_Ribbons.Controls.OfType<CheckBox>())
+            foreach (CheckBox? c in TLP_Ribbons.Controls.OfType<CheckBox>())
                 c.Checked = false;
-            foreach (var n in TLP_Ribbons.Controls.OfType<NumericUpDown>())
+            foreach (NumericUpDown? n in TLP_Ribbons.Controls.OfType<NumericUpDown>())
                 n.Value = 0;
         }
     }

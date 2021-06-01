@@ -21,7 +21,7 @@ namespace PKHeX.Core
 
         private void VerifyTradeState(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
 
             if (data.pkm is IGeoTrack t)
                 VerifyGeoLocationData(data, t, data.pkm);
@@ -51,8 +51,8 @@ namespace PKHeX.Core
         /// </summary>
         private void VerifyHandlerState(LegalityAnalysis data, bool neverOT)
         {
-            var pkm = data.pkm;
-            var Info = data.Info;
+            PKM? pkm = data.pkm;
+            LegalInfo? Info = data.Info;
 
             // HT Flag
             if ((Info.Generation != pkm.Format || neverOT) && pkm.CurrentHandler != 1)
@@ -64,8 +64,8 @@ namespace PKHeX.Core
         /// </summary>
         private void VerifyOTMisc(LegalityAnalysis data, bool neverOT)
         {
-            var pkm = data.pkm;
-            var Info = data.Info;
+            PKM? pkm = data.pkm;
+            LegalInfo? Info = data.Info;
 
             VerifyOTAffection(data, neverOT, Info.Generation, pkm);
             VerifyOTFriendship(data, neverOT, Info.Generation, pkm);
@@ -79,8 +79,8 @@ namespace PKHeX.Core
                 // Since some evolutions have different base friendship values, check all possible evolutions for a match.
                 // If none match, then it is not a valid OT friendship.
                 const int vc = 7; // VC transfers use SM personal info
-                var evos = data.Info.EvoChainsAllGens[vc];
-                var fs = pkm.OT_Friendship;
+                System.Collections.Generic.IReadOnlyList<EvoCriteria>? evos = data.Info.EvoChainsAllGens[vc];
+                int fs = pkm.OT_Friendship;
                 if (evos.All(z => GetBaseFriendship(vc, z.Species, z.Form) != fs))
                     data.AddLine(GetInvalid(LegalityCheckStrings.LMemoryStatFriendshipOTBaseEvent));
             }
@@ -88,8 +88,8 @@ namespace PKHeX.Core
             {
                 // Verify the original friendship value since it cannot change from the value it was assigned in the original generation.
                 // If none match, then it is not a valid OT friendship.
-                var fs = pkm.OT_Friendship;
-                var enc = data.Info.EncounterMatch;
+                int fs = pkm.OT_Friendship;
+                IEncounterable? enc = data.Info.EncounterMatch;
                 if (GetBaseFriendship(origin, enc.Species, enc.Form) != fs)
                     data.AddLine(GetInvalid(LegalityCheckStrings.LMemoryStatFriendshipOTBaseEvent));
             }
@@ -134,8 +134,8 @@ namespace PKHeX.Core
         /// </summary>
         private void VerifyHTMisc(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var htGender = pkm.HT_Gender;
+            PKM? pkm = data.pkm;
+            int htGender = pkm.HT_Gender;
             if (htGender > 1 || (pkm.IsUntraded && htGender != 0))
                 data.AddLine(GetInvalid(string.Format(LegalityCheckStrings.LMemoryHTGender, htGender)));
 
@@ -160,7 +160,7 @@ namespace PKHeX.Core
 
         private void VerifyGeoLocationData(LegalityAnalysis data, IGeoTrack t, PKM pkm)
         {
-            var valid = t.GetValidity();
+            GeoValid valid = t.GetValidity();
             if (valid == GeoValid.CountryAfterPreviousEmpty)
                 data.AddLine(GetInvalid(LegalityCheckStrings.LGeoBadOrder));
             if (valid == GeoValid.RegionWithoutCountry)

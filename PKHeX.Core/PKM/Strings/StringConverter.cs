@@ -75,8 +75,8 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetString5(byte[] data, int offset, int count)
         {
-            var raw = Encoding.Unicode.GetString(data, offset, count);
-            var sb = new StringBuilder(raw);
+            string? raw = Encoding.Unicode.GetString(data, offset, count);
+            StringBuilder? sb = new StringBuilder(raw);
             Util.TrimFromFirst(sb, TerminatorFFFF);
             SanitizeString(sb);
             return sb.ToString();
@@ -90,15 +90,15 @@ namespace PKHeX.Core
         /// <returns>Encoded data.</returns>
         public static byte[] SetString5(string value, int maxLength, int padTo = 0, ushort padWith = 0)
         {
-            var sb = new StringBuilder(value, Math.Max(maxLength, padTo));
-            var delta = sb.Length - maxLength;
+            StringBuilder? sb = new StringBuilder(value, Math.Max(maxLength, padTo));
+            int delta = sb.Length - maxLength;
             if (delta > 0)
                 sb.Remove(maxLength, delta);
 
             // Replace Special Characters and add Terminator
             UnSanitizeString(sb, 5);
             sb.Append(TerminatorFFFF);
-            var d2 = padTo - sb.Length;
+            int d2 = padTo - sb.Length;
             if (d2 > 0)
                 sb.Append((char)padWith, d2);
 
@@ -112,8 +112,8 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetString6(byte[] data, int offset, int count)
         {
-            var raw = Encoding.Unicode.GetString(data, offset, count);
-            var sb = new StringBuilder(raw);
+            string? raw = Encoding.Unicode.GetString(data, offset, count);
+            StringBuilder? sb = new StringBuilder(raw);
             Util.TrimFromFirst(sb, TerminatorNull);
             SanitizeString(sb);
             return sb.ToString();
@@ -127,15 +127,15 @@ namespace PKHeX.Core
         /// <returns>Encoded data.</returns>
         public static byte[] SetString6(string value, int maxLength, int padTo = 0, ushort padWith = 0)
         {
-            var sb = new StringBuilder(value);
-            var delta = sb.Length - maxLength;
+            StringBuilder? sb = new StringBuilder(value);
+            int delta = sb.Length - maxLength;
             if (delta > 0)
                 sb.Remove(maxLength, delta);
 
             // Replace Special Characters and add Terminator
             UnSanitizeString(sb, 6);
             sb.Append(TerminatorNull);
-            var d2 = padTo - sb.Length;
+            int d2 = padTo - sb.Length;
             if (d2 > 0)
                 sb.Append((char)padWith, d2);
 
@@ -149,8 +149,8 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetString7(byte[] data, int offset, int count)
         {
-            var raw = Encoding.Unicode.GetString(data, offset, count);
-            var sb = new StringBuilder(raw);
+            string? raw = Encoding.Unicode.GetString(data, offset, count);
+            StringBuilder? sb = new StringBuilder(raw);
             Util.TrimFromFirst(sb, TerminatorNull);
             SanitizeString(sb);
             RemapChineseGlyphsBin2String(sb);
@@ -164,8 +164,8 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetString7b(byte[] data, int offset, int count)
         {
-            var raw = Encoding.Unicode.GetString(data, offset, count);
-            var sb = new StringBuilder(raw);
+            string? raw = Encoding.Unicode.GetString(data, offset, count);
+            StringBuilder? sb = new StringBuilder(raw);
             Util.TrimFromFirst(sb, TerminatorNull);
             SanitizeString(sb);
           //RemapChineseGlyphsBin2String(sb);
@@ -182,8 +182,8 @@ namespace PKHeX.Core
         /// <returns>Encoded data.</returns>
         public static byte[] SetString7(string value, int maxLength, int language, int padTo = 0, ushort padWith = 0, bool chinese = false)
         {
-            var sb = new StringBuilder(value);
-            var delta = sb.Length - maxLength;
+            StringBuilder? sb = new StringBuilder(value);
+            int delta = sb.Length - maxLength;
             if (delta > 0)
                 sb.Remove(maxLength, delta);
             if (chinese)
@@ -192,7 +192,7 @@ namespace PKHeX.Core
             // Replace Special Characters and add Terminator
             UnSanitizeString(sb, 7);
             sb.Append(TerminatorNull);
-            var d2 = padTo - sb.Length;
+            int d2 = padTo - sb.Length;
             if (d2 > 0)
                 sb.Append((char)padWith, d2);
 
@@ -207,15 +207,15 @@ namespace PKHeX.Core
         /// <returns>Encoded data.</returns>
         public static byte[] SetString7b(string value, int maxLength, int padTo = 0, ushort padWith = 0)
         {
-            var sb = new StringBuilder(value);
-            var delta = sb.Length - maxLength;
+            StringBuilder? sb = new StringBuilder(value);
+            int delta = sb.Length - maxLength;
             if (delta > 0)
                 sb.Remove(maxLength, delta);
 
             // Replace Special Characters and add Terminator
             // No special characters!
             sb.Append(TerminatorNull);
-            var d2 = padTo - sb.Length;
+            int d2 = padTo - sb.Length;
             if (d2 > 0)
                 sb.Append((char)padWith, d2);
 
@@ -267,7 +267,7 @@ namespace PKHeX.Core
         {
             for (int i = 0; i < str.Length; i++)
             {
-                var c = str[i];
+                char c = str[i];
                 if (c >> 12 is (0 or 0xE))
                     continue;
                 if (c is '\u2640' or '\u2642') // ♀♂
@@ -279,7 +279,7 @@ namespace PKHeX.Core
 
         public static bool HasEastAsianScriptCharacters(string str)
         {
-            foreach (var c in str)
+            foreach (char c in str)
             {
                 if (c is >= '\u4E00' and <= '\u9FFF')
                     return true;

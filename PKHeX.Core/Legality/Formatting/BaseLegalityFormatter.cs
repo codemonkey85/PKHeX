@@ -17,7 +17,7 @@ namespace PKHeX.Core
             if (!l.Parsed)
                 return L_AnalysisUnavailable;
 
-            var lines = GetLegalityReportLines(l);
+            List<string>? lines = GetLegalityReportLines(l);
             return string.Join(Environment.NewLine, lines);
         }
 
@@ -26,16 +26,16 @@ namespace PKHeX.Core
             if (!l.Parsed)
                 return L_AnalysisUnavailable;
 
-            var lines = GetVerboseLegalityReportLines(l);
+            IReadOnlyList<string>? lines = GetVerboseLegalityReportLines(l);
             return string.Join(Environment.NewLine, lines);
         }
 
         private static List<string> GetLegalityReportLines(LegalityAnalysis l)
         {
-            var lines = new List<string>();
-            var info = l.Info;
-            var vMoves = info.Moves;
-            var pkm = l.pkm;
+            List<string>? lines = new List<string>();
+            LegalInfo? info = l.Info;
+            CheckMoveResult[]? vMoves = info.Moves;
+            PKM? pkm = l.pkm;
             for (int i = 0; i < 4; i++)
             {
                 if (!vMoves[i].Valid)
@@ -44,7 +44,7 @@ namespace PKHeX.Core
 
             if (pkm.Format >= 6)
             {
-                var vRelearn = info.Relearn;
+                CheckResult[]? vRelearn = info.Relearn;
                 for (int i = 0; i < 4; i++)
                 {
                     if (!vRelearn[i].Valid)
@@ -53,22 +53,22 @@ namespace PKHeX.Core
             }
 
             // Build result string...
-            var outputLines = l.Results.Where(chk => !chk.Valid);
+            IEnumerable<CheckResult>? outputLines = l.Results.Where(chk => !chk.Valid);
             lines.AddRange(outputLines.Select(chk => chk.Format(L_F0_1)));
             return lines;
         }
 
         private IReadOnlyList<string> GetVerboseLegalityReportLines(LegalityAnalysis l)
         {
-            var lines = l.Valid ? new List<string> {L_ALegal} : GetLegalityReportLines(l);
-            var info = l.Info;
-            var pkm = l.pkm;
+            List<string>? lines = l.Valid ? new List<string> {L_ALegal} : GetLegalityReportLines(l);
+            LegalInfo? info = l.Info;
+            PKM? pkm = l.pkm;
             const string separator = "===";
             lines.Add(separator);
             lines.Add(string.Empty);
             int initialCount = lines.Count;
 
-            var format = pkm.Format;
+            int format = pkm.Format;
             LegalityFormatting.AddValidMoves(info, lines, format);
 
             if (format >= 6)

@@ -10,7 +10,7 @@ namespace PKHeX.Core
 
         private static Dictionary<int, MysteryGiftRestriction>?[] Get()
         {
-            var s = new Dictionary<int, MysteryGiftRestriction>?[PKX.Generation + 1];
+            Dictionary<int, MysteryGiftRestriction>?[]? s = new Dictionary<int, MysteryGiftRestriction>?[PKX.Generation + 1];
             for (int i = 3; i < s.Length; i++)
                 s[i] = GetRestriction(i);
             return s;
@@ -20,13 +20,13 @@ namespace PKHeX.Core
 
         private static Dictionary<int, MysteryGiftRestriction> GetRestriction(int generation)
         {
-            var resource = RestrictionSetName(generation);
-            var data = Util.GetBinaryResource(resource);
-            var dict = new Dictionary<int, MysteryGiftRestriction>();
+            string? resource = RestrictionSetName(generation);
+            byte[]? data = Util.GetBinaryResource(resource);
+            Dictionary<int, MysteryGiftRestriction>? dict = new Dictionary<int, MysteryGiftRestriction>();
             for (int i = 0; i < data.Length; i += 8)
             {
                 int hash = BitConverter.ToInt32(data, i + 0);
-                var restrict = BitConverter.ToInt32(data, i + 4);
+                int restrict = BitConverter.ToInt32(data, i + 4);
                 dict.Add(hash, (MysteryGiftRestriction)restrict);
             }
             return dict;
@@ -34,21 +34,21 @@ namespace PKHeX.Core
 
         public static CheckResult VerifyGift(PKM pk, MysteryGift g)
         {
-            bool restricted = TryGetRestriction(g, out var val);
+            bool restricted = TryGetRestriction(g, out MysteryGiftRestriction val);
             if (!restricted)
                 return new CheckResult(CheckIdentifier.GameOrigin);
 
-            var ver = (int)val >> 16;
+            int ver = (int)val >> 16;
             if (ver != 0 && !CanVersionReceiveGift(g.Generation, ver, pk.Version))
                 return new CheckResult(Severity.Invalid, LEncGiftVersionNotDistributed, CheckIdentifier.GameOrigin);
 
-            var lang = val & MysteryGiftRestriction.LangRestrict;
+            MysteryGiftRestriction lang = val & MysteryGiftRestriction.LangRestrict;
             if (lang != 0 && !lang.HasFlagFast((MysteryGiftRestriction) (1 << pk.Language)))
                 return new CheckResult(Severity.Invalid, string.Format(LOTLanguage, lang.GetSuggestedLanguage(), pk.Language), CheckIdentifier.GameOrigin);
 
             if (pk is IRegionOrigin tr)
             {
-                var region = val & MysteryGiftRestriction.RegionRestrict;
+                MysteryGiftRestriction region = val & MysteryGiftRestriction.RegionRestrict;
                 if (region != 0 && !region.HasFlagFast((MysteryGiftRestriction)((int)MysteryGiftRestriction.RegionBase << tr.ConsoleRegion)))
                     return new CheckResult(Severity.Invalid, LGeoHardwareRange, CheckIdentifier.GameOrigin);
             }
@@ -58,7 +58,7 @@ namespace PKHeX.Core
 
         private static bool TryGetRestriction(MysteryGift g, out MysteryGiftRestriction val)
         {
-            var restrict = RestrictionSet[g.Generation];
+            Dictionary<int, MysteryGiftRestriction>? restrict = RestrictionSet[g.Generation];
             if (restrict != null)
                 return restrict.TryGetValue(g.GetHashCode(), out val);
             val = MysteryGiftRestriction.None;
@@ -67,7 +67,7 @@ namespace PKHeX.Core
 
         public static bool IsValidChangedOTName(PKM pk, MysteryGift g)
         {
-            bool restricted = TryGetRestriction(g, out var val);
+            bool restricted = TryGetRestriction(g, out MysteryGiftRestriction val);
             if (!restricted)
                 return false; // no data
             if (!val.HasFlagFast(MysteryGiftRestriction.OTReplacedOnTrade))

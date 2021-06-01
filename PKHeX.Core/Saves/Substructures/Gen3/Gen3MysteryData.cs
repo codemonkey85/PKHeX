@@ -20,9 +20,9 @@ namespace PKHeX.Core
         private static uint GetChecksum(byte[] data)
         {
             uint sum = 0;
-            for (var i = 4; i < data.Length; i++)
+            for (int i = 4; i < data.Length; i++)
             {
-                var b = data[i];
+                byte b = data[i];
                 sum += b;
             }
 

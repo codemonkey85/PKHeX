@@ -9,10 +9,10 @@ namespace PKHeX.Core
     {
         public static bool Verify<T>(this T raid, PK8 pk8, ulong seed) where T: EncounterStatic8Nest<T>
         {
-            var pi = PersonalTable.SWSH.GetFormEntry(raid.Species, raid.Form);
-            var ratio = pi.Gender;
-            var abil = RemapAbilityToParam(raid.Ability);
-            var IVs = raid.IVs.Count == 0 ? GetBlankIVTemplate() : PKX.ReorderSpeedLast((int[])((int[])raid.IVs).Clone());
+            PersonalInfo? pi = PersonalTable.SWSH.GetFormEntry(raid.Species, raid.Form);
+            int ratio = pi.Gender;
+            int abil = RemapAbilityToParam(raid.Ability);
+            int[]? IVs = raid.IVs.Count == 0 ? GetBlankIVTemplate() : PKX.ReorderSpeedLast((int[])((int[])raid.IVs).Clone());
             return Verify(pk8, seed, IVs, raid.FlawlessIVCount, abil, ratio);
         }
 
@@ -21,10 +21,10 @@ namespace PKHeX.Core
             // Ensure the species-form is set correctly (nature)
             pk8.Species = raid.Species;
             pk8.Form = raid.Form;
-            var pi = PersonalTable.SWSH.GetFormEntry(raid.Species, raid.Form);
-            var ratio = pi.Gender;
-            var abil = RemapAbilityToParam(raid.Ability);
-            var IVs = raid.IVs.Count == 0 ? GetBlankIVTemplate() : PKX.ReorderSpeedLast((int[])((int[])raid.IVs).Clone());
+            PersonalInfo? pi = PersonalTable.SWSH.GetFormEntry(raid.Species, raid.Form);
+            int ratio = pi.Gender;
+            int abil = RemapAbilityToParam(raid.Ability);
+            int[]? IVs = raid.IVs.Count == 0 ? GetBlankIVTemplate() : PKX.ReorderSpeedLast((int[])((int[])raid.IVs).Clone());
             ApplyDetailsTo(pk8, seed, IVs, raid.FlawlessIVCount, abil, ratio);
         }
 
@@ -39,8 +39,8 @@ namespace PKHeX.Core
 
         private static bool Verify(PKM pk, ulong seed, int[] ivs, int iv_count, int ability_param, int gender_ratio, sbyte nature_param = -1, Shiny shiny = Shiny.Random)
         {
-            var rng = new Xoroshiro128Plus(seed);
-            var ec = (uint)rng.NextInt();
+            Xoroshiro128Plus rng = new Xoroshiro128Plus(seed);
+            uint ec = (uint)rng.NextInt();
             if (ec != pk.EncryptionConstant)
                 return false;
 
@@ -48,7 +48,7 @@ namespace PKHeX.Core
             bool isShiny;
             if (shiny == Shiny.Random) // let's decide if it's shiny or not!
             {
-                var trID = (uint)rng.NextInt();
+                uint trID = (uint)rng.NextInt();
                 pid = (uint)rng.NextInt();
                 isShiny = GetShinyXor(pid, trID) < 16;
             }
@@ -110,7 +110,7 @@ namespace PKHeX.Core
             };
             abil <<= 1; // 1/2/4
 
-            var current = pk.AbilityNumber;
+            int current = pk.AbilityNumber;
             if (abil == 4)
             {
                 if (current != 4)
@@ -133,7 +133,7 @@ namespace PKHeX.Core
                         return false;
                     break;
                 default:
-                    var gender = (int)rng.NextInt(252) + 1 < gender_ratio ? 1 : 0;
+                    int gender = (int)rng.NextInt(252) + 1 < gender_ratio ? 1 : 0;
                     if (pk.Gender != gender)
                         return false;
                     break;
@@ -143,21 +143,21 @@ namespace PKHeX.Core
             {
                 if (pk.Species == (int) Species.Toxtricity && pk.Form == 0)
                 {
-                    var table = Nature0;
-                    var choice = table[rng.NextInt((uint)table.Length)];
+                    int[]? table = Nature0;
+                    int choice = table[rng.NextInt((uint)table.Length)];
                     if (pk.Nature != choice)
                         return false;
                 }
                 else if (pk.Species == (int) Species.Toxtricity && pk.Form == 1)
                 {
-                    var table = Nature1;
-                    var choice = table[rng.NextInt((uint)table.Length)];
+                    int[]? table = Nature1;
+                    int choice = table[rng.NextInt((uint)table.Length)];
                     if (pk.Nature != choice)
                         return false;
                 }
                 else
                 {
-                    var nature = (int)rng.NextInt(25);
+                    int nature = (int)rng.NextInt(25);
                     if (pk.Nature != nature)
                         return false;
                 }
@@ -170,10 +170,10 @@ namespace PKHeX.Core
 
             if (pk is IScaledSize s)
             {
-                var height = (int)rng.NextInt(0x81) + (int)rng.NextInt(0x80);
+                int height = (int)rng.NextInt(0x81) + (int)rng.NextInt(0x80);
                 if (s.HeightScalar != height)
                     return false;
-                var weight = (int)rng.NextInt(0x81) + (int)rng.NextInt(0x80);
+                int weight = (int)rng.NextInt(0x81) + (int)rng.NextInt(0x80);
                 if (s.WeightScalar != weight)
                     return false;
             }
@@ -183,14 +183,14 @@ namespace PKHeX.Core
 
         private static bool ApplyDetailsTo(PKM pk, ulong seed, int[] ivs, int iv_count, int ability_param, int gender_ratio, sbyte nature_param = -1, Shiny shiny = Shiny.Random)
         {
-            var rng = new Xoroshiro128Plus(seed);
+            Xoroshiro128Plus rng = new Xoroshiro128Plus(seed);
             pk.EncryptionConstant = (uint)rng.NextInt();
 
             uint pid;
             bool isShiny;
             if (shiny == Shiny.Random) // let's decide if it's shiny or not!
             {
-                var trID = (uint)rng.NextInt();
+                uint trID = (uint)rng.NextInt();
                 pid = (uint)rng.NextInt();
                 isShiny = GetShinyXor(pid, trID) < 16;
             }
@@ -258,12 +258,12 @@ namespace PKHeX.Core
             {
                 if (pk.Species == (int)Species.Toxtricity && pk.Form == 0)
                 {
-                    var table = Nature0;
+                    int[]? table = Nature0;
                     nature = table[rng.NextInt((uint)table.Length)];
                 }
                 else if (pk.Species == (int)Species.Toxtricity && pk.Form == 1)
                 {
-                    var table = Nature1;
+                    int[]? table = Nature1;
                     nature = table[rng.NextInt((uint)table.Length)];
                 }
                 else
@@ -280,8 +280,8 @@ namespace PKHeX.Core
 
             if (pk is IScaledSize s)
             {
-                var height = (int)rng.NextInt(0x81) + (int)rng.NextInt(0x80);
-                var weight = (int)rng.NextInt(0x81) + (int)rng.NextInt(0x80);
+                int height = (int)rng.NextInt(0x81) + (int)rng.NextInt(0x80);
+                int weight = (int)rng.NextInt(0x81) + (int)rng.NextInt(0x80);
                 s.HeightScalar = height;
                 s.WeightScalar = weight;
             }
@@ -301,7 +301,7 @@ namespace PKHeX.Core
 
         private static uint GetShinyXor(uint pid, uint oid)
         {
-            var xor = pid ^ oid;
+            uint xor = pid ^ oid;
             return (xor ^ (xor >> 16)) & 0xFFFF;
         }
 

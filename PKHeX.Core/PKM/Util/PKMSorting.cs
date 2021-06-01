@@ -126,7 +126,7 @@ namespace PKHeX.Core
         /// <returns>Enumerable list that is sorted</returns>
         public static IEnumerable<PKM> OrderByCustom(this IEnumerable<PKM> list, params Func<PKM, IComparable>[] filters)
         {
-            var init = list.InitialSortBy();
+            IOrderedEnumerable<PKM>? init = list.InitialSortBy();
             return filters.Aggregate(init, (current, f) => current.ThenBy(f))
                 .FinalSortBy();
         }
@@ -140,7 +140,7 @@ namespace PKHeX.Core
         /// <remarks>Boolean sort doesn't pair well with <see cref="FinalSortBy"/>, so just keep original sorting order.</remarks>
         public static IEnumerable<PKM> OrderByCustom(this IEnumerable<PKM> list, params Func<PKM, bool>[] filters)
         {
-            var init = list.InitialSortBy();
+            IOrderedEnumerable<PKM>? init = list.InitialSortBy();
             return filters.Aggregate(init, (current, f) => current.ThenBy(f))
                 ;
         }
@@ -175,7 +175,7 @@ namespace PKHeX.Core
         /// <param name="result">Output list of <see cref="PKM"/> data.</param>
         private static IOrderedEnumerable<PKM> FinalSortBy(this IOrderedEnumerable<PKM> result)
         {
-            var postSorted = result
+            IOrderedEnumerable<PKM>? postSorted = result
                 .ThenBy(p => p.Form) // forms sorted
                 .ThenBy(p => p.Gender) // gender sorted
                 .ThenBy(p => p.IsNicknamed);
@@ -221,10 +221,10 @@ namespace PKHeX.Core
         /// <returns>255 if maxed, else the difference between current &amp; base.</returns>
         private static int GetFriendshipDelta(PKM pk)
         {
-            var currentFriendship = pk.CurrentFriendship;
+            int currentFriendship = pk.CurrentFriendship;
             if (currentFriendship == 255)
                 return 255;
-            var baseFriendship = pk.PersonalInfo.BaseFriendship;
+            int baseFriendship = pk.PersonalInfo.BaseFriendship;
             return currentFriendship - baseFriendship;
         }
     }

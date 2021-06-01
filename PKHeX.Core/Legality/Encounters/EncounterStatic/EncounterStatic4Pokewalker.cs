@@ -41,7 +41,7 @@
 
         protected override void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             int gender = criteria.GetGender(Gender, pi);
             int nature = (int)criteria.GetNature(Nature.Random);
 

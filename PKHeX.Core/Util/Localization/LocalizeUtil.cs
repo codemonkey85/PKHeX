@@ -12,7 +12,7 @@ namespace PKHeX.Core
         /// <param name="hax">Permit illegal things (items, only)</param>
         public static void InitializeStrings(string lang, SaveFile? sav = null, bool hax = false)
         {
-            var str = GameInfo.Strings = GameInfo.GetStrings(lang);
+            GameStrings? str = GameInfo.Strings = GameInfo.GetStrings(lang);
             if (sav != null)
                 GameInfo.FilteredSources = new FilteredGameDataSource(sav, GameInfo.Sources, hax);
 

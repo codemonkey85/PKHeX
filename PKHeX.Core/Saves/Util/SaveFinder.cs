@@ -35,7 +35,7 @@ namespace PKHeX.Core
             if (skipFirstDrive)
                 drives = drives.Skip(1);
 
-            var paths = drives.Select(drive => Path.Combine(drive, path));
+            IEnumerable<string>? paths = drives.Select(drive => Path.Combine(drive, path));
             return paths.FirstOrDefault(Directory.Exists);
         }
 
@@ -79,8 +79,8 @@ namespace PKHeX.Core
         /// <returns>Reference to a valid save file, if any.</returns>
         public static SaveFile? FindMostRecentSaveFile(IReadOnlyList<string> drives, ref string error, params string[] extra)
         {
-            var foldersToCheck = GetFoldersToCheck(drives, extra);
-            var result = GetSaveFilePathsFromFolders(foldersToCheck, out var possiblePaths);
+            IEnumerable<string>? foldersToCheck = GetFoldersToCheck(drives, extra);
+            bool result = GetSaveFilePathsFromFolders(foldersToCheck, out IEnumerable<string>? possiblePaths);
             if (!result)
             {
                 error = string.Join(Environment.NewLine, possiblePaths); // `possiblePaths` contains the error message
@@ -88,8 +88,8 @@ namespace PKHeX.Core
             }
 
             // return newest save file path that is valid
-            var byMostRecent = possiblePaths.OrderByDescending(File.GetLastWriteTimeUtc);
-            var saves = byMostRecent.Select(SaveUtil.GetVariantSAV);
+            IOrderedEnumerable<string>? byMostRecent = possiblePaths.OrderByDescending(File.GetLastWriteTimeUtc);
+            IEnumerable<SaveFile?>? saves = byMostRecent.Select(SaveUtil.GetVariantSAV);
             return saves.FirstOrDefault(z => z?.ChecksumsValid == true);
         }
 
@@ -111,15 +111,15 @@ namespace PKHeX.Core
         /// <returns>Valid save files, if any.</returns>
         public static IEnumerable<SaveFile> GetSaveFiles(IReadOnlyList<string> drives, bool detect, IEnumerable<string> extra)
         {
-            var paths = detect ? GetFoldersToCheck(drives, extra) : extra;
-            var result = GetSaveFilePathsFromFolders(paths, out var possiblePaths);
+            IEnumerable<string>? paths = detect ? GetFoldersToCheck(drives, extra) : extra;
+            bool result = GetSaveFilePathsFromFolders(paths, out IEnumerable<string>? possiblePaths);
             if (!result)
                 yield break;
 
-            var byMostRecent = possiblePaths.OrderByDescending(File.GetLastWriteTimeUtc);
-            foreach (var s in byMostRecent)
+            IOrderedEnumerable<string>? byMostRecent = possiblePaths.OrderByDescending(File.GetLastWriteTimeUtc);
+            foreach (string? s in byMostRecent)
             {
-                var sav = SaveUtil.GetVariantSAV(s);
+                SaveFile? sav = SaveUtil.GetVariantSAV(s);
                 if (sav != null)
                     yield return sav;
             }
@@ -127,7 +127,7 @@ namespace PKHeX.Core
 
         public static IEnumerable<string> GetFoldersToCheck(IReadOnlyList<string> drives, IEnumerable<string> extra)
         {
-            var foldersToCheck = extra.Where(f => !string.IsNullOrWhiteSpace(f)).Concat(CustomBackupPaths);
+            IEnumerable<string>? foldersToCheck = extra.Where(f => !string.IsNullOrWhiteSpace(f)).Concat(CustomBackupPaths);
 
             string path3DS = Path.GetPathRoot(Get3DSLocation(drives));
             if (!string.IsNullOrEmpty(path3DS)) // check for Homebrew/CFW backups
@@ -142,8 +142,8 @@ namespace PKHeX.Core
 
         private static bool GetSaveFilePathsFromFolders(IEnumerable<string> foldersToCheck, out IEnumerable<string> possible)
         {
-            var possiblePaths = new List<string>();
-            foreach (var folder in foldersToCheck)
+            List<string>? possiblePaths = new List<string>();
+            foreach (string? folder in foldersToCheck)
             {
                 if (!SaveUtil.GetSavesFromFolder(folder, true, out IEnumerable<string> files))
                 {
@@ -165,7 +165,7 @@ namespace PKHeX.Core
         public static bool DetectSaveFile(out string path, out SaveFile? sav, IReadOnlyList<string> drives)
         {
             string errorMsg = string.Empty;
-            var result = FindMostRecentSaveFile(drives, ref errorMsg);
+            SaveFile? result = FindMostRecentSaveFile(drives, ref errorMsg);
             if (result == null)
             {
                 path = errorMsg;

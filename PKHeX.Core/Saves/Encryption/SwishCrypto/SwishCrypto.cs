@@ -47,28 +47,28 @@ namespace PKHeX.Core
 
         private static void CryptStaticXorpadBytes(byte[] data)
         {
-            var xp = StaticXorpad;
-            for (var i = 0; i < data.Length - SIZE_HASH; i++)
+            byte[]? xp = StaticXorpad;
+            for (int i = 0; i < data.Length - SIZE_HASH; i++)
                 data[i] ^= xp[i % xp.Length];
         }
 
         private static byte[] ComputeHash(byte[] data)
         {
 #if !NET46
-            using var h = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
+            using IncrementalHash? h = IncrementalHash.CreateHash(HashAlgorithmName.SHA256);
             h.AppendData(IntroHashBytes);
             h.AppendData(data, 0, data.Length - SIZE_HASH);
             h.AppendData(OutroHashBytes);
             return h.GetHashAndReset();
 #else
-            var intro = IntroHashBytes;
-            var outro = OutroHashBytes;
-            using var stream = new MemoryStream(intro.Length + data.Length - SIZE_HASH + outro.Length);
+            byte[]? intro = IntroHashBytes;
+            byte[]? outro = OutroHashBytes;
+            using MemoryStream? stream = new MemoryStream(intro.Length + data.Length - SIZE_HASH + outro.Length);
             stream.Write(intro, 0, intro.Length);
             stream.Write(data, 0, data.Length - SIZE_HASH); // hash is at the end
             stream.Write(outro, 0, outro.Length);
             stream.Seek(0, SeekOrigin.Begin);
-            using var sha = SHA256.Create();
+            using SHA256? sha = SHA256.Create();
             return sha.ComputeHash(stream);
 #endif
         }
@@ -83,7 +83,7 @@ namespace PKHeX.Core
             if (!SaveUtil.SizesSWSH.Contains(data.Length))
                 return false;
 
-            var hash = ComputeHash(data);
+            byte[]? hash = ComputeHash(data);
             for (int i = 0; i < hash.Length; i++)
             {
                 if (hash[i] != data[data.Length - SIZE_HASH + i])
@@ -103,7 +103,7 @@ namespace PKHeX.Core
         /// </remarks>
         public static IReadOnlyList<SCBlock> Decrypt(byte[] data)
         {
-            var temp = GetDecryptedRawData(data);
+            byte[]? temp = GetDecryptedRawData(data);
             return ReadBlocks(temp);
         }
 
@@ -113,7 +113,7 @@ namespace PKHeX.Core
         public static byte[] GetDecryptedRawData(byte[] data)
         {
             // de-ref from input data, since we're going to modify the contents in-place
-            var temp = (byte[])data.Clone();
+            byte[]? temp = (byte[])data.Clone();
             CryptStaticXorpadBytes(temp);
             return temp;
         }
@@ -123,11 +123,11 @@ namespace PKHeX.Core
 
         private static IReadOnlyList<SCBlock> ReadBlocks(byte[] data)
         {
-            var result = new List<SCBlock>(data.Length / BlockDataRatioEstimate2);
+            List<SCBlock>? result = new List<SCBlock>(data.Length / BlockDataRatioEstimate2);
             int offset = 0;
             while (offset < data.Length - SIZE_HASH)
             {
-                var block = SCBlock.ReadFromOffset(data, ref offset);
+                SCBlock? block = SCBlock.ReadFromOffset(data, ref offset);
                 result.Add(block);
             }
 
@@ -141,10 +141,10 @@ namespace PKHeX.Core
         /// <returns>Encrypted save data.</returns>
         public static byte[] Encrypt(IReadOnlyList<SCBlock> blocks)
         {
-            var result = GetDecryptedRawData(blocks);
+            byte[]? result = GetDecryptedRawData(blocks);
             CryptStaticXorpadBytes(result);
 
-            var hash = ComputeHash(result);
+            byte[]? hash = ComputeHash(result);
             hash.CopyTo(result, result.Length - SIZE_HASH);
 
             return result;
@@ -156,9 +156,9 @@ namespace PKHeX.Core
         /// <returns>Raw save data without the final xorpad layer.</returns>
         public static byte[] GetDecryptedRawData(IReadOnlyList<SCBlock> blocks)
         {
-            using var ms = new MemoryStream(blocks.Count * BlockDataRatioEstimate1);
-            using var bw = new BinaryWriter(ms);
-            foreach (var block in blocks)
+            using MemoryStream? ms = new MemoryStream(blocks.Count * BlockDataRatioEstimate1);
+            using BinaryWriter? bw = new BinaryWriter(ms);
+            foreach (SCBlock? block in blocks)
                 block.WriteBlock(bw);
 
             // Allocate hash bytes at the end

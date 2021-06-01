@@ -11,7 +11,7 @@ namespace PKHeX.Core
 
         public override void GetPouch(byte[] data)
         {
-            var items = new InventoryItem[PouchDataSize];
+            InventoryItem[]? items = new InventoryItem[PouchDataSize];
             if (Type == InventoryType.TMHMs)
             {
                 int slot = 0;

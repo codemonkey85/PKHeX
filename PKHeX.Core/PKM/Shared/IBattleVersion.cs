@@ -21,7 +21,7 @@
         /// <param name="version">Version to apply</param>
         public static void AdaptToBattleVersion(this IBattleVersion v, PKM pk, GameVersion version)
         {
-            var moves = MoveLevelUp.GetEncounterMoves(pk, pk.CurrentLevel, version);
+            int[]? moves = MoveLevelUp.GetEncounterMoves(pk, pk.CurrentLevel, version);
             pk.Move1 = pk.Move2 = pk.Move3 = pk.Move4 = 0;
             pk.RelearnMove1 = pk.RelearnMove2 = pk.RelearnMove3 = pk.RelearnMove4 = 0;
             pk.SetMoves(moves);
@@ -31,13 +31,13 @@
 
         public static int GetMinGeneration(this IBattleVersion v)
         {
-            var ver = v.BattleVersion;
+            int ver = v.BattleVersion;
             if (ver == 0)
                 return 1;
-            var game = (GameVersion) ver;
+            GameVersion game = (GameVersion) ver;
             if (!game.IsValidSavedVersion())
                 return -1;
-            var gen = game.GetGeneration();
+            int gen = game.GetGeneration();
             if (gen >= 8)
                 return gen;
             return -1;

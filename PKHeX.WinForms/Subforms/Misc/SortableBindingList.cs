@@ -31,7 +31,7 @@ namespace PKHeX.WinForms
             List<T> itemsList = (List<T>)Items;
 
             Type propertyType = prop.PropertyType;
-            if (!comparers.TryGetValue(propertyType, out var comparer))
+            if (!comparers.TryGetValue(propertyType, out PropertyComparer<T>? comparer))
             {
                 comparer = new PropertyComparer<T>(prop, direction);
                 comparers.Add(propertyType, comparer);
@@ -61,8 +61,8 @@ namespace PKHeX.WinForms
             int count = Count;
             for (int i = 0; i < count; ++i)
             {
-                var obj = this[i];
-                var val = prop.GetValue(obj);
+                T? obj = this[i];
+                object? val = prop.GetValue(obj);
                 if (val?.Equals(key) == true)
                     return i;
             }

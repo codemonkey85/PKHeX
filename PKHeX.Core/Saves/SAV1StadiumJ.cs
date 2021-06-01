@@ -58,18 +58,18 @@ namespace PKHeX.Core
 
         protected override bool GetIsBoxChecksumValid(int i)
         {
-            var boxOfs = GetBoxOffset(i) - ListHeaderSize;
+            int boxOfs = GetBoxOffset(i) - ListHeaderSize;
             const int size = BoxSizeJ - 2;
-            var chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
-            var actual = BigEndian.ToUInt16(Data, boxOfs + size);
+            ushort chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
+            ushort actual = BigEndian.ToUInt16(Data, boxOfs + size);
             return chk == actual;
         }
 
         protected override void SetBoxChecksum(int i)
         {
-            var boxOfs = GetBoxOffset(i) - ListHeaderSize;
+            int boxOfs = GetBoxOffset(i) - ListHeaderSize;
             const int size = BoxSizeJ - 2;
-            var chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
+            ushort chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
             BigEndian.GetBytes(chk).CopyTo(Data, boxOfs + size);
         }
 
@@ -81,8 +81,8 @@ namespace PKHeX.Core
         protected override PKM GetPKM(byte[] data)
         {
             const int len = StringLength;
-            var nick = data.Slice(0x21, len);
-            var ot = data.Slice(0x21 + len, len);
+            byte[]? nick = data.Slice(0x21, len);
+            byte[]? ot = data.Slice(0x21 + len, len);
             data = data.Slice(0, 0x21);
             return new PK1(data, true) { OT_Trash = ot, Nickname_Trash = nick };
         }
@@ -90,9 +90,9 @@ namespace PKHeX.Core
         public override byte[] GetDataForFormatStored(PKM pkm)
         {
             byte[] result = new byte[SIZE_STORED];
-            var gb = (PK1)pkm;
+            PK1? gb = (PK1)pkm;
 
-            var data = pkm.Data;
+            byte[]? data = pkm.Data;
             const int len = StringLength;
             data.CopyTo(result, 0);
             gb.RawNickname.CopyTo(result, PokeCrypto.SIZE_1STORED);
@@ -109,13 +109,13 @@ namespace PKHeX.Core
 
         public string GetTeamName(int team)
         {
-            var name = $"Team {team + 1}";
+            string? name = $"Team {team + 1}";
 
-            var ofs = GetTeamOffset(team);
-            var str = GetString(ofs + 2, 5);
+            int ofs = GetTeamOffset(team);
+            string? str = GetString(ofs + 2, 5);
             if (string.IsNullOrWhiteSpace(str))
                 return name;
-            var id = BigEndian.ToUInt16(Data, ofs + 8);
+            ushort id = BigEndian.ToUInt16(Data, ofs + 8);
             return $"{name} [{id:D5}:{str}]";
         }
 
@@ -124,12 +124,12 @@ namespace PKHeX.Core
             if ((uint)team >= TeamCount)
                 throw new ArgumentOutOfRangeException(nameof(team));
 
-            var name = GetTeamName(team);
-            var members = new PK1[6];
-            var ofs = GetTeamOffset(team);
+            string? name = GetTeamName(team);
+            PK1[]? members = new PK1[6];
+            int ofs = GetTeamOffset(team);
             for (int i = 0; i < 6; i++)
             {
-                var rel = ofs + ListHeaderSize + (i * SIZE_STORED);
+                int rel = ofs + ListHeaderSize + (i * SIZE_STORED);
                 members[i] = (PK1)GetStoredSlot(Data, rel);
             }
             return new SlotGroup(name, members);

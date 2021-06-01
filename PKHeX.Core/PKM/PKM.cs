@@ -257,8 +257,8 @@ namespace PKHeX.Core
         {
             get
             {
-                var pid = PID;
-                var upper = (pid >> 16) ^ (uint)SID;
+                uint pid = PID;
+                uint upper = (pid >> 16) ^ (uint)SID;
                 return (pid & 0xFFFF) ^ (uint)TID ^ upper;
             }
         }
@@ -277,7 +277,7 @@ namespace PKHeX.Core
 
         private void SetID7(int sid7, int tid7)
         {
-            var oid = (sid7 * 1_000_000) + (tid7 % 1_000_000);
+            int oid = (sid7 * 1_000_000) + (tid7 % 1_000_000);
             TID = (ushort)oid;
             SID = oid >> 16;
         }
@@ -346,12 +346,12 @@ namespace PKHeX.Core
 
         public virtual bool ChecksumValid => Checksum == CalculateChecksum();
         public int CurrentLevel { get => Experience.GetLevel(EXP, PersonalInfo.EXPGrowth); set => EXP = Experience.GetEXP(Stat_Level = value, PersonalInfo.EXPGrowth); }
-        public int MarkCircle      { get => Markings[0]; set { var marks = Markings; marks[0] = value; Markings = marks; } }
-        public int MarkTriangle    { get => Markings[1]; set { var marks = Markings; marks[1] = value; Markings = marks; } }
-        public int MarkSquare      { get => Markings[2]; set { var marks = Markings; marks[2] = value; Markings = marks; } }
-        public int MarkHeart       { get => Markings[3]; set { var marks = Markings; marks[3] = value; Markings = marks; } }
-        public int MarkStar        { get => Markings[4]; set { var marks = Markings; marks[4] = value; Markings = marks; } }
-        public int MarkDiamond     { get => Markings[5]; set { var marks = Markings; marks[5] = value; Markings = marks; } }
+        public int MarkCircle      { get => Markings[0]; set { int[]? marks = Markings; marks[0] = value; Markings = marks; } }
+        public int MarkTriangle    { get => Markings[1]; set { int[]? marks = Markings; marks[1] = value; Markings = marks; } }
+        public int MarkSquare      { get => Markings[2]; set { int[]? marks = Markings; marks[2] = value; Markings = marks; } }
+        public int MarkHeart       { get => Markings[3]; set { int[]? marks = Markings; marks[3] = value; Markings = marks; } }
+        public int MarkStar        { get => Markings[4]; set { int[]? marks = Markings; marks[4] = value; Markings = marks; } }
+        public int MarkDiamond     { get => Markings[5]; set { int[]? marks = Markings; marks[5] = value; Markings = marks; } }
         public int IVTotal => IV_HP + IV_ATK + IV_DEF + IV_SPA + IV_SPD + IV_SPE;
         public int EVTotal => EV_HP + EV_ATK + EV_DEF + EV_SPA + EV_SPD + EV_SPE;
         public int MaximumIV => Math.Max(Math.Max(Math.Max(Math.Max(Math.Max(IV_HP, IV_ATK), IV_DEF), IV_SPA), IV_SPD), IV_SPE);
@@ -491,8 +491,8 @@ namespace PKHeX.Core
             get => 15 * HPBitValType / 63;
             set
             {
-                var arr = HiddenPower.DefaultLowBits;
-                var bits = (uint)value >= arr.Length ? 0 : arr[value];
+                byte[]? arr = HiddenPower.DefaultLowBits;
+                int bits = (uint)value >= arr.Length ? 0 : arr[value];
                 IV_HP = (IV_HP & ~1)   + ((bits >> 0) & 1);
                 IV_ATK = (IV_ATK & ~1) + ((bits >> 1) & 1);
                 IV_DEF = (IV_DEF & ~1) + ((bits >> 2) & 1);
@@ -593,7 +593,7 @@ namespace PKHeX.Core
             if (species < 0)
                 species = Species;
 
-            var format = Format;
+            int format = Format;
             if (format == generation)
                 return true;
 
@@ -711,7 +711,7 @@ namespace PKHeX.Core
         public virtual void RefreshAbility(int n)
         {
             AbilityNumber = 1 << n;
-            var abilities = PersonalInfo.Abilities;
+            IReadOnlyList<int>? abilities = PersonalInfo.Abilities;
             if ((uint)n < abilities.Count)
                 Ability = abilities[n];
         }
@@ -868,7 +868,7 @@ namespace PKHeX.Core
         /// <returns>Amount of PP the move has by default (no PP Ups).</returns>
         private int GetBasePP(int move)
         {
-            var table = Legal.GetPPTable(this, Format);
+            IReadOnlyList<byte>? table = Legal.GetPPTable(this, Format);
             if (move >= table.Count)
                 move = 0;
             return table[move];
@@ -883,7 +883,7 @@ namespace PKHeX.Core
         /// </remarks>
         public virtual void SetShiny()
         {
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             do { PID = PKX.GetRandomPID(rnd, Species, Gender, Version, Nature, Form, PID); }
             while (!IsShiny);
             if (Format >= 6 && (Gen3 || Gen4 || Gen5))
@@ -898,8 +898,8 @@ namespace PKHeX.Core
             if (IsShiny && shiny.IsValid(this))
                 return;
 
-            var xor = TID ^ (PID >> 16) ^ (PID & 0xFFFF);
-            var bits = shiny switch
+            long xor = TID ^ (PID >> 16) ^ (PID & 0xFFFF);
+            int bits = shiny switch
             {
                 Shiny.AlwaysSquare => 0,
                 Shiny.AlwaysStar => 1,
@@ -918,7 +918,7 @@ namespace PKHeX.Core
         /// </remarks>
         public void SetPIDGender(int gender)
         {
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             do PID = PKX.GetRandomPID(rnd, Species, gender, Version, Nature, Form, PID);
             while (IsShiny);
             if (Format >= 6 && (Gen3 || Gen4 || Gen5))
@@ -934,7 +934,7 @@ namespace PKHeX.Core
         /// </remarks>
         public void SetPIDNature(int nature)
         {
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             do PID = PKX.GetRandomPID(rnd, Species, Gender, Version, nature, Form, PID);
             while (IsShiny);
             if (Format >= 6 && (Gen3 || Gen4 || Gen5))
@@ -967,7 +967,7 @@ namespace PKHeX.Core
                 return SetRandomIVsGO();
 
             int[] ivs = new int[6];
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             for (int i = 0; i < 6; i++)
                 ivs[i] = rnd.Next(MaxIV + 1);
 
@@ -984,7 +984,7 @@ namespace PKHeX.Core
         public int[] SetRandomIVsGO(int minIV = 0)
         {
             int[] ivs = new int[6];
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             ivs[0] = (rnd.Next(minIV, 16) << 1) | 1; // hp
             ivs[1] = ivs[4] = (rnd.Next(minIV, 16) << 1) | 1; // attack
             ivs[2] = ivs[5] = (rnd.Next(minIV, 16) << 1) | 1; // defense
@@ -1002,7 +1002,7 @@ namespace PKHeX.Core
         {
             int count = flawless ?? GetFlawlessIVCount();
             int[] ivs = new int[6];
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             do
             {
                 for (int i = 0; i < 6; i++)
@@ -1040,19 +1040,19 @@ namespace PKHeX.Core
         public void TransferPropertiesWithReflection(PKM Destination)
         {
             // Only transfer declared properties not defined in PKM.cs but in the actual type
-            var srcType = GetType();
-            var destType = Destination.GetType();
-            var srcProperties = ReflectUtil.GetPropertiesCanWritePublicDeclared(srcType);
-            var destProperties = ReflectUtil.GetPropertiesCanWritePublicDeclared(destType);
+            Type? srcType = GetType();
+            Type? destType = Destination.GetType();
+            IEnumerable<string>? srcProperties = ReflectUtil.GetPropertiesCanWritePublicDeclared(srcType);
+            IEnumerable<string>? destProperties = ReflectUtil.GetPropertiesCanWritePublicDeclared(destType);
 
             // Transfer properties in the order they are defined in the destination PKM format for best conversion
-            var shared = destProperties.Intersect(srcProperties);
+            IEnumerable<string>? shared = destProperties.Intersect(srcProperties);
             foreach (string property in shared)
             {
-                if (!BatchEditing.TryGetHasProperty(this, property, out var src))
+                if (!BatchEditing.TryGetHasProperty(this, property, out System.Reflection.PropertyInfo? src))
                     continue;
-                var prop = src.GetValue(this);
-                if (prop is not (byte[] or null) && BatchEditing.TryGetHasProperty(Destination, property, out var pi))
+                object? prop = src.GetValue(this);
+                if (prop is not (byte[] or null) && BatchEditing.TryGetHasProperty(Destination, property, out System.Reflection.PropertyInfo? pi))
                     ReflectUtil.SetValue(pi, Destination, prop);
             }
 
@@ -1092,8 +1092,8 @@ namespace PKHeX.Core
         public void ClearInvalidMoves()
         {
             uint invalid = 0;
-            var moves = Moves;
-            for (var i = 0; i < moves.Length; i++)
+            int[]? moves = Moves;
+            for (int i = 0; i < moves.Length; i++)
             {
                 if (moves[i] <= MaxMoveID)
                     continue;

@@ -19,7 +19,7 @@ namespace PKHeX.Core
 
         public static EncounterArea2[] GetAreas(byte[][] input, GameVersion game)
         {
-            var result = new EncounterArea2[input.Length];
+            EncounterArea2[]? result = new EncounterArea2[input.Length];
             for (int i = 0; i < input.Length; i++)
                 result[i] = new EncounterArea2(input[i], game);
             return result;
@@ -29,15 +29,15 @@ namespace PKHeX.Core
         {
             Location = data[0];
             Time = (EncounterTime)data[1];
-            var type = (Type = (SlotType)data[2]) & (SlotType)0xF;
-            var rate = data[3];
+            SlotType type = (Type = (SlotType)data[2]) & (SlotType)0xF;
+            byte rate = data[3];
 
             if (type > SlotType.Surf) // Not Grass/Surf
             {
                 const int size = 5;
                 int count = (data.Length - 4) / size;
 
-                var rates = new byte[count];
+                byte[]? rates = new byte[count];
                 for (int i = 0; i < rates.Length; i++)
                     rates[i] = data[4 + i];
 
@@ -62,7 +62,7 @@ namespace PKHeX.Core
 
         private EncounterSlot2[] ReadSlots(byte[] data, int count, int start)
         {
-            var slots = new EncounterSlot2[count];
+            EncounterSlot2[]? slots = new EncounterSlot2[count];
             for (int i = 0; i < slots.Length; i++)
             {
                 int offset = start + (4 * i);
@@ -88,9 +88,9 @@ namespace PKHeX.Core
 
         private IEnumerable<EncounterSlot> GetSlotsSpecificLevelTime(IReadOnlyList<EvoCriteria> chain, int time, int lvl)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;
@@ -115,9 +115,9 @@ namespace PKHeX.Core
 
         private IEnumerable<EncounterSlot> GetSlotsFuzzy(IReadOnlyList<EvoCriteria> chain)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;

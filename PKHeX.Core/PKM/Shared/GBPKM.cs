@@ -58,7 +58,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var spName = SpeciesName.GetSpeciesNameGeneration(Species, GuessedLanguage(), Format);
+                string? spName = SpeciesName.GetSpeciesNameGeneration(Species, GuessedLanguage(), Format);
                 return Nickname != spName;
             }
         }
@@ -191,7 +191,7 @@ namespace PKHeX.Core
         protected int TransferLanguage(int destLanguage)
         {
             // if the Species name of the destination language matches the current nickname, transfer with that language.
-            var expect = SpeciesName.GetSpeciesNameGeneration(Species, destLanguage, 2);
+            string? expect = SpeciesName.GetSpeciesNameGeneration(Species, destLanguage, 2);
             if (Nickname == expect)
                 return destLanguage;
             return GuessedLanguage(destLanguage);
@@ -199,7 +199,7 @@ namespace PKHeX.Core
 
         public sealed override ushort[] GetStats(PersonalInfo p)
         {
-            var lv = Stat_Level;
+            int lv = Stat_Level;
             ushort[] stats =
             {
                 GetStat(p.HP , IV_HP , EV_HP , lv),
@@ -221,7 +221,7 @@ namespace PKHeX.Core
 
         public sealed override int GetMovePP(int move, int ppUpCount)
         {
-            var pp = base.GetMovePP(move, 0);
+            int pp = base.GetMovePP(move, 0);
             return pp + (ppUpCount * Math.Min(7, pp / 5));
         }
 

@@ -24,7 +24,7 @@ namespace PKHeX.Core
         /// <param name="pkm">Last interacted slot interaction data</param>
         public void NotifySlotChanged(ISlotInfo slot, SlotTouchType type, PKM pkm)
         {
-            foreach (var sub in Subscribers)
+            foreach (ISlotViewer<T>? sub in Subscribers)
                 ResetView(sub, slot, type, pkm);
             Previous = slot;
             PreviousType = type;

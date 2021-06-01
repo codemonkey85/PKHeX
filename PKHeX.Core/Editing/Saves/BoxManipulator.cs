@@ -18,19 +18,19 @@
             if (!usable)
                 return false;
 
-            var start = allBoxes ? 0 : box;
-            var stop = allBoxes ? SAV.BoxCount - 1 : box;
-            var param = new BoxManipParam(start, stop, reverse);
+            int start = allBoxes ? 0 : box;
+            int stop = allBoxes ? SAV.BoxCount - 1 : box;
+            BoxManipParam param = new BoxManipParam(start, stop, reverse);
 
-            var prompt = manip.GetPrompt(allBoxes);
-            var fail = manip.GetFail(allBoxes);
+            string? prompt = manip.GetPrompt(allBoxes);
+            string? fail = manip.GetFail(allBoxes);
             if (!CanManipulateRegion(param.Start, param.Stop, prompt, fail))
                 return false;
 
-            var result = manip.Execute(SAV, param);
+            int result = manip.Execute(SAV, param);
             if (result <= 0)
                 return false;
-            var success = manip.GetSuccess(allBoxes);
+            string? success = manip.GetSuccess(allBoxes);
             FinishBoxManipulation(success, allBoxes, result);
             return true;
         }
@@ -45,7 +45,7 @@
         /// <returns>True if operation succeeded, false if no changes made.</returns>
         public bool Execute(BoxManipType type, int box, bool allBoxes, bool reverse = false)
         {
-            var manip = type.GetManip();
+            IBoxManip? manip = type.GetManip();
             return Execute(manip, box, allBoxes, reverse);
         }
 

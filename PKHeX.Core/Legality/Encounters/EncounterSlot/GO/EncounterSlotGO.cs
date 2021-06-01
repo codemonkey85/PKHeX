@@ -38,7 +38,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var init = $"{Name} ({Type})";
+                string? init = $"{Name} ({Type})";
                 if (Start == 0 && End == 0)
                     return init;
                 return $"{init}: {GetDateString(Start)}-{GetDateString(End)}";
@@ -49,9 +49,9 @@ namespace PKHeX.Core
 
         private static DateTime GetDate(int time)
         {
-            var d = time & 0xFF;
-            var m = (time >> 8) & 0xFF;
-            var y = time >> 16;
+            int d = time & 0xFF;
+            int m = (time >> 8) & 0xFF;
+            int y = time >> 16;
             return new DateTime(y, m, d);
         }
 
@@ -77,10 +77,10 @@ namespace PKHeX.Core
             if (Start == 0)
                 return End == 0 ? DateTime.UtcNow : GetDate(End);
 
-            var start = GetDate(Start);
+            DateTime start = GetDate(Start);
             if (End == 0)
                 return start;
-            var end = GetDate(End);
+            DateTime end = GetDate(End);
             return DateUtil.GetRandomDateWithin(start, end);
         }
 

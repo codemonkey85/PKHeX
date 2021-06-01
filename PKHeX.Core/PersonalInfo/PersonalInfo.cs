@@ -275,7 +275,7 @@ namespace PKHeX.Core
         /// </summary>
         public int RandomGender()
         {
-            var fix = FixedGender;
+            int fix = FixedGender;
             return fix >= 0 ? fix : Util.Rand.Next(2);
         }
 

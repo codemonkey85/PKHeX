@@ -106,7 +106,7 @@ namespace PKHeX
 
         private static int[] GetMinLevelLearnMoveG1(int species, List<int> moves)
         {
-            var result = new int[moves.Count];
+            int[]? result = new int[moves.Count];
             for (int i = 0; i < result.Length; i++)
                 result[i] = MoveLevelUp.GetIsLevelUp1(species, moves[i], 100, 0, 0).Level;
             return result;
@@ -114,14 +114,14 @@ namespace PKHeX
 
         private static int[] GetMaxLevelLearnMoveG1(int species, List<int> moves)
         {
-            var result = new int[moves.Count];
+            int[]? result = new int[moves.Count];
 
             int index = PersonalTable.RB.GetFormIndex(species, 0);
             if (index == 0)
                 return result;
 
-            var pi_rb = ((PersonalInfoG1)PersonalTable.RB[index]).Moves;
-            var pi_y = ((PersonalInfoG1)PersonalTable.Y[index]).Moves;
+            int[]? pi_rb = ((PersonalInfoG1)PersonalTable.RB[index]).Moves;
+            int[]? pi_y = ((PersonalInfoG1)PersonalTable.Y[index]).Moves;
 
             for (int m = 0; m < moves.Count; m++)
             {
@@ -135,12 +135,12 @@ namespace PKHeX
         private static List<int>[] GetExclusiveMovesG1(int species1, int species2, IEnumerable<int> tmhm, IEnumerable<int> moves)
         {
             // Return from two species the exclusive moves that only one could learn and also the current pokemon have it in its current moveset
-            var moves1 = MoveLevelUp.GetMovesLevelUp1(species1, 0, 1, 100);
-            var moves2 = MoveLevelUp.GetMovesLevelUp1(species2, 0, 1, 100);
+            List<int>? moves1 = MoveLevelUp.GetMovesLevelUp1(species1, 0, 1, 100);
+            List<int>? moves2 = MoveLevelUp.GetMovesLevelUp1(species2, 0, 1, 100);
 
             // Remove common moves and remove tmhm, remove not learned moves
-            var common = new HashSet<int>(moves1.Intersect(moves2).Concat(tmhm));
-            var hashMoves = new HashSet<int>(moves);
+            HashSet<int>? common = new HashSet<int>(moves1.Intersect(moves2).Concat(tmhm));
+            HashSet<int>? hashMoves = new HashSet<int>(moves);
             moves1.RemoveAll(x => !hashMoves.Contains(x) || common.Contains(x));
             moves2.RemoveAll(x => !hashMoves.Contains(x) || common.Contains(x));
             return new[] { moves1, moves2 };
@@ -171,21 +171,21 @@ namespace PKHeX
                     incompatible_previous = new List<int>();
                     incompatible_current = new List<int>();
                     previousspecies = 133;
-                    var ExclusiveMoves = GetExclusiveMovesG1((int)Eevee, pkm.Species, tmhm, moves);
-                    var EeveeLevels = GetMinLevelLearnMoveG1((int)Eevee, ExclusiveMoves[0]);
-                    var EvoLevels = GetMaxLevelLearnMoveG1(pkm.Species, ExclusiveMoves[1]);
+                    List<int>[]? ExclusiveMoves = GetExclusiveMovesG1((int)Eevee, pkm.Species, tmhm, moves);
+                    int[]? EeveeLevels = GetMinLevelLearnMoveG1((int)Eevee, ExclusiveMoves[0]);
+                    int[]? EvoLevels = GetMaxLevelLearnMoveG1(pkm.Species, ExclusiveMoves[1]);
 
                     for (int i = 0; i < ExclusiveMoves[0].Count; i++)
                     {
                         // There is a evolution move with a lower level that current Eevee move
-                        var el = EeveeLevels[i];
+                        int el = EeveeLevels[i];
                         if (EvoLevels.Any(ev => ev < el))
                             incompatible_previous.Add(ExclusiveMoves[0][i]);
                     }
                     for (int i = 0; i < ExclusiveMoves[1].Count; i++)
                     {
                         // There is an Eevee move with a greater level that current evolution move
-                        var el = EvoLevels[i];
+                        int el = EvoLevels[i];
                         if (EeveeLevels.Any(ev => ev > el))
                             incompatible_current.Add(ExclusiveMoves[1][i]);
                     }
@@ -207,10 +207,10 @@ namespace PKHeX
 
             // tm, hm and tutor moves replace a free slots if the pokemon have less than 4 moves
             // Ignore tm, hm and tutor moves already in the learnset table
-            var learn = info.EncounterMoves.LevelUpMoves;
-            var tmhm = info.EncounterMoves.TMHMMoves;
-            var tutor = info.EncounterMoves.TutorMoves;
-            var union = initialmoves.Union(learn[1]);
+            IReadOnlyList<int>[]? learn = info.EncounterMoves.LevelUpMoves;
+            IReadOnlyList<int>[]? tmhm = info.EncounterMoves.TMHMMoves;
+            IReadOnlyList<int>[]? tutor = info.EncounterMoves.TutorMoves;
+            IEnumerable<int>? union = initialmoves.Union(learn[1]);
             required += moves.Count(m => m != 0 && union.All(t => t != m) && (tmhm[1].Any(t => t == m) || tutor[1].Any(t => t == m)));
 
             return Math.Min(4, required);
@@ -313,7 +313,7 @@ namespace PKHeX
             // Species with few mandatory slots, species with stone evolutions that could evolve at lower level and do not learn any more moves
             // and Pikachu and Nidoran family, those only have mandatory the initial moves and a few have one level up moves,
             // every other move could be avoided switching game or evolving
-            var mandatory = GetRequiredMoveCountLevel(pk);
+            List<int>? mandatory = GetRequiredMoveCountLevel(pk);
             switch (pk.Species)
             {
                 case (int)Exeggutor when pk.CurrentLevel >= 28: // Exeggutor
@@ -388,11 +388,11 @@ namespace PKHeX
         private static bool GetCatchRateMatchesPreEvolution(PK1 pkm, int catch_rate)
         {
             // For species catch rate, discard any species that has no valid encounters and a different catch rate than their pre-evolutions
-            var table = EvolutionTree.GetEvolutionTree(1);
-            var chain = table.GetValidPreEvolutions(pkm, maxLevel: pkm.CurrentLevel);
-            foreach (var entry in chain)
+            EvolutionTree? table = EvolutionTree.GetEvolutionTree(1);
+            List<EvoCriteria>? chain = table.GetValidPreEvolutions(pkm, maxLevel: pkm.CurrentLevel);
+            foreach (EvoCriteria? entry in chain)
             {
-                var s = entry.Species;
+                int s = entry.Species;
                 if (Species_NotAvailable_CatchRate.Contains(s))
                     continue;
                 if (catch_rate == PersonalTable.RB[s].CatchRate || catch_rate == PersonalTable.Y[s].CatchRate)
@@ -463,7 +463,7 @@ namespace PKHeX
                 return TradebackType.Gen1_NotTradeback;
 
             // Detect tradeback status by comparing the catch rate(Gen1)/held item(Gen2) to the species in the pkm's evolution chain.
-            var catch_rate = pkm.Catch_Rate;
+            int catch_rate = pkm.Catch_Rate;
             if (catch_rate == 0)
                 return TradebackType.WasTradeback;
 
@@ -486,12 +486,12 @@ namespace PKHeX
                 return true;
             if (ParseSettings.ActiveTrainer.Game == (int)Any)
                 return false;
-            var IsYellow = ParseSettings.ActiveTrainer.Game == (int)YW;
+            bool IsYellow = ParseSettings.ActiveTrainer.Game == (int)YW;
             if (pk1.TradebackStatus == TradebackType.Gen1_NotTradeback)
             {
                 // If catch rate is Abra catch rate it wont trigger as invalid trade without evolution, it could be traded as Abra
                 // Yellow Kadabra catch rate in Red/Blue game, must be Alakazam
-                var table = IsYellow ? PersonalTable.RB : PersonalTable.Y;
+                PersonalTable? table = IsYellow ? PersonalTable.RB : PersonalTable.Y;
                 if (pk1.Catch_Rate == table[(int)Kadabra].CatchRate)
                     return true;
             }

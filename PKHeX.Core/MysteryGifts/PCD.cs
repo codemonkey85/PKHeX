@@ -35,7 +35,7 @@ namespace PKHeX.Core
         public override byte[] Write()
         {
             // Ensure PGT content is encrypted
-            var clone = (PCD)Clone();
+            PCD? clone = (PCD)Clone();
             if (clone.Gift.VerifyPKEncryption())
                 clone.Gift = clone.Gift;
             return clone.Data;
@@ -127,7 +127,7 @@ namespace PKHeX.Core
 
         public override bool IsMatchExact(PKM pkm, DexLevel evo)
         {
-            var wc = Gift.PK;
+            PK4? wc = Gift.PK;
             if (!wc.IsEgg)
             {
                 if (wc.TID != pkm.TID) return false;

@@ -71,14 +71,14 @@ namespace PKHeX.WinForms.Controls
 
                 case Keys.Control: // Max
                 {
-                    var index = Array.IndexOf(MT_IVs, t);
+                        int index = Array.IndexOf(MT_IVs, t);
                     t.Text = Entity.GetMaximumIV(index, true).ToString();
                     break;
                 }
 
                 case Keys.Shift when Entity is IHyperTrain h: // HT
                 {
-                    var index = Array.IndexOf(MT_IVs, t);
+                        int index = Array.IndexOf(MT_IVs, t);
                     bool flag = h.HyperTrainInvert(index);
                     UpdateHyperTrainingFlag(index, flag);
                     UpdateStats();
@@ -111,7 +111,7 @@ namespace PKHeX.WinForms.Controls
 
             if ((ModifierKeys & Keys.Control) != 0) // Max
             {
-                var max = Legal.AwakeningMax.ToString();
+                string? max = Legal.AwakeningMax.ToString();
                 t.Text = t.Text == max ? 0.ToString() : max;
             }
             else if ((ModifierKeys & Keys.Alt) != 0) // Min
@@ -213,7 +213,7 @@ namespace PKHeX.WinForms.Controls
 
         private void UpdateRandomEVs(object sender, EventArgs e)
         {
-            var evs = ModifierKeys switch
+            int[]? evs = ModifierKeys switch
             {
                 Keys.Control => SetMaxEVs(Entity),
                 Keys.Alt => new int[6],
@@ -227,10 +227,10 @@ namespace PKHeX.WinForms.Controls
                 if (entity.Format < 3)
                     return Enumerable.Repeat((int) ushort.MaxValue, 6).ToArray();
 
-                var stats = entity.PersonalInfo.Stats;
+                System.Collections.Generic.IReadOnlyList<int>? stats = entity.PersonalInfo.Stats;
                 var ordered = stats.Select((z, i) => new {Stat = z, Index = i}).OrderByDescending(z => z.Stat).ToArray();
 
-                var result = new int[6];
+                int[]? result = new int[6];
                 result[ordered[0].Index] = 252;
                 result[ordered[1].Index] = 252;
                 result[ordered[2].Index] = 6;
@@ -241,7 +241,7 @@ namespace PKHeX.WinForms.Controls
 
         private void UpdateHackedStats(object sender, EventArgs e)
         {
-            foreach (var s in MT_Stats)
+            foreach (MaskedTextBox? s in MT_Stats)
                 s.Enabled = CHK_HackedStats.Checked;
             if (!CHK_HackedStats.Checked)
                 UpdateStats();
@@ -261,7 +261,7 @@ namespace PKHeX.WinForms.Controls
 
         private void UpdateHyperTrainingFlag(int index, bool value)
         {
-            var tb = MT_IVs[index];
+            MaskedTextBox? tb = MT_IVs[index];
             if (value)
                 tb.BackColor = StatHyperTrained;
             else
@@ -290,18 +290,18 @@ namespace PKHeX.WinForms.Controls
                 bool min = e.Button != MouseButtons.Left;
                 if (Entity is IAwakened)
                 {
-                    var value = min ? 0 : 200;
+                    int value = min ? 0 : 200;
                     MT_AVs[index].Text = value.ToString();
                 }
                 else
                 {
-                    var value = min ? 0 : Entity.GetMaximumEV(index);
+                    int value = min ? 0 : Entity.GetMaximumEV(index);
                     MT_EVs[index].Text = value.ToString();
                 }
             }
             else if ((ModifierKeys & Keys.Control) != 0) // IV
             {
-                var value = e.Button != MouseButtons.Left ? 0 : Entity.GetMaximumIV(index, true);
+                int value = e.Button != MouseButtons.Left ? 0 : Entity.GetMaximumIV(index, true);
                 MT_IVs[index].Text = value.ToString();
             }
         }
@@ -310,7 +310,7 @@ namespace PKHeX.WinForms.Controls
         {
             if (Entity is not IHyperTrain h)
             {
-                foreach (var iv in MT_IVs)
+                foreach (MaskedTextBox? iv in MT_IVs)
                     iv.ResetBackColor();
                 return;
             }
@@ -323,13 +323,13 @@ namespace PKHeX.WinForms.Controls
         {
             if (Entity is not IAwakened a)
                 return;
-            var total = a.AwakeningSum();
+            int total = a.AwakeningSum();
             TB_AVTotal.Text = total.ToString();
         }
 
         private void UpdateEVTotals()
         {
-            var evtotal = Entity.EVTotal;
+            int evtotal = Entity.EVTotal;
             TB_EVTotal.BackColor = GetEVTotalColor(evtotal, TB_IVTotal.BackColor);
             TB_EVTotal.Text = evtotal.ToString();
             EVTip.SetToolTip(TB_EVTotal, $"Remaining: {510 - evtotal}");
@@ -351,8 +351,8 @@ namespace PKHeX.WinForms.Controls
             // PK1 format stores Current HP in the compact format, so we have to use attack stat!
             if (!CHK_HackedStats.Checked || Entity.Stat_ATK == 0)
             {
-                var pt = MainEditor.RequestSaveFile.Personal;
-                var pi = pt.GetFormEntry(Entity.Species, Entity.Form);
+                PersonalTable? pt = MainEditor.RequestSaveFile.Personal;
+                PersonalInfo? pi = pt.GetFormEntry(Entity.Species, Entity.Form);
                 Entity.SetStats(Entity.GetStats(pi));
                 LoadBST(pi);
                 LoadPartyStats(Entity);
@@ -361,20 +361,20 @@ namespace PKHeX.WinForms.Controls
 
         private void LoadBST(PersonalInfo pi)
         {
-            var stats = pi.Stats;
+            System.Collections.Generic.IReadOnlyList<int>? stats = pi.Stats;
             for (int i = 0; i < stats.Count; i++)
             {
                 MT_Base[i].Text = stats[i].ToString("000");
                 MT_Base[i].BackColor = ImageUtil.ColorBaseStat(stats[i]);
             }
-            var bst = pi.Stats.Sum();
+            int bst = pi.Stats.Sum();
             TB_BST.Text = bst.ToString("000");
             TB_BST.BackColor = ImageUtil.ColorBaseStatTotal(bst);
         }
 
         public void UpdateRandomIVs(object sender, EventArgs e)
         {
-            var IVs = ModifierKeys switch
+            int[]? IVs = ModifierKeys switch
             {
                 Keys.Control => Entity.SetRandomIVs(6),
                 Keys.Alt => new int[6],
@@ -415,7 +415,7 @@ namespace PKHeX.WinForms.Controls
         public string UpdateNatureModification(int nature)
         {
             // Reset Label Colors
-            for (var i = 1; i < L_Stats.Length; i++)
+            for (int i = 1; i < L_Stats.Length; i++)
                 L_Stats[i].ResetForeColor();
 
             // Set Colored StatLabels only if Nature isn't Neutral
@@ -530,17 +530,17 @@ namespace PKHeX.WinForms.Controls
                     break;
             }
 
-            var showAV = pk is IAwakened;
+            bool showAV = pk is IAwakened;
             Label_AVs.Visible = TB_AVTotal.Visible = BTN_RandomAVs.Visible = showAV;
-            foreach (var mtb in MT_AVs)
+            foreach (MaskedTextBox? mtb in MT_AVs)
                 mtb.Visible = showAV;
             Label_EVs.Visible = TB_EVTotal.Visible = BTN_RandomEVs.Visible = !showAV;
-            foreach (var mtb in MT_EVs)
+            foreach (MaskedTextBox? mtb in MT_EVs)
                 mtb.Visible = !showAV;
 
             void SetEVMaskSize(Size s, string Mask)
             {
-                foreach (var ctrl in MT_EVs)
+                foreach (MaskedTextBox? ctrl in MT_EVs)
                 {
                     ctrl.Size = s;
                     ctrl.Mask = Mask;

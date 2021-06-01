@@ -26,14 +26,14 @@ namespace PKHeX.Core
         /// <returns>Decoded string.</returns>
         public static string GetString2KOR(byte[] data, int offset, int count)
         {
-            var s = new StringBuilder(count);
+            StringBuilder? s = new StringBuilder(count);
             for (int i = 0; i < count; i++)
             {
-                var val = data[offset + i];
-                var dict = val <= 0xB ? GSC2U_KOR[val] : RBY2U_U;
+                byte val = data[offset + i];
+                Dictionary<byte, char>? dict = val <= 0xB ? GSC2U_KOR[val] : RBY2U_U;
                 if (val is <= 0xB and not 0)
                     val = data[offset + (++i)];
-                if (!dict.TryGetValue(val, out var c)) // Take valid values
+                if (!dict.TryGetValue(val, out char c)) // Take valid values
                     break;
                 if (c == G1Terminator) // Stop if Terminator
                     break;
@@ -59,17 +59,17 @@ namespace PKHeX.Core
             if (value.Length > maxLength)
                 value = value[..maxLength]; // Hard cap
 
-            var kor = U2GSC_KOR;
-            var dict = U2RBY_U;
-            var capacity = Math.Max(value.Length * 2, padTo);
-            var arr = new List<byte>(capacity);
+            Dictionary<char, byte>[]? kor = U2GSC_KOR;
+            Dictionary<char, byte>? dict = U2RBY_U;
+            int capacity = Math.Max(value.Length * 2, padTo);
+            List<byte>? arr = new List<byte>(capacity);
             foreach (char c in value)
             {
-                var koreanChar = false;
+                bool koreanChar = false;
                 // although the 0x00 and 0x0B dictionaries are identical, the game only uses 0x0B.
                 for (byte i = 1; i < kor.Length; i++)
                 {
-                    var table = kor[i];
+                    Dictionary<char, byte>? table = kor[i];
                     if (!table.TryGetValue(c, out byte val))
                         continue;
                     koreanChar = true;

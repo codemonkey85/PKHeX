@@ -43,10 +43,10 @@ namespace PKHeX.WinForms.Controls
         {
             if (previous is not SlotInfoMisc m)
                 return;
-            var index = SlotOffsets.FindIndex(z => m.Equals(z));
+            int index = SlotOffsets.FindIndex(z => m.Equals(z));
             if (index < 0)
                 return;
-            var pb = slots[index];
+            PictureBox? pb = slots[index];
             pb.BackgroundImage = null;
         }
 
@@ -54,10 +54,10 @@ namespace PKHeX.WinForms.Controls
         {
             if (slot is not SlotInfoMisc m)
                 return;
-            var index = GetViewIndex(m);
+            int index = GetViewIndex(m);
             if (index < 0)
                 return;
-            var pb = slots[index];
+            PictureBox? pb = slots[index];
             SlotUtil.UpdateSlot(pb, slot, pkm, SAV, FlagIllegal, type);
         }
 
@@ -75,7 +75,7 @@ namespace PKHeX.WinForms.Controls
 
         public int GetSlot(PictureBox sender)
         {
-            var view = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
+            PictureBox? view = WinFormsUtil.GetUnderlyingControl<PictureBox>(sender);
             if (view == null)
                 return -1;
             return slots.IndexOf(view);
@@ -86,7 +86,7 @@ namespace PKHeX.WinForms.Controls
 
         private IEnumerable<PictureBox> LoadSlots(int after, Action<Control> enableDragDropContext)
         {
-            var generated = new List<PictureBox>();
+            List<PictureBox>? generated = new List<PictureBox>();
             int before = SlotCount;
             SlotCount = after;
             int diff = after - before;
@@ -95,7 +95,7 @@ namespace PKHeX.WinForms.Controls
                 AddSlots(diff);
                 for (int i = before; i < after; i++)
                 {
-                    var slot = slots[i];
+                    PictureBox? slot = slots[i];
                     enableDragDropContext(slot);
                     FLP_Slots.Controls.Add(slot);
                     FLP_Slots.SetFlowBreak(slot, true);
@@ -140,14 +140,14 @@ namespace PKHeX.WinForms.Controls
 
         private void AddLabels()
         {
-            for (var i = 0; i < names.Length; i++)
+            for (int i = 0; i < names.Length; i++)
             {
-                var name = names[i];
-                bool result = Enum.TryParse<StorageSlotType>(name, out var val);
+                string? name = names[i];
+                bool result = Enum.TryParse<StorageSlotType>(name, out StorageSlotType val);
                 if (!result)
                     continue;
 
-                var label = new LabelType
+                LabelType? label = new LabelType
                 {
                     Name = $"L_{name}",
                     Text = name,
@@ -163,7 +163,7 @@ namespace PKHeX.WinForms.Controls
 
         private void SetLabelVisibility()
         {
-            foreach (var l in Labels)
+            foreach (LabelType? l in Labels)
             {
                 int index = SlotOffsets.FindIndex(z => z.Type == l.Type);
                 if (index < 0)

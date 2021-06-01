@@ -34,7 +34,7 @@
         {
             if (value.Length > 0x26 / 2)
                 return;
-            var data = SAV.SetString(value + '\uFFFF', 0x14, 0x14, 0);
+            byte[]? data = SAV.SetString(value + '\uFFFF', 0x14, 0x14, 0);
             SAV.SetData(data, GetBoxNameOffset(box));
         }
 

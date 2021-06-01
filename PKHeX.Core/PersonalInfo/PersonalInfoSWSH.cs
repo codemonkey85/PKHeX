@@ -13,20 +13,20 @@ namespace PKHeX.Core
         public PersonalInfoSWSH(byte[] data) : base(data)
         {
             TMHM = new bool[200];
-            for (var i = 0; i < 100; i++)
+            for (int i = 0; i < 100; i++)
             {
                 TMHM[i]       = FlagUtil.GetFlag(Data, 0x28 + (i >> 3), i);
                 TMHM[i + 100] = FlagUtil.GetFlag(Data, 0x3C + (i >> 3), i);
             }
 
             // 0x38-0x3B type tutors, but only 8 bits are valid flags.
-            var typeTutors = new bool[8];
+            bool[]? typeTutors = new bool[8];
             for (int i = 0; i < typeTutors.Length; i++)
                 typeTutors[i] = FlagUtil.GetFlag(Data, 0x38, i);
             TypeTutors = typeTutors;
 
             // 0xA8-0xAF are armor type tutors, one bit for each type
-            var armorTutors = new bool[18];
+            bool[]? armorTutors = new bool[18];
             for (int i = 0; i < armorTutors.Length; i++)
                 armorTutors[i] = FlagUtil.GetFlag(Data, 0xA8 + (i >> 3), i);
             SpecialTutors = new[]
@@ -37,7 +37,7 @@ namespace PKHeX.Core
 
         public override byte[] Write()
         {
-            for (var i = 0; i < 100; i++)
+            for (int i = 0; i < 100; i++)
             {
                 FlagUtil.SetFlag(Data, 0x28 + (i >> 3), i, TMHM[i]);
                 FlagUtil.SetFlag(Data, 0x3C + (i >> 3), i, TMHM[i + 100]);

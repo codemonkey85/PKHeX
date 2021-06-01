@@ -32,10 +32,10 @@ namespace PKHeX.WinForms
             // Run the application
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            var splash = new SplashScreen();
+            SplashScreen? splash = new SplashScreen();
             new Task(() => splash.ShowDialog()).Start();
             new Task(() => EncounterEvent.RefreshMGDB(WinForms.Main.MGDatabasePath)).Start();
-            var main = new Main();
+            Main? main = new Main();
             splash.Invoke((MethodInvoker)(() => splash.Close()));
             Application.Run(main);
         }

@@ -32,17 +32,17 @@ namespace PKHeX.Core
         {
             bool charm3 = false;
 
-            var seed = pidiv.OriginSeed;
+            uint seed = pidiv.OriginSeed;
             yield return new SeedInfo(seed);
 
-            var s1 = seed;
-            var s2 = RNG.LCRNG.Prev(s1);
+            uint s1 = seed;
+            uint s2 = RNG.LCRNG.Prev(s1);
             while (true)
             {
-                var a = s2 >> 16;
-                var b = s1 >> 16;
+                uint a = s2 >> 16;
+                uint b = s1 >> 16;
 
-                var pid = b << 16 | a;
+                uint pid = b << 16 | a;
 
                 // Process Conditions
                 switch (VerifyPIDCriteria(pid, info))
@@ -70,17 +70,17 @@ namespace PKHeX.Core
         /// <returns>Seed information data, which needs to be unrolled once for the nature call.</returns>
         public static IEnumerable<SeedInfo> GetSeedsUntilUnownForm(PIDIV pidiv, FrameGenerator info, int form)
         {
-            var seed = pidiv.OriginSeed;
+            uint seed = pidiv.OriginSeed;
             yield return new SeedInfo(seed);
 
-            var s1 = seed;
-            var s2 = RNG.LCRNG.Prev(s1);
+            uint s1 = seed;
+            uint s2 = RNG.LCRNG.Prev(s1);
             while (true)
             {
-                var a = s2 >> 16;
-                var b = s1 >> 16;
+                uint a = s2 >> 16;
+                uint b = s1 >> 16;
                 // PID is in reverse for FRLG Unown
-                var pid = a << 16 | b;
+                uint pid = a << 16 | b;
 
                 // Process Conditions
                 if (PKX.GetUnownForm(pid) == form) // matches form, does it match nature?
@@ -102,14 +102,14 @@ namespace PKHeX.Core
         private static LockInfo VerifyPIDCriteria(uint pid, FrameGenerator info)
         {
             // Nature locks are always a given
-            var nval = pid % 25;
+            uint nval = pid % 25;
             if (nval != info.Nature)
                 return LockInfo.Nature;
 
             if (!info.Gendered)
                 return LockInfo.Pass;
 
-            var gender = pid & 0xFF;
+            uint gender = pid & 0xFF;
             if (info.GenderLow > gender || gender > info.GenderHigh)
                 return LockInfo.Gender;
 

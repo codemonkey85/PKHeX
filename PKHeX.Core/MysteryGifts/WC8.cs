@@ -83,7 +83,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var type = PIDType;
+                Shiny type = PIDType;
                 if (type is Shiny.AlwaysStar or Shiny.AlwaysSquare)
                     return true;
                 if (type != Shiny.FixedValue)
@@ -93,9 +93,9 @@ namespace PKHeX.Core
                 if (TID == 0 && SID == 0)
                     return false;
 
-                var pid = PID;
-                var psv = (int)((pid >> 16 ^ (pid & 0xFFFF)) >> 4);
-                var tsv = (TID ^ SID) >> 4;
+                uint pid = PID;
+                int psv = (int)((pid >> 16 ^ (pid & 0xFFFF)) >> 4);
+                int tsv = (TID ^ SID) >> 4;
                 return (psv ^ tsv) == 0;
             }
         }
@@ -185,7 +185,7 @@ namespace PKHeX.Core
         {
             for (int i = 0; i < RibbonBytesCount; i++)
             {
-                var val = Data[RibbonBytesOffset + i];
+                byte val = Data[RibbonBytesOffset + i];
                 if (val == RibbonByteNone)
                     return false;
                 if ((RibbonIndex)val is >= MarkLunchtime and <= MarkSlump)
@@ -258,8 +258,8 @@ namespace PKHeX.Core
         {
             for (int i = 0; i < 9; i++)
             {
-                var ofs = GetLanguageOffset(i);
-                var lang = BitConverter.ToInt16(Data, ofs);
+                int ofs = GetLanguageOffset(i);
+                short lang = BitConverter.ToInt16(Data, ofs);
                 if (lang != 0)
                     return false;
             }
@@ -276,8 +276,8 @@ namespace PKHeX.Core
 
             for (int i = 0; i < 9; i++)
             {
-                var ofs = GetLanguageOffset(i);
-                var lang = BitConverter.ToInt16(Data, ofs);
+                int ofs = GetLanguageOffset(i);
+                short lang = BitConverter.ToInt16(Data, ofs);
                 if (lang == language)
                     return true;
             }
@@ -291,7 +291,7 @@ namespace PKHeX.Core
 
         private static int GetLanguageIndex(int language)
         {
-            var lang = (LanguageID) language;
+            LanguageID lang = (LanguageID) language;
             if (lang is < LanguageID.Japanese or LanguageID.UNUSED_6 or > LanguageID.ChineseT)
                 return (int) LanguageID.English; // fallback
             return lang < LanguageID.UNUSED_6 ? language - 1 : language - 2;
@@ -357,12 +357,12 @@ namespace PKHeX.Core
 
             int currentLevel = Level > 0 ? Level : Util.Rand.Next(1, 101);
             int metLevel = MetLevel > 0 ? MetLevel : currentLevel;
-            var pi = PersonalTable.SWSH.GetFormEntry(Species, Form);
-            var language = sav.Language;
-            var OT = GetOT(language);
+            PersonalInfo? pi = PersonalTable.SWSH.GetFormEntry(Species, Form);
+            int language = sav.Language;
+            string? OT = GetOT(language);
             bool hasOT = GetHasOT(language);
 
-            var pk = new PK8
+            PK8? pk = new PK8
             {
                 EncryptionConstant = EncryptionConstant != 0 || IsHOMEGift ? EncryptionConstant : Util.Rand32(),
                 TID = TID,
@@ -414,7 +414,7 @@ namespace PKHeX.Core
             if ((sav.Generation > Generation && OriginGame == 0) || !CanBeReceivedByVersion(pk.Version))
             {
                 // give random valid game
-                var rnd = Util.Rand;
+                Random? rnd = Util.Rand;
                 do { pk.Version = (int)GameVersion.SW + rnd.Next(2); }
                 while (!CanBeReceivedByVersion(pk.Version));
             }
@@ -440,14 +440,14 @@ namespace PKHeX.Core
 
             pk.MetDate = DateTime.Now;
 
-            var nickname_language = GetLanguage(language);
+            int nickname_language = GetLanguage(language);
             pk.Language = nickname_language != 0 ? nickname_language : sav.Language;
             pk.IsNicknamed = GetIsNicknamed(language);
             pk.Nickname = pk.IsNicknamed ? GetNickname(language) : SpeciesName.GetSpeciesNameGeneration(Species, pk.Language, Generation);
 
-            for (var i = 0; i < RibbonBytesCount; i++)
+            for (int i = 0; i < RibbonBytesCount; i++)
             {
-                var ribbon = GetRibbonAtIndex(i);
+                byte ribbon = GetRibbonAtIndex(i);
                 if (ribbon != RibbonByteNone)
                     pk.SetRibbon(ribbon);
             }
@@ -479,11 +479,11 @@ namespace PKHeX.Core
 
         private void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = PersonalTable.SWSH.GetFormEntry(Species, Form);
+            PersonalInfo? pi = PersonalTable.SWSH.GetFormEntry(Species, Form);
             pk.Nature = (int)criteria.GetNature(Nature == -1 ? Core.Nature.Random : (Nature)Nature);
             pk.StatNature = pk.Nature;
             pk.Gender = criteria.GetGender(Gender, pi);
-            var av = GetAbilityIndex(criteria);
+            int av = GetAbilityIndex(criteria);
             pk.RefreshAbility(av);
             SetPID(pk);
             SetIVs(pk);
@@ -510,7 +510,7 @@ namespace PKHeX.Core
 
             static uint GetAntishiny(ITrainerID tr)
             {
-                var pid = Util.Rand32();
+                uint pid = Util.Rand32();
                 if (tr.IsShiny(pid, 8))
                     return pid ^ 0x1000_0000;
                 return pid;
@@ -519,15 +519,15 @@ namespace PKHeX.Core
 
         private void SetPID(PKM pk)
         {
-            var val = Data[CardStart + 0x248];
+            byte val = Data[CardStart + 0x248];
             pk.PID = GetPID(pk, val);
         }
 
         private void SetIVs(PKM pk)
         {
             int[] finalIVs = new int[6];
-            var ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
-            var rng = Util.Rand;
+            int ivflag = Array.Find(IVs, iv => (byte)(iv - 0xFC) < 3);
+            Random? rng = Util.Rand;
             if (ivflag == 0) // Random IVs
             {
                 for (int i = 0; i < 6; i++)
@@ -558,7 +558,7 @@ namespace PKHeX.Core
                 if (!CanBeAnyLanguage() && !CanHaveLanguage(pkm.Language))
                     return false;
 
-                var OT = GetOT(pkm.Language); // May not be guaranteed to work.
+                string? OT = GetOT(pkm.Language); // May not be guaranteed to work.
                 if (!string.IsNullOrEmpty(OT) && OT != pkm.OT_Name) return false;
                 if (OriginGame != 0 && OriginGame != pkm.Version) return false;
                 if (EncryptionConstant != 0)
@@ -642,7 +642,7 @@ namespace PKHeX.Core
             // PID Types 0 and 1 do not use the fixed PID value.
             // Values 2,3 are specific shiny states, and 4 is fixed value.
             // 2,3,4 can change if it is a traded egg to ensure the same shiny state.
-            var type = Data[CardStart + 0x248];
+            byte type = Data[CardStart + 0x248];
             if (type <= 1)
                 return true;
             return pkm.PID == GetPID(pkm, type);
@@ -765,14 +765,14 @@ namespace PKHeX.Core
             {
                 if (GetRibbon(index))
                     return;
-                var openIndex = Array.FindIndex(Data, RibbonBytesOffset, RibbonBytesCount, z => z != RibbonByteNone);
+                int openIndex = Array.FindIndex(Data, RibbonBytesOffset, RibbonBytesCount, z => z != RibbonByteNone);
                 if (openIndex < 0)
                     throw new ArgumentOutOfRangeException(nameof(index));
                 SetRibbonAtIndex(openIndex, (byte)index);
             }
             else
             {
-                var ofs = GetRibbonByte(index);
+                int ofs = GetRibbonByte(index);
                 if (ofs < 0)
                     return;
                 SetRibbonAtIndex(ofs, RibbonByteNone);

@@ -84,7 +84,7 @@ namespace PKHeX.Core
 
         public PKM ConvertToPKM(ITrainerInfo sav, EncounterCriteria criteria)
         {
-            var pk = PKMConverter.GetBlank(Generation, Version);
+            PKM? pk = PKMConverter.GetBlank(Generation, Version);
             sav.ApplyTo(pk);
             ApplyDetails(sav, criteria, pk);
             return pk;
@@ -92,7 +92,7 @@ namespace PKHeX.Core
 
         protected virtual void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
-            var version = this.GetCompatibleVersion((GameVersion) sav.Game);
+            GameVersion version = this.GetCompatibleVersion((GameVersion) sav.Game);
             int lang = (int)Language.GetSafeLanguage(Generation, (LanguageID) sav.Language, version);
             int level = LevelMin;
             pk.Species = Species;
@@ -101,7 +101,7 @@ namespace PKHeX.Core
             pk.Version = (int)version;
             pk.Nickname = SpeciesName.GetSpeciesNameGeneration(Species, lang, Generation);
 
-            var ball = Area.Type.GetRequiredBallValueWild(Generation, Location);
+            Ball ball = Area.Type.GetRequiredBallValueWild(Generation, Location);
             pk.Ball = (int)(ball == Ball.None ? Ball.Poke : ball);
             pk.Language = lang;
             pk.Form = GetWildForm(pk, Form, sav);
@@ -121,7 +121,7 @@ namespace PKHeX.Core
 
         protected virtual void SetEncounterMoves(PKM pk, GameVersion version, int level)
         {
-            var moves = MoveLevelUp.GetEncounterMoves(pk, level, version);
+            int[]? moves = MoveLevelUp.GetEncounterMoves(pk, level, version);
             pk.SetMoves(moves);
             pk.SetMaximumPPCurrent(moves);
         }
@@ -130,10 +130,10 @@ namespace PKHeX.Core
 
         protected virtual void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             int gender = criteria.GetGender(-1, pi);
             int nature = (int)criteria.GetNature(Nature.Random);
-            var ability = criteria.GetAbilityFromNumber(Ability);
+            int ability = criteria.GetAbilityFromNumber(Ability);
 
             if (Generation == 3 && Species == (int)Unown)
             {

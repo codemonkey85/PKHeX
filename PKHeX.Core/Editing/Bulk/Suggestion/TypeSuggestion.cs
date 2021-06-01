@@ -28,7 +28,7 @@ namespace PKHeX.Core
 
         public ModifyResult Modify(string name, string value, BatchInfo info)
         {
-            var pk = (T) info.Entity;
+            T? pk = (T) info.Entity;
             if (!Criteria(pk))
                 return ModifyResult.Invalid;
             Action(pk, value);

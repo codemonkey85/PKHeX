@@ -18,7 +18,7 @@ namespace PKHeX.Core
         /// <returns>List of all valid ribbon names.</returns>
         public static IReadOnlyList<string> GetValidRibbons(PKM pkm, IList<string> allRibbons)
         {
-            var pk = pkm.Clone();
+            PKM? pk = pkm.Clone();
             return SetAllValidRibbons(allRibbons, pk);
         }
 
@@ -29,7 +29,7 @@ namespace PKHeX.Core
         /// <returns>List of all valid ribbon names.</returns>
         public static IReadOnlyList<string> GetValidRibbons(PKM pkm)
         {
-            var names = GetAllRibbonNames(pkm);
+            List<string>? names = GetAllRibbonNames(pkm);
             return GetValidRibbons(pkm, names);
         }
 
@@ -41,7 +41,7 @@ namespace PKHeX.Core
         /// <returns>List of all removable ribbon names.</returns>
         public static IReadOnlyList<string> GetRemovableRibbons(PKM pkm, IList<string> allRibbons)
         {
-            var pk = pkm.Clone();
+            PKM? pk = pkm.Clone();
             return RemoveAllValidRibbons(allRibbons, pk);
         }
 
@@ -52,7 +52,7 @@ namespace PKHeX.Core
         /// <returns>List of all removable ribbon names.</returns>
         public static IReadOnlyList<string> GetRemovableRibbons(PKM pkm)
         {
-            var names = GetAllRibbonNames(pkm);
+            List<string>? names = GetAllRibbonNames(pkm);
             return GetRemovableRibbons(pkm, names);
         }
 
@@ -63,7 +63,7 @@ namespace PKHeX.Core
         /// <returns>True if any ribbons were applied.</returns>
         public static bool SetAllValidRibbons(PKM pkm)
         {
-            var ribNames = GetAllRibbonNames(pkm);
+            List<string>? ribNames = GetAllRibbonNames(pkm);
             ribNames.RemoveAll(z => z.StartsWith("RibbonMark")); // until marking legality is handled
             return SetAllValidRibbons(pkm, ribNames);
         }
@@ -76,14 +76,14 @@ namespace PKHeX.Core
         /// <returns>True if any ribbons were applied.</returns>
         public static bool SetAllValidRibbons(PKM pkm, List<string> ribNames)
         {
-            var list = SetAllValidRibbons(ribNames, pkm);
+            IReadOnlyList<string>? list = SetAllValidRibbons(ribNames, pkm);
             return list.Count != 0;
         }
 
         private static IReadOnlyList<string> SetAllValidRibbons(IList<string> allRibbons, PKM pk)
         {
-            var la = new LegalityAnalysis(pk);
-            var valid = new List<string>();
+            LegalityAnalysis? la = new LegalityAnalysis(pk);
+            List<string>? valid = new List<string>();
 
             while (TryApplyAllRibbons(pk, la, allRibbons, valid) != 0)
             {
@@ -104,7 +104,7 @@ namespace PKHeX.Core
         /// <returns>True if any ribbons were removed.</returns>
         public static bool RemoveAllValidRibbons(PKM pkm)
         {
-            var ribNames = GetAllRibbonNames(pkm);
+            List<string>? ribNames = GetAllRibbonNames(pkm);
             return RemoveAllValidRibbons(pkm, ribNames);
         }
 
@@ -116,14 +116,14 @@ namespace PKHeX.Core
         /// <returns>True if any ribbons were removed.</returns>
         public static bool RemoveAllValidRibbons(PKM pkm, List<string> ribNames)
         {
-            var list = RemoveAllValidRibbons(ribNames, pkm);
+            IReadOnlyList<string>? list = RemoveAllValidRibbons(ribNames, pkm);
             return list.Count != 0;
         }
 
         private static IReadOnlyList<string> RemoveAllValidRibbons(IList<string> allRibbons, PKM pk)
         {
-            var la = new LegalityAnalysis(pk);
-            var valid = new List<string>();
+            LegalityAnalysis? la = new LegalityAnalysis(pk);
+            List<string>? valid = new List<string>();
 
             // Ribbon Deadlock
             if (pk is IRibbonSetCommon6 c6)
@@ -143,8 +143,8 @@ namespace PKHeX.Core
             for (int i = 0; i < allRibbons.Count;)
             {
                 la.ResetParse();
-                var rib = allRibbons[i];
-                var success = TryApplyRibbon(pk, la, rib);
+                string? rib = allRibbons[i];
+                bool success = TryApplyRibbon(pk, la, rib);
                 if (success)
                 {
                     ++applied;
@@ -167,8 +167,8 @@ namespace PKHeX.Core
             for (int i = 0; i < allRibbons.Count;)
             {
                 la.ResetParse();
-                var rib = allRibbons[i];
-                var success = TryRemoveRibbon(pk, la, rib);
+                string? rib = allRibbons[i];
+                bool success = TryRemoveRibbon(pk, la, rib);
                 if (success)
                 {
                     ++removed;

@@ -14,9 +14,9 @@ namespace PKHeX.Core
         {
             byte top = 0xFF;
             byte bot = 0xFF;
-            foreach (var b in data)
+            foreach (byte b in data)
             {
-                var x = b ^ top;
+                int x = b ^ top;
                 x ^= (x >> 4);
                 top = (byte)(bot ^ (x >> 3) ^ (x << 4));
                 bot = (byte)(x ^ (x << 5));
@@ -67,7 +67,7 @@ namespace PKHeX.Core
         private static ushort CRC16(ReadOnlySpan<byte> data, ushort initial)
         {
             ushort chk = initial;
-            foreach (var b in data)
+            foreach (byte b in data)
                 chk = (ushort)(crc16[(b ^ chk) & 0xFF] ^ chk >> 8);
             return chk;
         }

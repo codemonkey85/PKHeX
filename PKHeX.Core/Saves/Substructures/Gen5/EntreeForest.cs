@@ -48,7 +48,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var slots = new EntreeSlot[TotalSlots];
+                EntreeSlot[]? slots = new EntreeSlot[TotalSlots];
                 for (int i = 0; i < slots.Length; i++)
                     slots[i] = new EntreeSlot(Data, i * 4) { Area = GetSlotArea(i) };
                 return slots;
@@ -87,7 +87,7 @@ namespace PKHeX.Core
 
         public void DeleteAll()
         {
-            foreach (var e in Slots)
+            foreach (EntreeSlot? e in Slots)
                 e.Delete();
         }
 

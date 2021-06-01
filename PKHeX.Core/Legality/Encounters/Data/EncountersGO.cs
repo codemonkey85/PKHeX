@@ -12,9 +12,9 @@
 
         private static byte[][] Get(string resource, string ident)
         {
-            var name = $"encounter_{resource}.pkl";
+            string? name = $"encounter_{resource}.pkl";
 #if DEBUG
-            var data = System.IO.File.Exists(name) ? System.IO.File.ReadAllBytes(name) : Util.GetBinaryResource(name);
+            byte[]? data = System.IO.File.Exists(name) ? System.IO.File.ReadAllBytes(name) : Util.GetBinaryResource(name);
 #else
             var data = Util.GetBinaryResource(name);
 #endif

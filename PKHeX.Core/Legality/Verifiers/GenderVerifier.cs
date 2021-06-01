@@ -11,8 +11,8 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var pi = pkm.PersonalInfo;
+            PKM? pkm = data.pkm;
+            PersonalInfo? pi = pkm.PersonalInfo;
             if (pi.Genderless != (pkm.Gender == 2))
             {
                 // DP/HGSS shedinja glitch -- only generation 4 spawns
@@ -27,7 +27,7 @@ namespace PKHeX.Core
             if (gen is 3 or 4 or 5)
             {
                 // Gender-PID & Nature-PID relationship check
-                var result = IsValidGenderPID(data) ? GetValid(LPIDGenderMatch) : GetInvalid(LPIDGenderMismatch);
+                CheckResult? result = IsValidGenderPID(data) ? GetValid(LPIDGenderMatch) : GetInvalid(LPIDGenderMismatch);
                 data.AddLine(result);
 
                 if (gen != 5)
@@ -42,8 +42,8 @@ namespace PKHeX.Core
 
         private static void VerifyNaturePID(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
-            var result = pkm.EncryptionConstant % 25 == pkm.Nature
+            PKM? pkm = data.pkm;
+            CheckResult? result = pkm.EncryptionConstant % 25 == pkm.Nature
                 ? GetValid(LPIDNatureMatch, CheckIdentifier.Nature)
                 : GetInvalid(LPIDNatureMismatch, CheckIdentifier.Nature);
             data.AddLine(result);
@@ -51,7 +51,7 @@ namespace PKHeX.Core
 
         private static bool IsValidGenderPID(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             bool genderValid = pkm.IsGenderValid();
             if (!genderValid)
                 return IsValidGenderMismatch(pkm);
@@ -66,10 +66,10 @@ namespace PKHeX.Core
 
         private static bool IsValidFixedGenderFromBiGender(PKM pkm, int original)
         {
-            var current = pkm.Gender;
+            int current = pkm.Gender;
             if (current == 2) // shedinja, genderless
                 return true;
-            var gender = PKX.GetGenderFromPID(original, pkm.EncryptionConstant);
+            int gender = PKX.GetGenderFromPID(original, pkm.EncryptionConstant);
             return gender == current;
         }
 

@@ -34,8 +34,8 @@ namespace PKHeX.Core
         public PKM ConvertToPKM(ITrainerInfo sav, EncounterCriteria criteria)
         {
             int gen = Generation;
-            var version = Version;
-            var pk = PKMConverter.GetBlank(gen, version);
+            GameVersion version = Version;
+            PKM? pk = PKMConverter.GetBlank(gen, version);
 
             sav.ApplyTo(pk);
 
@@ -137,8 +137,8 @@ namespace PKHeX.Core
 
         private void SetEncounterMoves(PKM pk, GameVersion version)
         {
-            var learnset = GameData.GetLearnset(version, Species, Form);
-            var baseMoves = learnset.GetBaseEggMoves(Level);
+            Learnset? learnset = GameData.GetLearnset(version, Species, Form);
+            ReadOnlySpan<int> baseMoves = learnset.GetBaseEggMoves(Level);
             if (baseMoves.Length == 0) return; pk.Move1 = baseMoves[0];
             if (baseMoves.Length == 1) return; pk.Move2 = baseMoves[1];
             if (baseMoves.Length == 2) return; pk.Move3 = baseMoves[2];

@@ -53,7 +53,7 @@ namespace PKHeX.Core
             string[] trainers = new string[PlayerCount];
             for (int i = 0; i < PlayerCount; i++)
             {
-                var str = StringConverter.GetString6(Data, 0xEC + (0x1A * i), 0x1A);
+                string? str = StringConverter.GetString6(Data, 0xEC + (0x1A * i), 0x1A);
                 trainers[i] = string.IsNullOrWhiteSpace(str) ? NPC : str;
             }
             return trainers;
@@ -75,14 +75,14 @@ namespace PKHeX.Core
         {
             get
             {
-                var Teams = new PKM[PlayerCount][];
+                PKM[][]? Teams = new PKM[PlayerCount][];
                 for (int t = 0; t < PlayerCount; t++)
                     Teams[t] = GetTeam(t);
                 return Teams;
             }
             set
             {
-                var Teams = value;
+                IReadOnlyList<PKM[]>? Teams = value;
                 for (int t = 0; t < PlayerCount; t++)
                     SetTeam(Teams[t], t);
             }
@@ -90,7 +90,7 @@ namespace PKHeX.Core
 
         public PKM[] GetTeam(int t)
         {
-            var team = new PKM[6];
+            PKM[]? team = new PKM[6];
             const int start = 0xE18;
             for (int p = 0; p < 6; p++)
             {

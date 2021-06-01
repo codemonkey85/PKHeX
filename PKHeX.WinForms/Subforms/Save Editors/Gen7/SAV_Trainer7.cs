@@ -80,14 +80,14 @@ namespace PKHeX.WinForms
                 LB_BallThrowTypeLearned.Items.Add(t);
             }
 
-            var stamps = Enum.GetNames(typeof(Stamp7)).Select(z => z.Replace("_", " "));
+            IEnumerable<string>? stamps = Enum.GetNames(typeof(Stamp7)).Select(z => z.Replace("_", " "));
             foreach (string t in stamps)
                 LB_Stamps.Items.Add(t);
         }
 
         private static ComboItem[] GetAlolaTimeList()
         {
-            var alolatime_list = new ComboItem[24];
+            ComboItem[]? alolatime_list = new ComboItem[24];
             for (int i = 1; i < alolatime_list.Length; i++)
                 alolatime_list[i] = new ComboItem($"+{i:00} Hours", i * 60 * 60);
             alolatime_list[0] = new ComboItem("Sun Time", 24 * 60 * 60);
@@ -110,7 +110,7 @@ namespace PKHeX.WinForms
             CB_Region.SelectedValue = SAV.Region;
             CB_3DSReg.SelectedValue = SAV.ConsoleRegion;
             CB_Language.SelectedValue = SAV.Language;
-            var timeA = SAV.GameTime.AlolaTime;
+            ulong timeA = SAV.GameTime.AlolaTime;
             if (timeA == 0)
                 timeA = 24 * 60 * 60; // Patch up any bad times from previous program versions.
             if (timeA == 9_999_999)
@@ -151,7 +151,7 @@ namespace PKHeX.WinForms
                 L_LastSaved.Visible = CAL_LastSavedDate.Visible = CAL_LastSavedTime.Visible = false;
             }
 
-            DateUtil.GetDateTime2000(SAV.SecondsToStart, out var date, out var time);
+            DateUtil.GetDateTime2000(SAV.SecondsToStart, out DateTime date, out DateTime time);
             CAL_AdventureStartDate.Value = date;
             CAL_AdventureStartTime.Value = time;
 
@@ -171,7 +171,7 @@ namespace PKHeX.WinForms
             CHK_Gyro.Checked = SAV.PokeFinder.GyroFlag;
 
             // Battle Tree
-            var bt = SAV.BattleTree;
+            BattleTree7? bt = SAV.BattleTree;
             NUD_RCStreak0.Value = Math.Min(NUD_RCStreak0.Maximum, bt.GetTreeStreak(0, super: false, max: false));
             NUD_RCStreak1.Value = Math.Min(NUD_RCStreak1.Maximum, bt.GetTreeStreak(1, super: false, max: false));
             NUD_RCStreak2.Value = Math.Min(NUD_RCStreak2.Maximum, bt.GetTreeStreak(2, super: false, max: false));
@@ -232,7 +232,7 @@ namespace PKHeX.WinForms
 
         private void LoadMapFlyToData()
         {
-            var metLocationList = GameInfo.GetLocationList(GameVersion.US, 7, false);
+            IReadOnlyList<ComboItem>? metLocationList = GameInfo.GetLocationList(GameVersion.US, 7, false);
             int[] FlyDestNameIndex = {
                 -1,24,34,8,20,38,12,46,40,30,//Melemele
                 70,68,78,86,74,104,82,58,90,72,76,92,62,//Akala
@@ -258,9 +258,9 @@ namespace PKHeX.WinForms
             CLB_FlyDest.Items.Clear();
             for (int i = 0, u = 0, m = FlyDestNameIndex.Length - (SAV is SAV7USUM ? 0 : 6); i < m; i++)
             {
-                var dest = FlyDestNameIndex[i];
-                var name = dest < 0 ? FlyDestAltName[u++] : metLocationList.First(v => v.Value == dest).Text;
-                var state = SAV.GetEventFlag(SkipFlag + FlyDestFlagOfs[i]);
+                int dest = FlyDestNameIndex[i];
+                string? name = dest < 0 ? FlyDestAltName[u++] : metLocationList.First(v => v.Value == dest).Text;
+                bool state = SAV.GetEventFlag(SkipFlag + FlyDestFlagOfs[i]);
                 CLB_FlyDest.Items.Add(name, state);
             }
             int[] MapUnmaskNameIndex = {
@@ -283,9 +283,9 @@ namespace PKHeX.WinForms
             CLB_MapUnmask.Items.Clear();
             for (int i = 0, u = 0, m = MapUnmaskNameIndex.Length - (SAV is SAV7USUM ? 0 : 4); i < m; i++)
             {
-                var dest = MapUnmaskNameIndex[i];
-                var name = dest < 0 ? MapUnmaskAltName[u++] : metLocationList.First(v => v.Value == dest).Text;
-                var state = SAV.GetEventFlag(SkipFlag + MapUnmaskFlagOfs[i]);
+                int dest = MapUnmaskNameIndex[i];
+                string? name = dest < 0 ? MapUnmaskAltName[u++] : metLocationList.First(v => v.Value == dest).Text;
+                bool state = SAV.GetEventFlag(SkipFlag + MapUnmaskFlagOfs[i]);
                 CLB_MapUnmask.Items.Add(name, state);
             }
         }
@@ -376,7 +376,7 @@ namespace PKHeX.WinForms
 
         private void SaveBattleTree()
         {
-            var bt = SAV.BattleTree;
+            BattleTree7? bt = SAV.BattleTree;
             bt.SetTreeStreak((int)NUD_RCStreak0.Value, 0, super:false, max:false);
             bt.SetTreeStreak((int)NUD_RCStreak1.Value, 1, super:false, max:false);
             bt.SetTreeStreak((int)NUD_RCStreak2.Value, 2, super:false, max:false);
@@ -397,8 +397,8 @@ namespace PKHeX.WinForms
             // Skin changed && (gender matches || override)
             int gender = CB_Gender.SelectedIndex & 1;
             int skin = CB_SkinColor.SelectedIndex & 1;
-            var gStr = CB_Gender.Items[gender].ToString();
-            var sStr = CB_Gender.Items[skin].ToString();
+            string? gStr = CB_Gender.Items[gender].ToString();
+            string? sStr = CB_Gender.Items[skin].ToString();
 
             if (SAV.MyStatus.DressUpSkinColor == CB_SkinColor.SelectedIndex)
                 return;
@@ -482,7 +482,7 @@ namespace PKHeX.WinForms
             if (ModifierKeys != Keys.Control)
                 return;
 
-            var d = new TrashEditor(tb, SAV);
+            TrashEditor? d = new TrashEditor(tb, SAV);
             d.ShowDialog();
             tb.Text = d.FinalString;
         }
@@ -521,7 +521,7 @@ namespace PKHeX.WinForms
 
         private void B_Fashion_Click(object sender, EventArgs e)
         {
-            var prompt = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, "Modifying Fashion Items will clear existing fashion unlock data.", "Continue?");
+            DialogResult prompt = WinFormsUtil.Prompt(MessageBoxButtons.YesNo, "Modifying Fashion Items will clear existing fashion unlock data.", "Continue?");
             if (DialogResult.Yes != prompt)
                 return;
 
@@ -560,7 +560,7 @@ namespace PKHeX.WinForms
             switch (index)
             {
                 case 2: // Storyline Completed Time
-                    var seconds = DateUtil.GetSecondsFrom2000(CAL_AdventureStartDate.Value, CAL_AdventureStartTime.Value);
+                    int seconds = DateUtil.GetSecondsFrom2000(CAL_AdventureStartDate.Value, CAL_AdventureStartTime.Value);
                     return DateUtil.ConvertDateValueToString(SAV.GetRecord(index), seconds);
                 default:
                     return null;

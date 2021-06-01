@@ -46,8 +46,8 @@ namespace PKHeX.Core
 
         public void SetBoxName(int box, string value)
         {
-            var data = SAV.SetString(value, StringMaxLength, StringMaxLength, 0);
-            var offset = GetBoxNameOffset(box - 1) + (SAV6.LongStringLength);
+            byte[]? data = SAV.SetString(value, StringMaxLength, StringMaxLength, 0);
+            int offset = GetBoxNameOffset(box - 1) + (SAV6.LongStringLength);
             SAV.SetData(data, offset);
         }
 
@@ -112,7 +112,7 @@ namespace PKHeX.Core
                     continue;
                 }
 
-                SAV.GetBoxSlotFromIndex(index, out var box, out var slot);
+                SAV.GetBoxSlotFromIndex(index, out int box, out int slot);
                 int val = (box << 8) | slot;
                 BitConverter.GetBytes((short)val).CopyTo(Data, Offset + BattleBoxFlags + (i * 2));
             }

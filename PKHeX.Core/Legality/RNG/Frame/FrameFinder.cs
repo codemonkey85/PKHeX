@@ -16,18 +16,18 @@ namespace PKHeX.Core
             if (pk.Version == (int)GameVersion.CXD)
                 return Enumerable.Empty<Frame>();
 
-            var info = new FrameGenerator(pk) {Nature = pk.EncryptionConstant % 25};
+            FrameGenerator? info = new FrameGenerator(pk) {Nature = pk.EncryptionConstant % 25};
 
             // gather possible nature determination seeds until a same-nature PID breaks the unrolling
-            var seeds = pk.Species == (int)Species.Unown && pk.FRLG // reversed await case
+            IEnumerable<SeedInfo>? seeds = pk.Species == (int)Species.Unown && pk.FRLG // reversed await case
                 ? SeedInfo.GetSeedsUntilUnownForm(pidiv, info, pk.Form)
                 : SeedInfo.GetSeedsUntilNature(pidiv, info);
 
-            var frames = pidiv.Type == PIDType.CuteCharm
+            IEnumerable<Frame>? frames = pidiv.Type == PIDType.CuteCharm
                 ? FilterCuteCharm(seeds, pidiv, info)
                 : FilterNatureSync(seeds, pidiv, info);
 
-            var refined = RefineFrames(frames, info);
+            IEnumerable<Frame>? refined = RefineFrames(frames, info);
             if (pk.Gen4 && pidiv.Type == PIDType.CuteCharm) // only permit cute charm successful frames
                 return refined.Where(z => (z.Lead & ~LeadRequired.UsesLevelCall) == LeadRequired.CuteCharm);
             return refined;
@@ -46,15 +46,15 @@ namespace PKHeX.Core
             // Level
             // Nature
             // Current Seed of the frame is the Level Calc (frame before nature)
-            var list = new List<Frame>();
-            foreach (var f in frames)
+            List<Frame>? list = new List<Frame>();
+            foreach (Frame? f in frames)
             {
                 bool noLead = !info.AllowLeads && f.Lead != LeadRequired.None;
                 if (noLead)
                     continue;
 
-                var prev = info.RNG.Prev(f.Seed); // ESV
-                var rand = prev >> 16;
+                uint prev = info.RNG.Prev(f.Seed); // ESV
+                uint rand = prev >> 16;
                 f.RandESV = rand;
                 f.RandLevel = f.Seed >> 16;
                 f.OriginSeed = info.RNG.Prev(prev);
@@ -65,10 +65,10 @@ namespace PKHeX.Core
                 if (info.AllowLeads && (f.Lead is LeadRequired.CuteCharm or LeadRequired.None))
                     list.Add(f);
             }
-            foreach (var f in list)
+            foreach (Frame? f in list)
             {
-                var leadframes = GenerateLeadSpecificFrames3(f, info);
-                foreach (var frame in leadframes)
+                IEnumerable<Frame>? leadframes = GenerateLeadSpecificFrames3(f, info);
+                foreach (Frame? frame in leadframes)
                     yield return frame;
             }
         }
@@ -79,15 +79,15 @@ namespace PKHeX.Core
             // Certain leads inject a RNG call
             // 3 different rand places
             LeadRequired lead;
-            var prev0 = f.Seed; // 0
-            var prev1 = info.RNG.Prev(f.Seed); // -1
-            var prev2 = info.RNG.Prev(prev1); // -2
-            var prev3 = info.RNG.Prev(prev2); // -3
+            uint prev0 = f.Seed; // 0
+            uint prev1 = info.RNG.Prev(f.Seed); // -1
+            uint prev2 = info.RNG.Prev(prev1); // -2
+            uint prev3 = info.RNG.Prev(prev2); // -3
 
             // Rand call raw values
-            var p0 = prev0 >> 16;
-            var p1 = prev1 >> 16;
-            var p2 = prev2 >> 16;
+            uint p0 = prev0 >> 16;
+            uint p1 = prev1 >> 16;
+            uint p2 = prev2 >> 16;
 
             // Cute Charm
             // -2 ESV
@@ -146,20 +146,20 @@ namespace PKHeX.Core
 
         private static IEnumerable<Frame> RefineFrames4(IEnumerable<Frame> frames, FrameGenerator info)
         {
-            var list = new List<Frame>();
-            foreach (var f in frames)
+            List<Frame>? list = new List<Frame>();
+            foreach (Frame? f in frames)
             {
                 // Current Seed of the frame is the ESV.
-                var rand = f.Seed >> 16;
+                uint rand = f.Seed >> 16;
                 f.RandESV = rand;
                 f.RandLevel = rand; // unused
                 f.OriginSeed = info.RNG.Prev(f.Seed);
                 yield return f;
 
                 // Create a copy for level; shift ESV and origin back
-                var esv = f.OriginSeed >> 16;
-                var origin = info.RNG.Prev(f.OriginSeed);
-                var withLevel = info.GetFrame(f.Seed, f.Lead | LeadRequired.UsesLevelCall, esv, f.RandLevel, origin);
+                uint esv = f.OriginSeed >> 16;
+                uint origin = info.RNG.Prev(f.OriginSeed);
+                Frame? withLevel = info.GetFrame(f.Seed, f.Lead | LeadRequired.UsesLevelCall, esv, f.RandLevel, origin);
                 yield return withLevel;
 
                 if (f.Lead != LeadRequired.None)
@@ -168,10 +168,10 @@ namespace PKHeX.Core
                 // Generate frames for other slots after the regular slots
                 list.Add(f);
             }
-            foreach (var f in list)
+            foreach (Frame? f in list)
             {
-                var leadframes = GenerateLeadSpecificFrames4(f, info);
-                foreach (var frame in leadframes)
+                IEnumerable<Frame>? leadframes = GenerateLeadSpecificFrames4(f, info);
+                foreach (Frame? frame in leadframes)
                     yield return frame;
             }
         }
@@ -179,15 +179,15 @@ namespace PKHeX.Core
         private static IEnumerable<Frame> GenerateLeadSpecificFrames4(Frame f, FrameGenerator info)
         {
             LeadRequired lead;
-            var prev0 = f.Seed; // 0
-            var prev1 = info.RNG.Prev(f.Seed); // -1
-            var prev2 = info.RNG.Prev(prev1); // -2
-            var prev3 = info.RNG.Prev(prev2); // -3
+            uint prev0 = f.Seed; // 0
+            uint prev1 = info.RNG.Prev(f.Seed); // -1
+            uint prev2 = info.RNG.Prev(prev1); // -2
+            uint prev3 = info.RNG.Prev(prev2); // -3
 
             // Rand call raw values
-            var p0 = prev0 >> 16;
-            var p1 = prev1 >> 16;
-            var p2 = prev2 >> 16;
+            uint p0 = prev0 >> 16;
+            uint p1 = prev1 >> 16;
+            uint p2 = prev2 >> 16;
 
             // Cute Charm
             // -2 ESV
@@ -239,11 +239,11 @@ namespace PKHeX.Core
             // -1 ESV (select slot)
             //  0 Level (Optional)
             //  1 Nature
-            var force1 = (info.DPPt ? p1 >> 15 : p1 & 1) == 1;
+            bool force1 = (info.DPPt ? p1 >> 15 : p1 & 1) == 1;
             lead = force1 ? LeadRequired.StaticMagnet : LeadRequired.StaticMagnetFail;
             yield return info.GetFrame(prev2, lead, p0, p0, prev3);
 
-            var force2 = (info.DPPt ? p2 >> 15 : p2 & 1) == 1;
+            bool force2 = (info.DPPt ? p2 >> 15 : p2 & 1) == 1;
             lead = (force2 ? LeadRequired.StaticMagnet : LeadRequired.StaticMagnetFail) | LeadRequired.UsesLevelCall;
             yield return info.GetFrame(prev2, lead, p1, p0, prev3);
         }
@@ -257,9 +257,9 @@ namespace PKHeX.Core
         /// <returns>Possible matches to the Nature Lock frame generation pattern</returns>
         private static IEnumerable<Frame> FilterNatureSync(IEnumerable<SeedInfo> seeds, PIDIV pidiv, FrameGenerator info)
         {
-            foreach (var seed in seeds)
+            foreach (SeedInfo seed in seeds)
             {
-                var s = seed.Seed;
+                uint s = seed.Seed;
 
                 if (info.Safari3)
                 {
@@ -271,7 +271,7 @@ namespace PKHeX.Core
                     // if no pokeblocks present (or failed call), fall out of the safari specific code and generate via the other scenarios
                 }
 
-                var rand = s >> 16;
+                uint rand = s >> 16;
                 bool sync = info.AllowLeads && !seed.Charm3 && (info.DPPt ? rand >> 15 : rand & 1) == 0;
                 bool reg = (info.DPPt ? rand / 0xA3E : rand % 25) == info.Nature;
                 if (!sync && !reg) // doesn't generate nature frame
@@ -280,7 +280,7 @@ namespace PKHeX.Core
                 uint prev = RNG.LCRNG.Prev(s);
                 if (info.AllowLeads && reg) // check for failed sync
                 {
-                    var failsync = (info.DPPt ? prev >> 31 : (prev >> 16) & 1) != 1;
+                    bool failsync = (info.DPPt ? prev >> 31 : (prev >> 16) & 1) != 1;
                     if (failsync)
                         yield return info.GetFrame(RNG.LCRNG.Prev(prev), LeadRequired.SynchronizeFail);
                 }
@@ -311,7 +311,7 @@ namespace PKHeX.Core
             }
 
             // unroll the RNG to a stack of seeds
-            var stack = new Stack<uint>();
+            Stack<uint>? stack = new Stack<uint>();
             for (uint i = 0; i < 25; i++)
             {
                 for (uint j = 1 + i; j < 25; j++)
@@ -332,27 +332,27 @@ namespace PKHeX.Core
             {
                 for (uint j = 1 + i; j < 25; j++)
                 {
-                    var s = stack.Pop();
+                    uint s = stack.Pop();
                     if ((s >> 16 & 1) == 0)
                         continue; // only swap if 1
 
-                    var temp = natures[i];
+                    uint temp = natures[i];
                     natures[i] = natures[j];
                     natures[j] = temp;
                 }
             }
 
-            var likes = Pokeblock.GetLikedBlockFlavor(nature);
+            Pokeblock.Flavor likes = Pokeblock.GetLikedBlockFlavor(nature);
             // best case scenario is a perfect flavored pokeblock for the nature.
             // has liked flavor, and all other non-disliked flavors are present.
             // is it possible to skip this step?
             for (int i = 0; i < 25; i++)
             {
-                var n = natures[i];
+                uint n = natures[i];
                 if (n == nature)
                     break;
 
-                var nl = Pokeblock.GetLikedBlockFlavor(natures[i]);
+                Pokeblock.Flavor nl = Pokeblock.GetLikedBlockFlavor(natures[i]);
                 if (nl == likes) // next random nature likes the same block as the desired nature
                     return false; // current nature is chosen instead, fail!
             }
@@ -370,17 +370,17 @@ namespace PKHeX.Core
         /// <returns>Possible matches to the Cute Charm frame generation pattern</returns>
         private static IEnumerable<Frame> FilterCuteCharm(IEnumerable<SeedInfo> seeds, PIDIV pidiv, FrameGenerator info)
         {
-            foreach (var seed in seeds)
+            foreach (SeedInfo seed in seeds)
             {
-                var s = seed.Seed;
+                uint s = seed.Seed;
 
-                var rand = s >> 16;
-                var nature = info.DPPt ? rand / 0xA3E : rand % 25;
+                uint rand = s >> 16;
+                uint nature = info.DPPt ? rand / 0xA3E : rand % 25;
                 if (nature != info.Nature)
                     continue;
 
-                var prev = RNG.LCRNG.Prev(s);
-                var proc = prev >> 16;
+                uint prev = RNG.LCRNG.Prev(s);
+                uint proc = prev >> 16;
                 bool charmProc = (info.DPPt ? proc / 0x5556 : proc % 3) != 0; // 2/3 odds
                 if (!charmProc)
                     continue;

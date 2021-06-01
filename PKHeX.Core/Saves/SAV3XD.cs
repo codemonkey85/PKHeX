@@ -118,7 +118,7 @@ namespace PKHeX.Core
 
         protected override byte[] GetFinalData()
         {
-            var newFile = GetInnerData();
+            byte[]? newFile = GetInnerData();
 
             // Return the gci if Memory Card is not being exported
             if (!IsMemoryCardSave)
@@ -150,8 +150,8 @@ namespace PKHeX.Core
         // Configuration
         protected override SaveFile CloneInternal()
         {
-            var data = GetInnerData();
-            var sav = IsMemoryCardSave ? new SAV3XD(data, MC!) : new SAV3XD(data);
+            byte[]? data = GetInnerData();
+            SAV3XD? sav = IsMemoryCardSave ? new SAV3XD(data, MC!) : new SAV3XD(data);
             return sav;
         }
 
@@ -197,8 +197,8 @@ namespace PKHeX.Core
                 int newHC = BigEndian.ToInt32(data, start + subOffsets[0] + 0x38);
                 bool header = newHC == oldHC;
 
-                var oldCHK = Data.AsSpan(0x10, 0x10);
-                var newCHK = data.AsSpan(0x10, 0x10);
+                Span<byte> oldCHK = Data.AsSpan(0x10, 0x10);
+                Span<byte> newCHK = data.AsSpan(0x10, 0x10);
                 bool body = newCHK.SequenceEqual(oldCHK);
                 return $"Header Checksum {(header ? "V" : "Inv")}alid, Body Checksum {(body ? "V" : "Inv")}alid.";
             }
@@ -226,7 +226,7 @@ namespace PKHeX.Core
             for (int i = 0; i < checksum.Length; i++)
             {
                 uint val = 0;
-                var end = dt + 0x9FF4;
+                int end = dt + 0x9FF4;
                 for (int j = dt; j < end; j += 2)
                     val += BigEndian.ToUInt16(data, j);
                 dt = end;
@@ -282,7 +282,7 @@ namespace PKHeX.Core
         public override PKM GetStoredSlot(byte[] data, int offset)
         {
             // Get Shadow Data
-            var pk = (XK3)base.GetStoredSlot(data, offset);
+            XK3? pk = (XK3)base.GetStoredSlot(data, offset);
             if (pk.ShadowID > 0 && pk.ShadowID < ShadowInfo.Count)
                 pk.Purification = ShadowInfo[pk.ShadowID].Purification;
             return pk;
@@ -302,7 +302,7 @@ namespace PKHeX.Core
             if (pk.ShadowID <= 0 || pk.ShadowID >= ShadowInfo.Count)
                 return;
 
-            var entry = ShadowInfo[pk.ShadowID];
+            ShadowInfoEntryXD? entry = ShadowInfo[pk.ShadowID];
             entry.Purification = pk.Purification;
             entry.Species = pk.Species;
             entry.PID = pk.PID;

@@ -11,11 +11,11 @@ namespace PKHeX.Core
         {
             try
             {
-                var stream = GetStreamFromURL(url);
+                Stream? stream = GetStreamFromURL(url);
                 if (stream == null)
                     return null;
 
-                using var reader = new StreamReader(stream);
+                using StreamReader? reader = new StreamReader(stream);
                 return reader.ReadToEnd();
             }
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -30,12 +30,12 @@ namespace PKHeX.Core
 
         private static Stream? GetStreamFromURL(string url)
         {
-            var httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
+            HttpWebRequest? httpWebRequest = (HttpWebRequest)WebRequest.Create(url);
 
             // The GitHub API will fail if no user agent is provided
             httpWebRequest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/60.0.3112.113 Safari/537.36";
 
-            var httpWebResponse = httpWebRequest.GetResponse();
+            WebResponse? httpWebResponse = httpWebRequest.GetResponse();
             return httpWebResponse.GetResponseStream();
         }
     }

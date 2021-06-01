@@ -17,10 +17,10 @@ namespace PKHeX.Tests.Simulator
         [Fact]
         public void SimulatorGetParse()
         {
-            foreach (var setstr in Sets)
+            foreach (string? setstr in Sets)
             {
-                var set = new ShowdownSet(setstr).Text;
-                var lines = set.Split('\n').Select(z => z.Trim());
+                string? set = new ShowdownSet(setstr).Text;
+                System.Collections.Generic.IEnumerable<string>? lines = set.Split('\n').Select(z => z.Trim());
                 Assert.True(lines.All(z => setstr.Contains(z)), setstr);
             }
         }
@@ -28,28 +28,28 @@ namespace PKHeX.Tests.Simulator
         [Fact]
         public void SimulatorGetEncounters()
         {
-            var set = new ShowdownSet(SetGlaceonUSUMTutor);
-            var pk7 = new PK7 {Species = set.Species, Form = set.Form, Moves = set.Moves};
-            var encounters = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.MN);
+            ShowdownSet? set = new ShowdownSet(SetGlaceonUSUMTutor);
+            PK7? pk7 = new PK7 {Species = set.Species, Form = set.Form, Moves = set.Moves};
+            System.Collections.Generic.IEnumerable<IEncounterable>? encounters = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.MN);
             Assert.True(!encounters.Any());
             pk7.HT_Name = "PKHeX";
             encounters = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.MN);
-            var first = encounters.FirstOrDefault();
+            IEncounterable? first = encounters.FirstOrDefault();
             Assert.NotNull(first);
 
-            var egg = (EncounterEgg)first!;
-            var info = new SimpleTrainerInfo(GameVersion.SN);
-            var pk = egg.ConvertToPKM(info);
+            EncounterEgg? egg = (EncounterEgg)first!;
+            SimpleTrainerInfo? info = new SimpleTrainerInfo(GameVersion.SN);
+            Core.PKM? pk = egg.ConvertToPKM(info);
             Assert.True(pk.Species != set.Species);
 
-            var la = new LegalityAnalysis(pk);
+            LegalityAnalysis? la = new LegalityAnalysis(pk);
             Assert.True(la.Valid);
 
-            var test = EncounterMovesetGenerator.GenerateEncounters(pk7, info).ToList();
-            foreach (var t in test)
+            System.Collections.Generic.List<IEncounterable>? test = EncounterMovesetGenerator.GenerateEncounters(pk7, info).ToList();
+            foreach (IEncounterable? t in test)
             {
-                var convert = t.ConvertToPKM(info);
-                var la2 = new LegalityAnalysis(convert);
+                Core.PKM? convert = t.ConvertToPKM(info);
+                LegalityAnalysis? la2 = new LegalityAnalysis(convert);
                 Assert.True(la2.Valid);
             }
         }
@@ -57,99 +57,99 @@ namespace PKHeX.Tests.Simulator
         [Fact]
         public void SimulatorGetWC3()
         {
-            var set = new ShowdownSet(SetROCKSMetang);
-            var pk3 = new PK3 { Species = set.Species, Form = set.Form, Moves = set.Moves };
-            var encs = EncounterMovesetGenerator.GenerateEncounters(pk3, set.Moves, GameVersion.R);
+            ShowdownSet? set = new ShowdownSet(SetROCKSMetang);
+            PK3? pk3 = new PK3 { Species = set.Species, Form = set.Form, Moves = set.Moves };
+            System.Collections.Generic.IEnumerable<IEncounterable>? encs = EncounterMovesetGenerator.GenerateEncounters(pk3, set.Moves, GameVersion.R);
             Assert.True(encs.Any());
             encs = EncounterMovesetGenerator.GenerateEncounters(pk3, set.Moves, GameVersion.R);
-            var first = encs.FirstOrDefault();
+            IEncounterable? first = encs.FirstOrDefault();
             Assert.NotNull(first);
 
-            var wc3 = (WC3)first!;
-            var info = new SimpleTrainerInfo(GameVersion.R);
-            var pk = wc3.ConvertToPKM(info);
+            WC3? wc3 = (WC3)first!;
+            SimpleTrainerInfo? info = new SimpleTrainerInfo(GameVersion.R);
+            Core.PKM? pk = wc3.ConvertToPKM(info);
 
-            var la = new LegalityAnalysis(pk);
+            LegalityAnalysis? la = new LegalityAnalysis(pk);
             Assert.True(la.Valid);
         }
 
         [Fact]
         public void SimulatorGetCelebi()
         {
-            var set = new ShowdownSet(SetCelebi);
-            var pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves };
-            var encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.X);
+            ShowdownSet? set = new ShowdownSet(SetCelebi);
+            PK7? pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves };
+            System.Collections.Generic.IEnumerable<IEncounterable>? encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.X);
             Assert.True(encs.Any());
             encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.X);
-            var first = encs.FirstOrDefault();
+            IEncounterable? first = encs.FirstOrDefault();
             Assert.NotNull(first);
 
-            var enc = first!;
-            var info = new SimpleTrainerInfo(GameVersion.SN);
-            var pk = enc.ConvertToPKM(info);
+            IEncounterable? enc = first!;
+            SimpleTrainerInfo? info = new SimpleTrainerInfo(GameVersion.SN);
+            Core.PKM? pk = enc.ConvertToPKM(info);
 
-            var la = new LegalityAnalysis(pk);
+            LegalityAnalysis? la = new LegalityAnalysis(pk);
             Assert.True(la.Valid);
         }
 
         [Fact]
         public void SimulatorGetSplitBreed()
         {
-            var set = new ShowdownSet(SetMunchSnorLax);
-            var pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves, HT_Name = "PKHeX" }; // !! specify the HT name, we need tutors for this one
-            var encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.SN).ToList();
+            ShowdownSet? set = new ShowdownSet(SetMunchSnorLax);
+            PK7? pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves, HT_Name = "PKHeX" }; // !! specify the HT name, we need tutors for this one
+            System.Collections.Generic.List<IEncounterable>? encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.SN).ToList();
             Assert.True(encs.Count > 0);
             Assert.True(encs.All(z => z.Species > 150));
 
-            var info = new SimpleTrainerInfo(GameVersion.SN);
-            var enc = encs[0];
-            var pk = enc.ConvertToPKM(info);
+            SimpleTrainerInfo? info = new SimpleTrainerInfo(GameVersion.SN);
+            IEncounterable? enc = encs[0];
+            Core.PKM? pk = enc.ConvertToPKM(info);
 
-            var la = new LegalityAnalysis(pk);
+            LegalityAnalysis? la = new LegalityAnalysis(pk);
             Assert.True(la.Valid);
         }
 
         [Fact]
         public void SimulatorGetVCEgg1()
         {
-            var set = new ShowdownSet(SetSlowpoke12);
-            var pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves, HT_Name = "PKHeX" };
-            var encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.GD).ToList();
+            ShowdownSet? set = new ShowdownSet(SetSlowpoke12);
+            PK7? pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves, HT_Name = "PKHeX" };
+            System.Collections.Generic.List<IEncounterable>? encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.GD).ToList();
             Assert.True(encs.Count > 0);
 
-            var info = new SimpleTrainerInfo(GameVersion.SN);
-            var enc = encs[0];
-            var pk = enc.ConvertToPKM(info);
+            SimpleTrainerInfo? info = new SimpleTrainerInfo(GameVersion.SN);
+            IEncounterable? enc = encs[0];
+            Core.PKM? pk = enc.ConvertToPKM(info);
 
-            var la = new LegalityAnalysis(pk);
+            LegalityAnalysis? la = new LegalityAnalysis(pk);
             Assert.True(la.Valid);
         }
 
         [Fact]
         public void SimulatorGetSmeargle()
         {
-            var set = new ShowdownSet(SetSmeargle);
-            var pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves };
-            var encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.MN);
+            ShowdownSet? set = new ShowdownSet(SetSmeargle);
+            PK7? pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves };
+            System.Collections.Generic.IEnumerable<IEncounterable>? encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.MN);
             Assert.True(encs.Any());
             encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves, GameVersion.MN);
-            var first = encs.FirstOrDefault();
+            IEncounterable? first = encs.FirstOrDefault();
             Assert.NotNull(first);
 
-            var enc = first!;
-            var info = new SimpleTrainerInfo(GameVersion.SN);
-            var pk = enc.ConvertToPKM(info);
+            IEncounterable? enc = first!;
+            SimpleTrainerInfo? info = new SimpleTrainerInfo(GameVersion.SN);
+            Core.PKM? pk = enc.ConvertToPKM(info);
 
-            var la = new LegalityAnalysis(pk);
+            LegalityAnalysis? la = new LegalityAnalysis(pk);
             Assert.True(la.Valid);
         }
 
         [Fact]
         public void SimulatorParseMultiple()
         {
-            var text = string.Join("\r\n\r\n", Sets);
-            var lines = text.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None);
-            var sets = ShowdownParsing.GetShowdownSets(lines);
+            string? text = string.Join("\r\n\r\n", Sets);
+            string[]? lines = text.Split(new[] {"\r\n", "\n"}, StringSplitOptions.None);
+            System.Collections.Generic.IEnumerable<ShowdownSet>? sets = ShowdownParsing.GetShowdownSets(lines);
             Assert.True(sets.Count() == Sets.Length);
 
             sets = ShowdownParsing.GetShowdownSets(Enumerable.Empty<string>());
@@ -163,8 +163,8 @@ namespace PKHeX.Tests.Simulator
         [InlineData(SetDuplicateMoves, 3)]
         public void SimulatorParseDuplicate(string text, int moveCount)
         {
-            var set = new ShowdownSet(text);
-            var actual = set.Moves.Count(z => z != 0);
+            ShowdownSet? set = new ShowdownSet(text);
+            int actual = set.Moves.Count(z => z != 0);
             actual.Should().Be(moveCount);
         }
 
@@ -172,13 +172,13 @@ namespace PKHeX.Tests.Simulator
         [InlineData(LowLevelElectrode)]
         public void SimulatorParseEncounter(string text)
         {
-            var set = new ShowdownSet(text);
-            var pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves, CurrentLevel = set.Level };
-            var encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves);
-            var tr3 = encs.First(z => z is EncounterTrade3);
-            var pk3 = tr3.ConvertToPKM(new SAV3FRLG());
+            ShowdownSet? set = new ShowdownSet(text);
+            PK7? pk7 = new PK7 { Species = set.Species, Form = set.Form, Moves = set.Moves, CurrentLevel = set.Level };
+            System.Collections.Generic.IEnumerable<IEncounterable>? encs = EncounterMovesetGenerator.GenerateEncounters(pk7, set.Moves);
+            IEncounterable? tr3 = encs.First(z => z is EncounterTrade3);
+            Core.PKM? pk3 = tr3.ConvertToPKM(new SAV3FRLG());
 
-            var la = new LegalityAnalysis(pk3);
+            LegalityAnalysis? la = new LegalityAnalysis(pk3);
             la.Valid.Should().BeTrue();
         }
 

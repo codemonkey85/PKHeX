@@ -17,7 +17,7 @@ namespace PKHeX.WinForms.Controls
         public void LoadArgument(IFormArgument f, int species, int form, int generation)
         {
             FieldsLoaded = false;
-            var max = FormArgumentUtil.GetFormArgumentMax(species, form, generation);
+            uint max = FormArgumentUtil.GetFormArgumentMax(species, form, generation);
             if (max == 0)
             {
                 CurrentSpecies = species;
@@ -43,7 +43,7 @@ namespace PKHeX.WinForms.Controls
 
                 NUD_FormArg.Visible = false;
                 CB_FormArg.Items.Clear();
-                var args = FormConverter.GetFormArgumentStrings(species);
+                string[]? args = FormConverter.GetFormArgumentStrings(species);
                 CB_FormArg.Items.AddRange(args);
                 CB_FormArg.SelectedIndex = 0;
                 CB_FormArg.Visible = true;

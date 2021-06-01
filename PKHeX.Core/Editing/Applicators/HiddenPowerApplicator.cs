@@ -9,7 +9,7 @@
         /// <param name="hiddenPowerType">Desired Hidden Power typing.</param>
         public static void SetHiddenPower(this PKM pk, int hiddenPowerType)
         {
-            var IVs = pk.IVs;
+            int[]? IVs = pk.IVs;
             HiddenPower.SetIVsForType(hiddenPowerType, IVs, pk.Format);
             pk.IVs = IVs;
         }

@@ -34,7 +34,7 @@ namespace PKHeX.Core
         static OPower6()
         {
             int index = 1; // Skip unused byte
-            foreach (var m in Mapping)
+            foreach (OPowerFlagSet? m in Mapping)
             {
                 m.Offset = index;
                 index += m.Count;
@@ -68,7 +68,7 @@ namespace PKHeX.Core
 
         private void ToggleFlags(bool allEvents = false, bool clearOnly = false)
         {
-            foreach (var m in Mapping)
+            foreach (OPowerFlagSet? m in Mapping)
             {
                 // Clear before applying new value
                 m.SetOPowerLevel(Data, Offset, 0);

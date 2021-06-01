@@ -8,7 +8,7 @@ namespace PKHeX.Drawing
         public static Bitmap GetQRImage(Image qr, Image preview)
         {
             // create a small area with the pkm sprite, with a white background
-            var foreground = new Bitmap(preview.Width + 4, preview.Height + 4);
+            Bitmap? foreground = new Bitmap(preview.Width + 4, preview.Height + 4);
             using (Graphics gfx = Graphics.FromImage(foreground))
             {
                 gfx.FillRectangle(new SolidBrush(Color.White), 0, 0, foreground.Width, foreground.Height);
@@ -27,13 +27,13 @@ namespace PKHeX.Drawing
 
         public static Bitmap GetQRImageExtended(Font font, Image qr, Image pkm, int width, int height, string[] lines, string extraText)
         {
-            var pic = GetQRImage(qr, pkm);
+            Bitmap? pic = GetQRImage(qr, pkm);
             return ExtendImage(font, qr, width, height, pic, lines, extraText);
         }
 
         private static Bitmap ExtendImage(Font font, Image qr, int width, int height, Image pic, string[] lines, string extraText)
         {
-            var newpic = new Bitmap(width, height);
+            Bitmap? newpic = new Bitmap(width, height);
             using Graphics g = Graphics.FromImage(newpic);
             g.FillRectangle(new SolidBrush(Color.White), 0, 0, newpic.Width, newpic.Height);
             g.DrawImage(pic, 0, 0);

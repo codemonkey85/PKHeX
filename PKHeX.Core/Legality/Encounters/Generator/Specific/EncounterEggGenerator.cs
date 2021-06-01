@@ -8,9 +8,9 @@ namespace PKHeX.Core
     {
         public static IEnumerable<EncounterEgg> GenerateEggs(PKM pkm, int generation, bool all = false)
         {
-            var table = EvolutionTree.GetEvolutionTree(pkm, pkm.Format);
+            EvolutionTree? table = EvolutionTree.GetEvolutionTree(pkm, pkm.Format);
             int maxSpeciesOrigin = GetMaxSpeciesOrigin(generation);
-            var evos = table.GetValidPreEvolutions(pkm, maxLevel: 100, maxSpeciesOrigin: maxSpeciesOrigin, skipChecks: true);
+            List<EvoCriteria>? evos = table.GetValidPreEvolutions(pkm, maxLevel: 100, maxSpeciesOrigin: maxSpeciesOrigin, skipChecks: true);
             return GenerateEggs(pkm, evos, generation, all);
         }
 
@@ -24,14 +24,14 @@ namespace PKHeX.Core
                 yield break; // can't originate from eggs
 
             // version is a true indicator for all generation 3-5 origins
-            var ver = (GameVersion)pkm.Version;
+            GameVersion ver = (GameVersion)pkm.Version;
             if (!Breeding.CanGameGenerateEggs(ver))
                 yield break;
 
             int lvl = generation <= 3 ? 5 : 1;
             int max = GetMaxSpeciesOrigin(generation);
 
-            var e = EvoBase.GetBaseSpecies(chain, 0);
+            EvoCriteria? e = EvoBase.GetBaseSpecies(chain, 0);
             if (e.Species <= max && Breeding.CanHatchAsEgg(e.Species, e.Form, ver))
             {
                 yield return new EncounterEgg(e.Species, e.Form, lvl, generation, ver);
@@ -42,7 +42,7 @@ namespace PKHeX.Core
             if (!Breeding.GetSplitBreedGeneration(generation).Contains(species))
                 yield break; // no other possible species
 
-            var o = EvoBase.GetBaseSpecies(chain, 1);
+            EvoCriteria? o = EvoBase.GetBaseSpecies(chain, 1);
             if (o.Species == e.Species)
                 yield break;
 

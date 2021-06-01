@@ -13,7 +13,7 @@ namespace PKHeX.Core
         {
             Criteria = pk =>
             {
-                var result = criteria(pk);
+                T? result = criteria(pk);
                 if (HashSet.Contains(result))
                     return true;
                 HashSet.Add(result);

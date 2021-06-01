@@ -50,7 +50,7 @@ namespace PKHeX.Core
             if (value.Length > maxlen)
                 value = value[..maxlen]; // Hard cap
             int offset = GetBoxNameOffset(box);
-            var str = SetString(value, maxlen);
+            byte[]? str = SetString(value, maxlen);
             SetData(Storage, str, offset);
         }
         #endregion
@@ -85,7 +85,7 @@ namespace PKHeX.Core
         {
             if (index > PoketchApp.Alarm_Clock)
                 throw new ArgumentException(nameof(index));
-            var b = value ? 1 : 0;
+            int b = value ? 1 : 0;
             General[PoketchStart + 3 + (int)index] = (byte)b;
         }
 

@@ -108,7 +108,7 @@ namespace PKHeX.Core
             Array.Copy(Data, 0x1, pk1.Data, 0x7, 0x1A);
             pk1.Species = Species; // This will take care of Typing :)
 
-            var lvl = Stat_Level;
+            int lvl = Stat_Level;
             if (lvl == 0) // no party stats (originated from box format), need to regenerate
             {
                 pk1.Stat_HPCurrent = GetStat(PersonalInfo.HP, IV_ATK, EV_ATK, Stat_Level);
@@ -130,7 +130,7 @@ namespace PKHeX.Core
 
         public PK7 ConvertToPK7()
         {
-            var pk7 = new PK7
+            PK7? pk7 = new PK7
             {
                 EncryptionConstant = Util.Rand32(),
                 Species = Species,
@@ -163,18 +163,18 @@ namespace PKHeX.Core
             PKMConverter.SetConsoleRegionData3DS(pk7);
             PKMConverter.SetFirstCountryRegion(pk7);
             pk7.HealPP();
-            var lang = TransferLanguage(PKMConverter.Language);
+            int lang = TransferLanguage(PKMConverter.Language);
             pk7.Language = lang;
             pk7.Nickname = SpeciesName.GetSpeciesNameGeneration(pk7.Species, lang, pk7.Format);
 
             // IVs
-            var special = Species is 151 or 251;
-            var new_ivs = new int[6];
+            bool special = Species is 151 or 251;
+            int[]? new_ivs = new int[6];
             int flawless = special ? 5 : 3;
-            var rnd = Util.Rand;
-            for (var i = 0; i < new_ivs.Length; i++)
+            Random? rnd = Util.Rand;
+            for (int i = 0; i < new_ivs.Length; i++)
                 new_ivs[i] = rnd.Next(32);
-            for (var i = 0; i < flawless; i++)
+            for (int i = 0; i < flawless; i++)
                 new_ivs[i] = 31;
             Util.Shuffle(new_ivs);
             pk7.IVs = new_ivs;
@@ -212,7 +212,7 @@ namespace PKHeX.Core
 
             // Dizzy Punch cannot be transferred
             {
-                var index = pk7.GetMoveIndex(146); // Dizzy Punch
+                int index = pk7.GetMoveIndex(146); // Dizzy Punch
                 if (index != -1)
                 {
                     pk7.SetMove(index, 0);

@@ -22,7 +22,7 @@ namespace PKHeX.Core
         /// </summary>
         public static bool CanLearn(string species, IEnumerable<string> moves, string lang = GameLanguage.DefaultLanguage)
         {
-            var encounters = GetLearn(species, moves, lang);
+            IEnumerable<IEncounterable>? encounters = GetLearn(species, moves, lang);
             return encounters.Any();
         }
 
@@ -31,8 +31,8 @@ namespace PKHeX.Core
         /// </summary>
         public static IEnumerable<string> GetLearnSummary(string species, IEnumerable<string> moves, string lang = GameLanguage.DefaultLanguage)
         {
-            var encounters = GetLearn(species, moves, lang);
-            var msg = Summarize(encounters).ToList();
+            IEnumerable<IEncounterable>? encounters = GetLearn(species, moves, lang);
+            List<string>? msg = Summarize(encounters).ToList();
             if (msg.Count == 0)
                 msg.Add(NoMatches);
             return msg;
@@ -43,10 +43,10 @@ namespace PKHeX.Core
         /// </summary>
         public static IEnumerable<IEncounterable> GetLearn(string species, IEnumerable<string> moves, string lang = GameLanguage.DefaultLanguage)
         {
-            var str = GameInfo.GetStrings(lang);
+            GameStrings? str = GameInfo.GetStrings(lang);
 
-            var speciesID = StringUtil.FindIndexIgnoreCase(str.specieslist, species);
-            var moveIDs = StringUtil.GetIndexes(str.movelist, moves.ToList());
+            int speciesID = StringUtil.FindIndexIgnoreCase(str.specieslist, species);
+            int[]? moveIDs = StringUtil.GetIndexes(str.movelist, moves.ToList());
 
             return GetLearn(speciesID, moveIDs);
         }
@@ -61,10 +61,10 @@ namespace PKHeX.Core
             if (moves.Any(z => z < 0))
                 return Array.Empty<IEncounterable>();
 
-            var blank = PKMConverter.GetBlank(PKX.Generation);
+            PKM? blank = PKMConverter.GetBlank(PKX.Generation);
             blank.Species = species;
 
-            var vers = GameUtil.GameVersions;
+            IReadOnlyList<GameVersion>? vers = GameUtil.GameVersions;
             return EncounterMovesetGenerator.GenerateEncounters(blank, moves, vers);
         }
 
@@ -73,7 +73,7 @@ namespace PKHeX.Core
         /// </summary>
         public static IEnumerable<string> Summarize(IEnumerable<IEncounterable> encounters, bool advanced = false)
         {
-            var types = encounters.GroupBy(z => z.Name);
+            IEnumerable<IGrouping<string, IEncounterable>>? types = encounters.GroupBy(z => z.Name);
             return Summarize(types, advanced);
         }
 

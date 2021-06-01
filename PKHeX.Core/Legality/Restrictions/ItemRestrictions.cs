@@ -32,7 +32,7 @@ namespace PKHeX.Core
         {
             if (item == 0)
                 return true;
-            var items = GetReleasedHeldItems(generation);
+            IReadOnlyList<bool>? items = GetReleasedHeldItems(generation);
             return (uint)item < items.Count && items[item];
         }
 

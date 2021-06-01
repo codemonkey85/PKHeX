@@ -16,7 +16,7 @@ namespace PKHeX.Core
         /// <param name="maxSpecies">Highest species ID for the input game.</param>
         public static Learnset[] GetArray(byte[] input, int maxSpecies)
         {
-            var data = new Learnset[maxSpecies + 1];
+            Learnset[]? data = new Learnset[maxSpecies + 1];
 
             int offset = 0;
             for (int s = 0; s < data.Length; s++)
@@ -51,9 +51,9 @@ namespace PKHeX.Core
             }
             do { end += 2; } while (data[end] != 0);
 
-            var Count = (end - offset) / 2;
-            var Moves = new int[Count];
-            var Levels = new int[Count];
+            int Count = (end - offset) / 2;
+            int[]? Moves = new int[Count];
+            int[]? Levels = new int[Count];
             for (int i = 0; i < Moves.Length; i++)
             {
                 Levels[i] = data[offset++];
@@ -71,9 +71,9 @@ namespace PKHeX.Core
         {
             if (data.Length == 0)
                 return EMPTY;
-            var Count = (data.Length / 4) - 1;
-            var Moves = new int[Count];
-            var Levels = new int[Count];
+            int Count = (data.Length / 4) - 1;
+            int[]? Moves = new int[Count];
+            int[]? Levels = new int[Count];
             for (int i = 0; i < Count; i++)
             {
                 int ofs = i * 4;

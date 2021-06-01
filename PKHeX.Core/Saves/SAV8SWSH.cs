@@ -34,9 +34,9 @@ namespace PKHeX.Core
         public override void CopyChangesFrom(SaveFile sav)
         {
             // Absorb changes from all blocks
-            var z = (SAV8SWSH)sav;
-            var mine = AllBlocks;
-            var newB = z.AllBlocks;
+            SAV8SWSH? z = (SAV8SWSH)sav;
+            IReadOnlyList<SCBlock>? mine = AllBlocks;
+            IReadOnlyList<SCBlock>? newB = z.AllBlocks;
             for (int i = 0; i < mine.Count; i++)
                 newB[i].Data.CopyTo(mine[i].Data, 0);
             State.Edited = true;
@@ -85,7 +85,7 @@ namespace PKHeX.Core
         {
             if (!State.Exportable)
                 return default;
-            var value = Blocks.GetBlockValue(key);
+            object? value = Blocks.GetBlockValue(key);
             if (value is T v)
                 return v;
             throw new ArgumentException($"Incorrect type request! Expected {typeof(T).Name}, received {value.GetType().Name}", nameof(T));
@@ -153,7 +153,7 @@ namespace PKHeX.Core
                 return StorageSlotFlag.None;
 
             team /= 6;
-            var val = (StorageSlotFlag)((int)StorageSlotFlag.BattleTeam1 << team);
+            StorageSlotFlag val = (StorageSlotFlag)((int)StorageSlotFlag.BattleTeam1 << team);
             if (TeamIndexes.GetIsTeamLocked(team))
                 val |= StorageSlotFlag.Locked;
             return val;
@@ -180,7 +180,7 @@ namespace PKHeX.Core
         {
             if ((uint)box >= BoxCount)
                 return box;
-            var b = Blocks.GetBlock(SaveBlockAccessor8SWSH.KBoxWallpapers);
+            SCBlock? b = Blocks.GetBlock(SaveBlockAccessor8SWSH.KBoxWallpapers);
             return b.Data[box];
         }
 
@@ -188,7 +188,7 @@ namespace PKHeX.Core
         {
             if ((uint)box >= BoxCount)
                 return;
-            var b = Blocks.GetBlock(SaveBlockAccessor8SWSH.KBoxWallpapers);
+            SCBlock? b = Blocks.GetBlock(SaveBlockAccessor8SWSH.KBoxWallpapers);
             b.Data[box] = (byte)value;
         }
     }

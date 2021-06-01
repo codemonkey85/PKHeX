@@ -16,7 +16,7 @@ namespace PKHeX.Core
             Flags = sav.GetEventFlags();
             Values = sav.GetEventConsts();
 
-            var game = GetResourceSuffix(sav.Version);
+            string? game = GetResourceSuffix(sav.Version);
             Labels = new EventLabelCollection(game, Flags.Length, Values.Length);
         }
 

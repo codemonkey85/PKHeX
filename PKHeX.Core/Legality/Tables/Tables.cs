@@ -165,16 +165,16 @@ namespace PKHeX.Core
 
         private static bool[] GetPermitList(int max, IEnumerable<ushort> held)
         {
-            var result = new bool[max + 1];
-            foreach (var item in held)
+            bool[]? result = new bool[max + 1];
+            foreach (ushort item in held)
                 result[item] = true;
             return result;
         }
 
         private static bool[] GetPermitList(int max, IEnumerable<ushort> held, IEnumerable<ushort> unreleased)
         {
-            var result = GetPermitList(max, held);
-            foreach (var u in unreleased)
+            bool[]? result = GetPermitList(max, held);
+            foreach (ushort u in unreleased)
                 result[u] = false;
             return result;
         }

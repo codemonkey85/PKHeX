@@ -46,8 +46,8 @@ namespace PKHeX.WinForms
 
             // Randomize the trees.
             byte[] tree = { 0x05, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0x80, 0x40, 0x01, 0x00, 0x00, 0x00, };
-            var plantable = Legal.Pouch_Berry_XY; // 0 index is None, skip with rand
-            var rnd = Util.Rand;
+            ushort[]? plantable = Legal.Pouch_Berry_XY; // 0 index is None, skip with rand
+            Random? rnd = Util.Rand;
             for (int i = 0; i < 90; i++) // amount of plots in the game
             {
                 ushort berry = plantable[rnd.Next(1, plantable.Length)]; // get random berry item ID from list

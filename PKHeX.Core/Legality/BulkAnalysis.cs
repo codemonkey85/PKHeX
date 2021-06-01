@@ -64,8 +64,8 @@ namespace PKHeX.Core
         {
             static string GetSummary(PKM pk) => $"[{pk.Box:00}, {pk.Slot:00}] {pk.FileName}";
 
-            var c = $"{msg}{Environment.NewLine}{GetSummary(first)}{Environment.NewLine}{GetSummary(second)}";
-            var chk = new CheckResult(s, c, i);
+            string? c = $"{msg}{Environment.NewLine}{GetSummary(first)}{Environment.NewLine}{GetSummary(second)}";
+            CheckResult? chk = new CheckResult(s, c, i);
             Parse.Add(chk);
         }
 
@@ -73,18 +73,18 @@ namespace PKHeX.Core
         {
             static string GetSummary(PKM pk) => $"[{pk.Box:00}, {pk.Slot:00}] {pk.FileName}";
 
-            var c = $"{msg}{Environment.NewLine}{GetSummary(first)}";
-            var chk = new CheckResult(s, c, i);
+            string? c = $"{msg}{Environment.NewLine}{GetSummary(first)}";
+            CheckResult? chk = new CheckResult(s, c, i);
             Parse.Add(chk);
         }
 
         private void CheckClones()
         {
-            var dict = new Dictionary<string, LegalityAnalysis>();
+            Dictionary<string, LegalityAnalysis>? dict = new Dictionary<string, LegalityAnalysis>();
             for (int i = 0; i < AllData.Count; i++)
             {
-                var cp = AllData[i];
-                var ca = AllAnalysis[i];
+                PKM? cp = AllData[i];
+                LegalityAnalysis? ca = AllAnalysis[i];
                 Debug.Assert(cp.Format == Trainer.Generation);
 
                 // Check the upload tracker to see if there's any duplication.
@@ -92,8 +92,8 @@ namespace PKHeX.Core
                 {
                     if (home.Tracker != 0)
                     {
-                        var tracker = home.Tracker;
-                        if (Trackers.TryGetValue(tracker, out var clone))
+                        ulong tracker = home.Tracker;
+                        if (Trackers.TryGetValue(tracker, out PKM? clone))
                             AddLine(clone, cp, "Clone detected (Duplicate Tracker).", Encounter);
                         else
                             Trackers.Add(tracker, cp);
@@ -105,8 +105,8 @@ namespace PKHeX.Core
                 }
 
                 // Hash Details like EC/IV to see if there's any duplication.
-                var identity = SearchUtil.HashByDetails(cp);
-                if (!dict.TryGetValue(identity, out var pa))
+                string? identity = SearchUtil.HashByDetails(cp);
+                if (!dict.TryGetValue(identity, out LegalityAnalysis? pa))
                 {
                     dict.Add(identity, ca);
                     continue;
@@ -119,14 +119,14 @@ namespace PKHeX.Core
 
         private void CheckDuplicateOwnedGifts()
         {
-            var dupes = AllAnalysis.Where(z =>
+            IEnumerable<IGrouping<string, LegalityAnalysis>>? dupes = AllAnalysis.Where(z =>
                     z.Info.Generation >= 3
                     && z.EncounterMatch is MysteryGift {EggEncounter: true} && !z.pkm.WasTradedEgg)
                 .GroupBy(z => ((MysteryGift)z.EncounterMatch).CardTitle);
 
-            foreach (var dupe in dupes)
+            foreach (IGrouping<string, LegalityAnalysis>? dupe in dupes)
             {
-                var tidGroup = dupe.GroupBy(z => z.pkm.TID | (z.pkm.SID << 16))
+                List<List<LegalityAnalysis>>? tidGroup = dupe.GroupBy(z => z.pkm.TID | (z.pkm.SID << 16))
                     .Select(z => z.ToList())
                     .Where(z => z.Count >= 2).ToList();
                 if (tidGroup.Count == 0)
@@ -138,17 +138,17 @@ namespace PKHeX.Core
 
         private void CheckECReuse()
         {
-            var dict = new Dictionary<uint, LegalityAnalysis>();
+            Dictionary<uint, LegalityAnalysis>? dict = new Dictionary<uint, LegalityAnalysis>();
             for (int i = 0; i < AllData.Count; i++)
             {
                 if (CloneFlags[i])
                     continue; // already flagged
-                var cp = AllData[i];
-                var ca = AllAnalysis[i];
+                PKM? cp = AllData[i];
+                LegalityAnalysis? ca = AllAnalysis[i];
                 Debug.Assert(cp.Format >= 6);
-                var id = cp.EncryptionConstant;
+                uint id = cp.EncryptionConstant;
 
-                if (!dict.TryGetValue(id, out var pa))
+                if (!dict.TryGetValue(id, out LegalityAnalysis? pa))
                 {
                     dict.Add(id, ca);
                     continue;
@@ -159,21 +159,21 @@ namespace PKHeX.Core
 
         private void CheckHOMETrackerReuse()
         {
-            var dict = new Dictionary<ulong, LegalityAnalysis>();
+            Dictionary<ulong, LegalityAnalysis>? dict = new Dictionary<ulong, LegalityAnalysis>();
             for (int i = 0; i < AllData.Count; i++)
             {
                 if (CloneFlags[i])
                     continue; // already flagged
-                var cp = AllData[i];
-                var ca = AllAnalysis[i];
+                PKM? cp = AllData[i];
+                LegalityAnalysis? ca = AllAnalysis[i];
                 Debug.Assert(cp.Format >= 8);
                 Debug.Assert(cp is IHomeTrack);
-                var id = ((IHomeTrack)cp).Tracker;
+                ulong id = ((IHomeTrack)cp).Tracker;
 
                 if (id == 0)
                     continue;
 
-                if (!dict.TryGetValue(id, out var pa))
+                if (!dict.TryGetValue(id, out LegalityAnalysis? pa))
                 {
                     dict.Add(id, ca);
                     continue;
@@ -184,17 +184,17 @@ namespace PKHeX.Core
 
         private void CheckPIDReuse()
         {
-            var dict = new Dictionary<uint, LegalityAnalysis>();
+            Dictionary<uint, LegalityAnalysis>? dict = new Dictionary<uint, LegalityAnalysis>();
             for (int i = 0; i < AllData.Count; i++)
             {
                 if (CloneFlags[i])
                     continue; // already flagged
-                var cp = AllData[i];
-                var ca = AllAnalysis[i];
+                PKM? cp = AllData[i];
+                LegalityAnalysis? ca = AllAnalysis[i];
                 bool g345 = ca.Info.Generation is 3 or 4 or 5;
-                var id = g345 ? cp.EncryptionConstant : cp.PID;
+                uint id = g345 ? cp.EncryptionConstant : cp.PID;
 
-                if (!dict.TryGetValue(id, out var pa))
+                if (!dict.TryGetValue(id, out LegalityAnalysis? pa))
                 {
                     dict.Add(id, ca);
                     continue;
@@ -205,17 +205,17 @@ namespace PKHeX.Core
 
         private void CheckIDReuse()
         {
-            var dict = new Dictionary<int, LegalityAnalysis>();
+            Dictionary<int, LegalityAnalysis>? dict = new Dictionary<int, LegalityAnalysis>();
             for (int i = 0; i < AllData.Count; i++)
             {
                 if (CloneFlags[i])
                     continue; // already flagged
-                var cp = AllData[i];
-                var ca = AllAnalysis[i];
-                var id = cp.TID + (cp.SID << 16);
+                PKM? cp = AllData[i];
+                LegalityAnalysis? ca = AllAnalysis[i];
+                int id = cp.TID + (cp.SID << 16);
                 Debug.Assert(cp.TID <= ushort.MaxValue);
 
-                if (!dict.TryGetValue(id, out var pa))
+                if (!dict.TryGetValue(id, out LegalityAnalysis? pa))
                 {
                     dict.Add(id, ca);
                     continue;
@@ -226,7 +226,7 @@ namespace PKHeX.Core
                 if (ca.Info.Generation <= 2 && pa.Info.Generation <= 2)
                     continue;
 
-                var pp = pa.pkm;
+                PKM? pp = pa.pkm;
                 if (VerifyIDReuse(pp, pa, cp, ca))
                     continue;
 
@@ -255,9 +255,9 @@ namespace PKHeX.Core
             }
 
             // eggs/mystery gifts shouldn't share with wild encounters
-            var cenc = ca.Info.EncounterMatch;
+            IEncounterable? cenc = ca.Info.EncounterMatch;
             bool eggMysteryCurrent = cenc is EncounterEgg or MysteryGift;
-            var penc = pa.Info.EncounterMatch;
+            IEncounterable? penc = pa.Info.EncounterMatch;
             bool eggMysteryPrevious = penc is EncounterEgg or MysteryGift;
 
             if (eggMysteryCurrent != eggMysteryPrevious)
@@ -284,9 +284,9 @@ namespace PKHeX.Core
             }
 
             // eggs/mystery gifts shouldn't share with wild encounters
-            var cenc = ca.Info.EncounterMatch;
+            IEncounterable? cenc = ca.Info.EncounterMatch;
             bool eggMysteryCurrent = cenc is EncounterEgg or MysteryGift;
-            var penc = pa.Info.EncounterMatch;
+            IEncounterable? penc = pa.Info.EncounterMatch;
             bool eggMysteryPrevious = penc is EncounterEgg or MysteryGift;
 
             if (eggMysteryCurrent != eggMysteryPrevious)
@@ -315,7 +315,7 @@ namespace PKHeX.Core
             // ID-SID should only occur for one Trainer name
             if (pp.OT_Name != cp.OT_Name)
             {
-                var severity = ca.Info.Generation == 4 ? Severity.Fishy : Severity.Invalid;
+                Severity severity = ca.Info.Generation == 4 ? Severity.Fishy : Severity.Invalid;
                 AddLine(pa.pkm, ca.pkm, "TID sharing across different trainer names detected.", ident, severity);
             }
 
@@ -341,7 +341,7 @@ namespace PKHeX.Core
 
         private static IReadOnlyList<LegalityAnalysis> GetIndividualAnalysis(IReadOnlyList<PKM> pkms)
         {
-            var results = new LegalityAnalysis[pkms.Count];
+            LegalityAnalysis[]? results = new LegalityAnalysis[pkms.Count];
             for (int i = 0; i < pkms.Count; i++)
                 results[i] = new LegalityAnalysis(pkms[i]);
             return results;

@@ -25,22 +25,22 @@ namespace PKHeX.WinForms.Controls
 
         public void Start(PictureBox pb, SlotTrackerImage lastSlot)
         {
-            var view = WinFormsUtil.FindFirstControlOfType<ISlotViewer<PictureBox>>(pb);
+            ISlotViewer<PictureBox>? view = WinFormsUtil.FindFirstControlOfType<ISlotViewer<PictureBox>>(pb);
             if (view == null)
                 throw new InvalidCastException(nameof(view));
-            var data = view.GetSlotData(pb);
-            var pk = data.Read(view.SAV);
+            ISlotInfo? data = view.GetSlotData(pb);
+            PKM? pk = data.Read(view.SAV);
             Slot = pb;
             LastSlot = lastSlot;
 
-            var orig = LastSlot.OriginalBackground = pb.BackgroundImage;
+            Image? orig = LastSlot.OriginalBackground = pb.BackgroundImage;
 
             Bitmap bg;
             if (GlowHover)
             {
                 HoverWorker.Stop();
-                var hover = Hover;
-                SpriteUtil.GetSpriteGlow(pk, Draw.GlowInitial.B, Draw.GlowInitial.G, Draw.GlowInitial.R, out var glowdata, out var GlowBase);
+                Bitmap? hover = Hover;
+                SpriteUtil.GetSpriteGlow(pk, Draw.GlowInitial.B, Draw.GlowInitial.G, Draw.GlowInitial.R, out byte[]? glowdata, out Image? GlowBase);
                 bg = ImageUtil.LayerImage(GlowBase, hover, 0, 0);
                 HoverWorker.GlowToColor = Draw.GlowFinal;
                 HoverWorker.GlowFromColor = Draw.GlowInitial;

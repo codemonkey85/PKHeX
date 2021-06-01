@@ -22,7 +22,7 @@ namespace PKHeX.Core
 
         protected override bool IsMatchLevel(PKM pkm, DexLevel evo)
         {
-            var lvl = pkm.Met_Level;
+            int lvl = pkm.Met_Level;
 
             if (lvl <= 25) // 1 or 2 stars
             {
@@ -47,13 +47,13 @@ namespace PKHeX.Core
                 return true;
 
             // native down-levels: only allow 1 rank down (1 badge 2star -> 25), (3badge 3star -> 35)
-            var badges = (lvl - 20) / 5;
+            int badges = (lvl - 20) / 5;
             return badges is 1 or 3 && !pkm.IsShiny;
         }
 
         protected override bool IsMatchLocation(PKM pkm)
         {
-            var loc = pkm.Met_Location;
+            int loc = pkm.Met_Location;
             return loc is SharedNest || Index switch
             {
                 >= 40 => EncounterArea8.IsWildArea(loc),

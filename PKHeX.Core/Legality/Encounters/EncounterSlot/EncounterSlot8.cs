@@ -22,7 +22,7 @@ namespace PKHeX.Core
             base.ApplyDetails(sav, criteria, pk);
             if (Location is 30 or 54 && !((EncounterArea8)Area).PermitCrossover && (Weather & AreaWeather8.Fishing) == 0)
                 ((PK8)pk).RibbonMarkCurry = true;
-            var req = GetRequirement(pk);
+            OverworldCorrelation8Requirement req = GetRequirement(pk);
             if (req != MustHave)
             {
                 pk.SetRandomEC();
@@ -54,7 +54,7 @@ namespace PKHeX.Core
 
         public bool IsOverworldCorrelationCorrect(PKM pk)
         {
-            var flawless = GetFlawlessIVCount();
+            int flawless = GetFlawlessIVCount();
             return Overworld8RNG.ValidateOverworldEncounter(pk, flawless: flawless);
         }
 
@@ -63,7 +63,7 @@ namespace PKHeX.Core
             const int none = 0;
             const int any023 = -1;
 
-            var area = (EncounterArea8) Area;
+            EncounterArea8? area = (EncounterArea8) Area;
             if (area.PermitCrossover)
                 return any023; // Symbol
             if ((Weather & AreaWeather8.Fishing) != 0)
@@ -93,7 +93,7 @@ namespace PKHeX.Core
                     return EncounterMatchRating.PartialMatch;
             }
 
-            var req = GetRequirement(pkm);
+            OverworldCorrelation8Requirement req = GetRequirement(pkm);
             return req switch
             {
                 MustHave when !IsOverworldCorrelationCorrect(pkm) => EncounterMatchRating.Deferred,

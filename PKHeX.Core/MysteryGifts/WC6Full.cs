@@ -14,9 +14,9 @@ namespace PKHeX.Core
         public WC6Full(byte[] data)
         {
             Data = data;
-            var wc6 = data.SliceEnd(Size - WC6.Size);
+            byte[]? wc6 = data.SliceEnd(Size - WC6.Size);
             Gift = new WC6(wc6);
-            var now = DateTime.Now;
+            DateTime now = DateTime.Now;
             Gift.RawDate = WC6.SetDate((uint)now.Year, (uint)now.Month, (uint)now.Day);
 
             Gift.RestrictVersion = RestrictVersion;

@@ -17,7 +17,7 @@ namespace PKHeX.WinForms
             WinFormsUtil.TranslateInterface(this, Main.CurrentLanguage);
 
             // initialize boxes dynamically
-            var sav = p.SAV;
+            SaveFile? sav = p.SAV;
 
             Boxes = new BoxEditor[sav.BoxCount];
             AddControls(p, m, sav);
@@ -27,11 +27,11 @@ namespace PKHeX.WinForms
             AddEvents();
             CenterToParent();
             Owner = p.ParentForm;
-            foreach (var b in Boxes)
+            foreach (BoxEditor? b in Boxes)
                 m.Env.Slots.Publisher.Subscribers.Add(b);
             FormClosing += (sender, e) =>
             {
-                foreach (var b in Boxes)
+                foreach (BoxEditor? b in Boxes)
                 {
                     b.M?.Boxes.Remove(b);
                     m.Env.Slots.Publisher.Subscribers.Remove(b);
@@ -54,7 +54,7 @@ namespace PKHeX.WinForms
         {
             for (int i = 0; i < sav.BoxCount; i++)
             {
-                var boxEditor = new BoxEditor
+                BoxEditor? boxEditor = new BoxEditor
                 {
                     Name = $"BE_Box{i:00}",
                     Margin = new Padding(1),
@@ -72,7 +72,7 @@ namespace PKHeX.WinForms
             FLP_Boxes.Controls.AddRange(Boxes);
 
             // Setup swapping
-            foreach (var box in Boxes)
+            foreach (BoxEditor? box in Boxes)
             {
                 box.ClearEvents();
                 box.B_BoxLeft.Click += (s, e) =>
@@ -97,16 +97,16 @@ namespace PKHeX.WinForms
         private void SetWindowDimensions(int count)
         {
             // adjust layout to stack up boxes
-            var sqrt = Math.Sqrt(count);
+            double sqrt = Math.Sqrt(count);
             int height = Math.Min(5, (int)Math.Ceiling(sqrt));
             int width = (int)Math.Ceiling((float)count / height);
             Debug.Assert(height * width >= count);
             width = Math.Min(4, width);
 
-            var padWidth = (Boxes[0].Margin.Horizontal * 2) + 1;
+            int padWidth = (Boxes[0].Margin.Horizontal * 2) + 1;
             Width = ((Boxes[0].Width + padWidth) * width) - (padWidth / 2) + 0x10;
 
-            var padHeight = (Boxes[0].Margin.Vertical * 2) + 1;
+            int padHeight = (Boxes[0].Margin.Vertical * 2) + 1;
             Height = ((Boxes[0].Height + padHeight) * height) - (padHeight / 2);
         }
 

@@ -25,7 +25,7 @@ namespace PKHeX.Core
 
         public DataMysteryGift[] GetGifts()
         {
-            var cards = new DataMysteryGift[MaxCardsPresent];
+            DataMysteryGift[]? cards = new DataMysteryGift[MaxCardsPresent];
             for (int i = 0; i < cards.Length; i++)
                 cards[i] = GetGift(i);
             return cards;
@@ -45,8 +45,8 @@ namespace PKHeX.Core
             if ((uint)index > MaxCardsPresent)
                 throw new ArgumentOutOfRangeException(nameof(index));
 
-            var offset = GetGiftOffset(index);
-            var data = SAV.GetData(offset, WC6.Size);
+            int offset = GetGiftOffset(index);
+            byte[]? data = SAV.GetData(offset, WC6.Size);
             return new WC6(data);
         }
 
@@ -64,7 +64,7 @@ namespace PKHeX.Core
                 if (SAV is not SAV6AO ao)
                     return;
                 // Set the special received data
-                var info = ao.Blocks.Sango;
+                SangoInfoBlock? info = ao.Blocks.Sango;
                 info.ReceiveEon();
                 info.EnableSendEon();
             }

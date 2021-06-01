@@ -91,19 +91,19 @@ namespace PKHeX.WinForms.Controls
 
         private Image GetFrame(int frameIndex)
         {
-            var cache = GlowCache;
+            Image?[]? cache = GlowCache;
             if (cache == null)
                 throw new NullReferenceException(nameof(GlowCache));
-            var frame = cache[frameIndex];
+            Image? frame = cache[frameIndex];
             if (frame != null)
                 return frame;
 
-            var elapsedFraction = (double)frameIndex / GlowInterval;
-            var frameColor = GetFrameColor(elapsedFraction);
+            double elapsedFraction = (double)frameIndex / GlowInterval;
+            Color frameColor = GetFrameColor(elapsedFraction);
 
             if (GlowData == null)
                 throw new NullReferenceException(nameof(GlowData));
-            var frameData = (byte[])GlowData.Clone();
+            byte[]? frameData = (byte[])GlowData.Clone();
             ImageUtil.ChangeAllColorTo(frameData, frameColor);
 
             frame = ImageUtil.GetBitmap(frameData, imgWidth, imgHeight);

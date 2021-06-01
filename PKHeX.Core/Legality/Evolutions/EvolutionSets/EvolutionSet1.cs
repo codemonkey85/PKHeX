@@ -20,7 +20,7 @@ namespace PKHeX.Core
 
         public static IReadOnlyList<EvolutionMethod[]> GetArray(byte[] data, int maxSpecies)
         {
-            var evos = new EvolutionMethod[maxSpecies + 1][];
+            EvolutionMethod[][]? evos = new EvolutionMethod[maxSpecies + 1][];
             int ofs = 0;
             const int bpe = 3;
             for (int i = 0; i < evos.Length; i++)
@@ -32,7 +32,7 @@ namespace PKHeX.Core
                     evos[i] = Array.Empty<EvolutionMethod>();
                     continue;
                 }
-                var m = new EvolutionMethod[count];
+                EvolutionMethod[]? m = new EvolutionMethod[count];
                 for (int j = 0; j < m.Length; j++)
                 {
                     m[j] = GetMethod(data, ofs);

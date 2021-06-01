@@ -44,8 +44,8 @@ namespace PKHeX.Core
         /// <returns>Hidden Power Type of the <see cref="IVs"/></returns>
         public static int GetTypeGB(IReadOnlyList<int> IVs)
         {
-            var atk = IVs[1];
-            var def = IVs[2];
+            int atk = IVs[1];
+            int def = IVs[2];
             return ((atk & 3) << 2) | (def & 3);
         }
 
@@ -108,7 +108,7 @@ namespace PKHeX.Core
         private static int[]? GetSuggestedHiddenPowerIVs(int hpVal, int[] IVs)
         {
             const int max = 31;
-            var flawless = new int[IVs.Length]; // future: stackalloc
+            int[]? flawless = new int[IVs.Length]; // future: stackalloc
             int flawlessCount = 0;
             for (int i = 0; i < IVs.Length; i++)
             {
@@ -116,13 +116,13 @@ namespace PKHeX.Core
                     flawless[++flawlessCount] = i;
             }
 
-            var permutations = GetPermutations(flawless, flawlessCount);
+            IEnumerable<IEnumerable<int>>? permutations = GetPermutations(flawless, flawlessCount);
             int flawedCount = 0; // result tracking
             int[]? best = null; // result tracking
             int[] ivs = (int[])IVs.Clone();
-            foreach (var permute in permutations)
+            foreach (IEnumerable<int>? permute in permutations)
             {
-                foreach (var index in permute)
+                foreach (int index in permute)
                 {
                     ivs[index] ^= 1;
                     if (hpVal != GetType(ivs))
@@ -166,7 +166,7 @@ namespace PKHeX.Core
                 return ivs;
             }
 
-            var bits = DefaultLowBits[type];
+            byte bits = DefaultLowBits[type];
             for (int i = 0; i < 6; i++)
                 ivs[i] = (ivs[i] & 0x1E) + ((bits >> i) & 1);
             return ivs;

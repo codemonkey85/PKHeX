@@ -13,7 +13,7 @@ namespace PKHeX.Core
 
         public static EncounterArea3[] GetAreas(byte[][] input, GameVersion game)
         {
-            var result = new EncounterArea3[input.Length];
+            EncounterArea3[]? result = new EncounterArea3[input.Length];
             for (int i = 0; i < input.Length; i++)
                 result[i] = new EncounterArea3(input[i], game);
             return result;
@@ -21,7 +21,7 @@ namespace PKHeX.Core
 
         public static EncounterArea3[] GetAreasSwarm(byte[][] input, GameVersion game)
         {
-            var result = new EncounterArea3[input.Length];
+            EncounterArea3[]? result = new EncounterArea3[input.Length];
             for (int i = 0; i < input.Length; i++)
                 result[i] = new EncounterArea3(input[i], game, false);
             return result;
@@ -49,7 +49,7 @@ namespace PKHeX.Core
         {
             const int size = 10;
             int count = (data.Length - 4) / size;
-            var slots = new EncounterSlot3[count];
+            EncounterSlot3[]? slots = new EncounterSlot3[count];
             for (int i = 0; i < slots.Length; i++)
             {
                 int offset = 4 + (size * i);
@@ -74,7 +74,7 @@ namespace PKHeX.Core
         {
             const int size = 14;
             int count = (data.Length - 4) / size;
-            var slots = new EncounterSlot3[count];
+            EncounterSlot3[]? slots = new EncounterSlot3[count];
             for (int i = 0; i < slots.Length; i++)
             {
                 int offset = 4 + (size * i);
@@ -110,9 +110,9 @@ namespace PKHeX.Core
 
         private IEnumerable<EncounterSlot> GetSlotsMatching(IReadOnlyList<EvoCriteria> chain, int lvl)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;
@@ -130,9 +130,9 @@ namespace PKHeX.Core
 
         private IEnumerable<EncounterSlot> GetSlotsFuzzy(IReadOnlyList<EvoCriteria> chain)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;

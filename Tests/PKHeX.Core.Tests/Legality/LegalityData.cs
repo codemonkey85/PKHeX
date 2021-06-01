@@ -13,11 +13,11 @@ namespace PKHeX.Tests.Legality
         [Fact]
         public void EvolutionsOrdered() // feebas, see issue #2394
         {
-            var trees = typeof(EvolutionTree).GetFields(BindingFlags.Static | BindingFlags.NonPublic);
-            var fEntries = typeof(EvolutionTree).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).First(z => z.Name == "Entries");
-            foreach (var t in trees)
+            FieldInfo[]? trees = typeof(EvolutionTree).GetFields(BindingFlags.Static | BindingFlags.NonPublic);
+            FieldInfo? fEntries = typeof(EvolutionTree).GetFields(BindingFlags.NonPublic | BindingFlags.Instance).First(z => z.Name == "Entries");
+            foreach (FieldInfo? t in trees)
             {
-                var gen = Convert.ToInt32(t.Name[7].ToString());
+                int gen = Convert.ToInt32(t.Name[7].ToString());
                 if (gen <= 4)
                     continue;
 
@@ -25,10 +25,10 @@ namespace PKHeX.Tests.Legality
                     throw new ArgumentException(nameof(fTree));
                 if (fEntries.GetValue(fTree) is not IReadOnlyList<EvolutionMethod[]> entries)
                     throw new ArgumentException(nameof(entries));
-                var feebas = entries[(int)Species.Feebas];
+                EvolutionMethod[]? feebas = entries[(int)Species.Feebas];
 
-                var t1 = (EvolutionType)feebas[0].Method;
-                var t2 = (EvolutionType)feebas[1].Method;
+                EvolutionType t1 = (EvolutionType)feebas[0].Method;
+                EvolutionType t2 = (EvolutionType)feebas[1].Method;
 
                 t1.IsLevelUpRequired().Should().BeFalse();
                 t2.IsLevelUpRequired().Should().BeTrue();

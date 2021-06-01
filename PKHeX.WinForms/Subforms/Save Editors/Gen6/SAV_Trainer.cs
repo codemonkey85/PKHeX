@@ -60,7 +60,7 @@ namespace PKHeX.WinForms
             GetTextBoxes();
             editing = false;
 
-            var status = SAV.Status;
+            MyStatus6? status = SAV.Status;
             CHK_MegaUnlocked.Checked = status.IsMegaEvolutionUnlocked;
             CHK_MegaRayquazaUnlocked.Checked = status.IsMegaRayquazaUnlocked;
         }
@@ -81,9 +81,9 @@ namespace PKHeX.WinForms
             CB_Region.InitializeBinding();
             Main.SetCountrySubRegion(CB_Country, "countries");
 
-            var names = Enum.GetNames(typeof(TrainerSprite6));
-            var values = (int[])Enum.GetValues(typeof(TrainerSprite6));
-            var data = names.Zip(values, (a, b) => new ComboItem(a, b))
+            string[]? names = Enum.GetNames(typeof(TrainerSprite6));
+            int[]? values = (int[])Enum.GetValues(typeof(TrainerSprite6));
+            System.Collections.Generic.List<ComboItem>? data = names.Zip(values, (a, b) => new ComboItem(a, b))
                 .Where(z => z.Value >= 2) // ignore Calem & Serena (no sprite)
                 .ToList();
 
@@ -114,7 +114,7 @@ namespace PKHeX.WinForms
             MT_SID.Text = SAV.SID.ToString("00000");
             MT_Money.Text = SAV.Money.ToString();
 
-            var status = SAV.Status;
+            MyStatus6? status = SAV.Status;
             TB_Saying1.Text = status.Saying1;
             TB_Saying2.Text = status.Saying2;
             TB_Saying3.Text = status.Saying3;
@@ -133,7 +133,7 @@ namespace PKHeX.WinForms
                     MaisonRecords[i].Text = xyao.Maison.GetMaisonStat(i).ToString();
             }
 
-            var sit = SAV.Situation;
+            Situation6? sit = SAV.Situation;
             NUD_M.Value = sit.M;
             // Sanity Check Map Coordinates
             if (!GB_Map.Enabled || sit.X%0.5 != 0 || sit.Z%0.5 != 0 || sit.Y%0.5 != 0)
@@ -171,7 +171,7 @@ namespace PKHeX.WinForms
 
             if (SAV is SAV6XY xy)
             {
-                var xystat = (MyStatus6XY)xy.Status;
+                MyStatus6XY? xystat = (MyStatus6XY)xy.Status;
                 PG_CurrentAppearance.SelectedObject = xystat.Fashion;
                 TB_TRNick.Text = xystat.OT_Nick;
             }
@@ -187,7 +187,7 @@ namespace PKHeX.WinForms
                 L_LastSaved.Visible = CAL_LastSavedDate.Visible = CAL_LastSavedTime.Visible = false;
             }
 
-            DateUtil.GetDateTime2000(SAV.SecondsToStart, out var date, out var time);
+            DateUtil.GetDateTime2000(SAV.SecondsToStart, out DateTime date, out DateTime time);
             CAL_AdventureStartDate.Value = date;
             CAL_AdventureStartTime.Value = time;
 
@@ -211,7 +211,7 @@ namespace PKHeX.WinForms
 
             SAV.OT = TB_OTName.Text;
 
-            var status = SAV.Status;
+            MyStatus6? status = SAV.Status;
             status.Saying1 = TB_Saying1.Text;
             status.Saying2 = TB_Saying2.Text;
             status.Saying3 = TB_Saying3.Text;
@@ -226,7 +226,7 @@ namespace PKHeX.WinForms
             }
 
             // Copy Position
-            var sit = SAV.Situation;
+            Situation6? sit = SAV.Situation;
             if (GB_Map.Enabled && MapUpdated)
             {
                 sit.M = (int)NUD_M.Value;
@@ -259,7 +259,7 @@ namespace PKHeX.WinForms
             // Appearance
             if (SAV is SAV6XY xy)
             {
-                var xystat = (MyStatus6XY)xy.Status;
+                MyStatus6XY? xystat = (MyStatus6XY)xy.Status;
                 xystat.Fashion = (TrainerFashion6)PG_CurrentAppearance.SelectedObject;
                 xystat.OT_Nick = TB_TRNick.Text;
             }
@@ -284,7 +284,7 @@ namespace PKHeX.WinForms
             if (ModifierKeys != Keys.Control)
                 return;
 
-            var d = new TrashEditor(tb, SAV);
+            TrashEditor? d = new TrashEditor(tb, SAV);
             d.ShowDialog();
             tb.Text = d.FinalString;
         }
@@ -358,7 +358,7 @@ namespace PKHeX.WinForms
             switch (index)
             {
                 case 2: // Storyline Completed Time
-                    var seconds = DateUtil.GetSecondsFrom2000(CAL_AdventureStartDate.Value, CAL_AdventureStartTime.Value);
+                    int seconds = DateUtil.GetSecondsFrom2000(CAL_AdventureStartDate.Value, CAL_AdventureStartTime.Value);
                     return DateUtil.ConvertDateValueToString(SAV.GetRecord(index), seconds);
                 default:
                     return null;

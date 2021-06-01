@@ -22,7 +22,7 @@ namespace PKHeX.Core
 
         public RaidSpawnDetail[] GetAllRaids()
         {
-            var result = new RaidSpawnDetail[CountAll];
+            RaidSpawnDetail[]? result = new RaidSpawnDetail[CountAll];
             for (int i = 0; i < result.Length; i++)
                 result[i] = GetRaid(i);
             return result;
@@ -40,21 +40,21 @@ namespace PKHeX.Core
 
         public void ActivateAllRaids(bool rare, bool isEvent)
         {
-            var rnd = Util.Rand;
+            Random? rnd = Util.Rand;
             for (int i = 0; i < CountUsed; i++)
             {
                 if (i == 16) // Watchtower, special
                     continue;
-                var star = (byte)rnd.Next(0, 5);
-                var rand = (byte)rnd.Next(1, 101);
+                byte star = (byte)rnd.Next(0, 5);
+                byte rand = (byte)rnd.Next(1, 101);
                 GetRaid(i).Activate(star, rand, rare, isEvent);
             }
         }
 
         public string[] DumpAll()
         {
-            var raids = GetAllRaids();
-            var result = new string[CountAll];
+            RaidSpawnDetail[]? raids = GetAllRaids();
+            string[]? result = new string[CountAll];
             for (int i = 0; i < result.Length; i++)
                 result[i] = raids[i].Dump();
             return result;

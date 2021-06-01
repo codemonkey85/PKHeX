@@ -67,7 +67,7 @@ namespace PKHeX.Core
 
         public PKM ConvertToPKM(ITrainerInfo sav, EncounterCriteria criteria)
         {
-            var pk = PKMConverter.GetBlank(Generation, Version);
+            PKM? pk = PKMConverter.GetBlank(Generation, Version);
             sav.ApplyTo(pk);
 
             ApplyDetails(sav, criteria, pk);
@@ -76,7 +76,7 @@ namespace PKHeX.Core
 
         protected virtual void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
-            var version = this.GetCompatibleVersion((GameVersion)sav.Game);
+            GameVersion version = this.GetCompatibleVersion((GameVersion)sav.Game);
             int lang = (int)Language.GetSafeLanguage(Generation, (LanguageID)sav.Language, version);
             int level = CurrentLevel > 0 ? CurrentLevel : LevelMin;
             if (level == 0)
@@ -104,7 +104,7 @@ namespace PKHeX.Core
             SetPINGA(pk, criteria);
             SetMoves(pk, version, level);
 
-            var time = DateTime.Now;
+            DateTime time = DateTime.Now;
             if (pk.Format != 2 || version == GameVersion.C)
             {
                 SetMetData(pk, level, Location, time);
@@ -129,7 +129,7 @@ namespace PKHeX.Core
 
         protected virtual void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             int gender = criteria.GetGender(Gender, pi);
             int nature = (int)criteria.GetNature(Nature);
             int ability = criteria.GetAbilityFromNumber(Ability);
@@ -152,7 +152,7 @@ namespace PKHeX.Core
 
         private void SetMoves(PKM pk, GameVersion version, int level)
         {
-            var moves = Moves.Count != 0 ? Moves : MoveLevelUp.GetEncounterMoves(pk, level, version);
+            IReadOnlyList<int>? moves = Moves.Count != 0 ? Moves : MoveLevelUp.GetEncounterMoves(pk, level, version);
             if (pk.Format == 1 && moves.All(z => z == 0))
                 moves = ((PersonalInfoG1)PersonalTable.RB[Species]).Moves;
             pk.SetMoves(moves);

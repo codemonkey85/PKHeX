@@ -125,7 +125,7 @@ namespace PKHeX.Core
 
         private void ParseLines(IEnumerable<string> lines)
         {
-            using var e = lines.GetEnumerator();
+            using IEnumerator<string>? e = lines.GetEnumerator();
             if (!e.MoveNext())
                 return;
 
@@ -133,7 +133,7 @@ namespace PKHeX.Core
             int movectr = 0;
             while (e.MoveNext())
             {
-                var line = e.Current!;
+                string? line = e.Current!;
                 if (string.IsNullOrWhiteSpace(line))
                     continue;
 
@@ -156,8 +156,8 @@ namespace PKHeX.Core
                 if (movectr != 0)
                     break;
 
-                var split = line.Split(LineSplit, StringSplitOptions.None);
-                var valid = split.Length == 1
+                string[]? split = line.Split(LineSplit, StringSplitOptions.None);
+                bool valid = split.Length == 1
                     ? ParseSingle(line) // Nature
                     : ParseEntry(split[0].Trim(), split[1].Trim());
                 if (!valid)
@@ -169,7 +169,7 @@ namespace PKHeX.Core
         {
             if (!identifier.EndsWith("Nature"))
                 return false;
-            var naturestr = identifier.Split(' ')[0].Trim();
+            string? naturestr = identifier.Split(' ')[0].Trim();
             return (Nature = StringUtil.FindIndexIgnoreCase(Strings.natures, naturestr)) >= 0;
         }
 
@@ -219,7 +219,7 @@ namespace PKHeX.Core
         /// <param name="lang">Language ID</param>
         private string LocalizedText(int lang)
         {
-            var strings = GameInfo.GetStrings(lang);
+            GameStrings? strings = GameInfo.GetStrings(lang);
             return GetText(strings);
         }
 
@@ -231,25 +231,25 @@ namespace PKHeX.Core
             if (strings != null)
                 Strings = strings;
 
-            var result = GetSetLines();
+            List<string>? result = GetSetLines();
             return string.Join(Environment.NewLine, result);
         }
 
         public List<string> GetSetLines()
         {
-            var result = new List<string>();
+            List<string>? result = new List<string>();
 
             // First Line: Name, Nickname, Gender, Item
-            var form = ShowdownParsing.GetShowdownFormName(Species, FormName);
+            string? form = ShowdownParsing.GetShowdownFormName(Species, FormName);
             result.Add(GetStringFirstLine(form));
 
             // IVs
-            var ivs = GetStringStats(IVsSpeedLast, Format < 3 ? 15 : 31);
+            IList<string>? ivs = GetStringStats(IVsSpeedLast, Format < 3 ? 15 : 31);
             if (ivs.Count > 0)
                 result.Add($"IVs: {string.Join(" / ", ivs)}");
 
             // EVs
-            var evs = GetStringStats(EVsSpeedLast, 0);
+            IList<string>? evs = GetStringStats(EVsSpeedLast, 0);
             if (evs.Count > 0)
                 result.Add($"EVs: {string.Join(" / ", evs)}");
 
@@ -291,7 +291,7 @@ namespace PKHeX.Core
 
             if (HeldItem > 0)
             {
-                var items = Strings.GetItemStrings(Format);
+                string[]? items = Strings.GetItemStrings(Format);
                 if ((uint)HeldItem < items.Length)
                     result += $" @ {items[HeldItem]}";
             }
@@ -310,7 +310,7 @@ namespace PKHeX.Core
 
         private static IList<string> GetStringStats(int[] stats, int ignore)
         {
-            var result = new List<string>();
+            List<string>? result = new List<string>();
             for (int i = 0; i < stats.Length; i++)
             {
                 if (stats[i] == ignore)
@@ -403,7 +403,7 @@ namespace PKHeX.Core
 
             bool TrySetItem(int format)
             {
-                var items = Strings.GetItemStrings(format);
+                string[]? items = Strings.GetItemStrings(format);
                 int item = StringUtil.FindIndexIgnoreCase(items, itemName);
                 if (item < 0)
                     return false;
@@ -463,9 +463,9 @@ namespace PKHeX.Core
                 return true;
 
             // failure to parse, check edge cases
-            foreach (var e in DashedSpecies)
+            foreach (ushort e in DashedSpecies)
             {
-                var sn = Strings.Species[e];
+                string? sn = Strings.Species[e];
                 if (!speciesLine.StartsWith(sn.Replace("♂", "-M").Replace("♀", "-F")))
                     continue;
                 Species = e;
@@ -497,7 +497,7 @@ namespace PKHeX.Core
             {
                 int start = index + 1;
                 int end = line.IndexOf(')');
-                var tmp = line[start..end];
+                string? tmp = line[start..end];
                 if (end < line.Length - 2)
                 {
                     nickname = line[(end + 2)..];
@@ -550,14 +550,14 @@ namespace PKHeX.Core
 
         private void ParseLineEVs(string line)
         {
-            var list = SplitLineStats(line);
+            string[]? list = SplitLineStats(line);
             if ((list.Length & 1) == 1)
                 InvalidLines.Add("Unknown EV input.");
             for (int i = 0; i < list.Length / 2; i++)
             {
                 int pos = i * 2;
                 int index = StringUtil.FindIndexIgnoreCase(StatNames, list[pos + 1]);
-                if (index >= 0 && ushort.TryParse(list[pos + 0], out var EV))
+                if (index >= 0 && ushort.TryParse(list[pos + 0], out ushort EV))
                     EVs[index] = EV;
                 else
                     InvalidLines.Add($"Unknown EV stat: {list[pos]}");
@@ -567,14 +567,14 @@ namespace PKHeX.Core
 
         private void ParseLineIVs(string line)
         {
-            var list = SplitLineStats(line);
+            string[]? list = SplitLineStats(line);
             if ((list.Length & 1) == 1)
                 InvalidLines.Add("Unknown IV input.");
             for (int i = 0; i < list.Length / 2; i++)
             {
                 int pos = i * 2;
                 int index = StringUtil.FindIndexIgnoreCase(StatNames, list[pos + 1]);
-                if (index >= 0 && byte.TryParse(list[pos + 0], out var iv))
+                if (index >= 0 && byte.TryParse(list[pos + 0], out byte iv))
                     IVs[index] = iv;
                 else
                     InvalidLines.Add($"Unknown IV stat: {list[pos]}");

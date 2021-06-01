@@ -7,7 +7,7 @@
     {
         public static int GetSuggestedCatchRate(PK1 pk1, SaveFile sav)
         {
-            var la = new LegalityAnalysis(pk1);
+            LegalityAnalysis? la = new LegalityAnalysis(pk1);
             return GetSuggestedCatchRate(pk1, sav, la);
         }
 
@@ -19,7 +19,7 @@
             if (la.Info.Generation == 2)
                 return 0;
 
-            var v = la.EncounterMatch;
+            IEncounterable? v = la.EncounterMatch;
             switch (v)
             {
                 case EncounterTrade1 c:

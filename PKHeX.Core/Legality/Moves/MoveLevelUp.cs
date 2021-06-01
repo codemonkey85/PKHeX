@@ -55,8 +55,8 @@ namespace PKHeX.Core
             switch (ver)
             {
                 case Any: case RBY:
-                    var first = LearnRB.GetIsLevelUpG1(species, form, move, max, min);
-                    var second = LearnY.GetIsLevelUpG1(species, form, move, max, min);
+                    LearnVersion first = LearnRB.GetIsLevelUpG1(species, form, move, max, min);
+                    LearnVersion second = LearnY.GetIsLevelUpG1(species, form, move, max, min);
                     if (!first.IsLevelUp)
                         return second;
                     if (!second.IsLevelUp)
@@ -78,7 +78,7 @@ namespace PKHeX.Core
             switch (ver)
             {
                 case Any: case GSC:
-                    var first = LearnGS.GetIsLevelUpMin(species, move, max, min, form);
+                    LearnVersion first = LearnGS.GetIsLevelUpMin(species, move, max, min, form);
                     if (first.IsLevelUp || korean)
                         return first;
                     return LearnC.GetIsLevelUpMin(species, move, max, min, form);
@@ -100,7 +100,7 @@ namespace PKHeX.Core
             switch (ver)
             {
                 case Any:
-                    var first = LearnRSE.GetIsLevelUp(species, form, move, lvl);
+                    LearnVersion first = LearnRSE.GetIsLevelUp(species, form, move, lvl);
                     if (first.IsLevelUp)
                         return first;
                     return LearnFRLG.GetIsLevelUp(species, form, move, lvl);
@@ -118,10 +118,10 @@ namespace PKHeX.Core
             switch (ver)
             {
                 case Any: case DPPt:
-                    var first = LearnDP.GetIsLevelUp(species, form, move, lvl);
+                    LearnVersion first = LearnDP.GetIsLevelUp(species, form, move, lvl);
                     if (first.IsLevelUp)
                         return first;
-                    var second = LearnPt.GetIsLevelUp(species, form, move, lvl);
+                    LearnVersion second = LearnPt.GetIsLevelUp(species, form, move, lvl);
                     if (second.IsLevelUp)
                         return second;
                     if (ver == DPPt) // stop here
@@ -143,7 +143,7 @@ namespace PKHeX.Core
             switch (ver)
             {
                 case Any:
-                    var first = LearnBW.GetIsLevelUp(species, form, move, lvl);
+                    LearnVersion first = LearnBW.GetIsLevelUp(species, form, move, lvl);
                     if (first.IsLevelUp && species != 646)  // Kyurem moves are same for both versions, but forme movepool not present.
                         return first;
                     return LearnB2W2.GetIsLevelUp(species, form, move, lvl);
@@ -160,7 +160,7 @@ namespace PKHeX.Core
             switch (ver)
             {
                 case Any:
-                    var first = LearnXY.GetIsLevelUp(species, form, move, lvl);
+                    LearnVersion first = LearnXY.GetIsLevelUp(species, form, move, lvl);
                     if (first.IsLevelUp)
                         return first;
                     return LearnAO.GetIsLevelUp(species, form, move, lvl);
@@ -183,7 +183,7 @@ namespace PKHeX.Core
                 case Any:
                     if (species > MaxSpeciesID_7_USUM)
                         return LearnNONE;
-                    var first = LearnUSUM.GetIsLevelUp(species, form, move);
+                    LearnVersion first = LearnUSUM.GetIsLevelUp(species, form, move);
                     if (first.IsLevelUp)
                         return first;
                     if (species > MaxSpeciesID_7)
@@ -219,10 +219,10 @@ namespace PKHeX.Core
 
         private static LearnVersion GetIsLevelUp3Deoxys(int form, int move, int lvl)
         {
-            var moveset = GetDeoxysLearn3(form);
+            Learnset? moveset = GetDeoxysLearn3(form);
             if (moveset == null)
                 return LearnNONE;
-            var lv = moveset.GetLevelLearnMove(move);
+            int lv = moveset.GetLevelLearnMove(move);
             if (lv >= 0 && lv <= lvl)
                 return new LearnVersion(lv, GetDeoxysGameVersion3(form));
             return LearnNONE;
@@ -252,7 +252,7 @@ namespace PKHeX.Core
                 };
             }
 
-            var gen = ver.GetGeneration();
+            int gen = ver.GetGeneration();
             if (gen != 3)
                 return GetDeoxysLearn3(form);
             return GameData.GetLearnsets(ver)[index];
@@ -285,7 +285,7 @@ namespace PKHeX.Core
 
         private static List<int> GetMovesLevelUp2(int species, int form, int max, int min, bool korean, bool removeNewGSCMoves, GameVersion ver = Any)
         {
-            var moves = AddMovesLevelUp2(new List<int>(), ver, species, form, max, min, korean);
+            List<int>? moves = AddMovesLevelUp2(new List<int>(), ver, species, form, max, min, korean);
             if (removeNewGSCMoves)
                 moves.RemoveAll(m => m > MaxMoveID_1);
             return moves;
@@ -359,7 +359,7 @@ namespace PKHeX.Core
         {
             if (species == (int)Species.Deoxys)
             {
-                var learn = GetDeoxysLearn3(form, ver);
+                Learnset? learn = GetDeoxysLearn3(form, ver);
                 if (learn != null)
                     moves.AddRange(learn.GetMoves(max));
                 return moves;
@@ -489,10 +489,10 @@ namespace PKHeX.Core
 
         private static int[] GetEncounterMoves1(int species, int level, GameVersion version)
         {
-            var learn = GameData.GetLearnsets(version);
-            var table = GameData.GetPersonal(version);
-            var index = table.GetFormIndex(species, 0);
-            var lvl0 = (int[])((PersonalInfoG1) table[index]).Moves.Clone();
+            Learnset[]? learn = GameData.GetLearnsets(version);
+            PersonalTable? table = GameData.GetPersonal(version);
+            int index = table.GetFormIndex(species, 0);
+            int[]? lvl0 = (int[])((PersonalInfoG1) table[index]).Moves.Clone();
             int start = Math.Max(0, Array.IndexOf(lvl0, 0));
 
             return learn[index].GetEncounterMoves(level, lvl0, start);
@@ -500,10 +500,10 @@ namespace PKHeX.Core
 
         private static int[] GetEncounterMoves2(int species, int level, GameVersion version)
         {
-            var learn = GameData.GetLearnsets(version);
-            var table = GameData.GetPersonal(version);
-            var index = table.GetFormIndex(species, 0);
-            var lvl0 = learn[species].GetEncounterMoves(1);
+            Learnset[]? learn = GameData.GetLearnsets(version);
+            PersonalTable? table = GameData.GetPersonal(version);
+            int index = table.GetFormIndex(species, 0);
+            int[]? lvl0 = learn[species].GetEncounterMoves(1);
             int start = Math.Max(0, Array.IndexOf(lvl0, 0));
 
             return learn[index].GetEncounterMoves(level, lvl0, start);
@@ -515,9 +515,9 @@ namespace PKHeX.Core
                 return GetEncounterMoves1(species, level, version);
             if (GSC.Contains(version))
                 return GetEncounterMoves2(species, level, version);
-            var learn = GameData.GetLearnsets(version);
-            var table = GameData.GetPersonal(version);
-            var index = table.GetFormIndex(species, form);
+            Learnset[]? learn = GameData.GetLearnsets(version);
+            PersonalTable? table = GameData.GetPersonal(version);
+            int index = table.GetFormIndex(species, form);
             return learn[index].GetEncounterMoves(level);
         }
     }

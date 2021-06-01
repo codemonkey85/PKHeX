@@ -111,7 +111,7 @@ namespace PKHeX.Core
             }
             pk.Nickname = SpeciesName.GetSpeciesNameGeneration(Species, pk.Language, 3); // will be set to Egg nickname if appropriate by PK3 setter
 
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             pk.OT_Friendship = pk.IsEgg ? pi.HatchCycles : pi.BaseFriendship;
 
             // Generate PIDIV
@@ -158,7 +158,7 @@ namespace PKHeX.Core
                 Moves = MoveList.GetBaseEggMoves(pk, Species, Form, (GameVersion)pk.Version, Level);
             if (Moves.Count != 4)
             {
-                var moves = Moves.ToArray();
+                int[]? moves = Moves.ToArray();
                 Array.Resize(ref moves, 4);
                 Moves = moves;
             }
@@ -169,7 +169,7 @@ namespace PKHeX.Core
 
         private void SetPINGA(PK3 pk, EncounterCriteria _)
         {
-            var seed = Util.Rand32();
+            uint seed = Util.Rand32();
             seed = TID == 06930 ? MystryMew.GetSeed(seed, Method) : GetSaneSeed(seed);
             PIDGenerator.SetValuesFromSeed(pk, Method, seed);
         }
@@ -223,7 +223,7 @@ namespace PKHeX.Core
                 if (SID != -1 && SID != pkm.SID) return false;
                 if (TID != -1 && TID != pkm.TID) return false;
                 if (OT_Gender < 3 && OT_Gender != pkm.OT_Gender) return false;
-                var wcOT = OT_Name;
+                string? wcOT = OT_Name;
                 if (!string.IsNullOrEmpty(wcOT))
                 {
                     if (wcOT.Length > 7) // Colosseum MATTLE Ho-Oh

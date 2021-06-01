@@ -21,11 +21,11 @@ namespace PKHeX.Core
             if (pkm.WasEgg)
                 return GetSuggestedEncounterEgg(pkm, loc);
 
-            var w = EncounterSlotGenerator.GetCaptureLocation(pkm);
+            EncounterSlot? w = EncounterSlotGenerator.GetCaptureLocation(pkm);
             if (w != null)
                 return GetSuggestedEncounterWild(pkm, w, loc);
 
-            var s = EncounterStaticGenerator.GetStaticLocation(pkm);
+            EncounterStatic? s = EncounterStaticGenerator.GetStaticLocation(pkm);
             if (s != null)
                 return GetSuggestedEncounterStatic(pkm, s, loc);
 
@@ -35,7 +35,7 @@ namespace PKHeX.Core
         private static EncounterSuggestionData GetSuggestedEncounterEgg(PKM pkm, int loc = -1)
         {
             int lvl = GetSuggestedEncounterEggMetLevel(pkm);
-            var met = loc != -1 ? loc : GetSuggestedEggMetLocation(pkm);
+            int met = loc != -1 ? loc : GetSuggestedEggMetLocation(pkm);
             return new EncounterSuggestionData(pkm, met, lvl);
         }
 
@@ -63,13 +63,13 @@ namespace PKHeX.Core
 
         private static EncounterSuggestionData GetSuggestedEncounterWild(PKM pkm, EncounterSlot first, int loc = -1)
         {
-            var met = loc != -1 ? loc : first.Location;
+            int met = loc != -1 ? loc : first.Location;
             return new EncounterSuggestionData(pkm, first, met);
         }
 
         private static EncounterSuggestionData GetSuggestedEncounterStatic(PKM pkm, EncounterStatic s, int loc = -1)
         {
-            var met = loc != -1 ? loc : s.Location;
+            int met = loc != -1 ? loc : s.Location;
             return new EncounterSuggestionData(pkm, s, met);
         }
 
@@ -132,11 +132,11 @@ namespace PKHeX.Core
             if (startLevel == -1)
                 startLevel = 100;
 
-            var table = EvolutionTree.GetEvolutionTree(pkm, pkm.Format);
+            EvolutionTree? table = EvolutionTree.GetEvolutionTree(pkm, pkm.Format);
             int count = 1;
             for (int i = 100; i >= startLevel; i--)
             {
-                var evos = table.GetValidPreEvolutions(pkm, maxLevel: i, minLevel: startLevel, skipChecks: true);
+                List<EvoCriteria>? evos = table.GetValidPreEvolutions(pkm, maxLevel: i, minLevel: startLevel, skipChecks: true);
                 if (evos.Count < count) // lost an evolution, prior level was minimum current level
                     return evos.Max(evo => evo.Level) + 1;
                 count = evos.Count;
@@ -153,12 +153,12 @@ namespace PKHeX.Core
         /// <remarks>Brute-forces the value by cloning the <see cref="pkm"/> and adjusting the <see cref="PKM.Met_Level"/> and returning the lowest valid value.</remarks>
         public static int GetSuggestedMetLevel(PKM pkm, int minLevel)
         {
-            var clone = pkm.Clone();
+            PKM? clone = pkm.Clone();
             int minMove = -1;
             for (int i = clone.CurrentLevel; i >= minLevel; i--)
             {
                 clone.Met_Level = i;
-                var la = new LegalityAnalysis(clone);
+                LegalityAnalysis? la = new LegalityAnalysis(clone);
                 if (la.Valid)
                     return i;
                 if (la.Info.Moves.All(z => z.Valid))

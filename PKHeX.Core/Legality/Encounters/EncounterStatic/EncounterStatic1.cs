@@ -19,7 +19,7 @@
         {
             base.ApplyDetails(sav, criteria, pk);
 
-            var pk1 = (PK1) pk;
+            PK1? pk1 = (PK1) pk;
             if (Species == (int) Core.Species.Pikachu && Version == GameVersion.YW && Level == 5 && Moves.Count == 0)
             {
                 pk1.Catch_Rate = 0xA3; // Light Ball
@@ -27,7 +27,7 @@
             }
 
             // Encounters can have different Catch Rates (RBG vs Y)
-            var table = Version == GameVersion.Y ? PersonalTable.Y : PersonalTable.RB;
+            PersonalTable? table = Version == GameVersion.Y ? PersonalTable.Y : PersonalTable.RB;
             pk1.Catch_Rate = table[Species].CatchRate;
         }
 
@@ -52,7 +52,7 @@
 
         private bool IsCatchRateValid(PK1 pk1)
         {
-            var catch_rate = pk1.Catch_Rate;
+            int catch_rate = pk1.Catch_Rate;
             if (Species == (int)Core.Species.Pikachu)
             {
                 if (catch_rate == 190) // Red Blue Pikachu is not a static encounter
@@ -70,8 +70,8 @@
             }
 
             // Encounters can have different Catch Rates (RBG vs Y)
-            var table = Version == GameVersion.Y ? PersonalTable.Y : PersonalTable.RB;
-            var rate = table[Species].CatchRate;
+            PersonalTable? table = Version == GameVersion.Y ? PersonalTable.Y : PersonalTable.RB;
+            int rate = table[Species].CatchRate;
             return catch_rate == rate;
         }
     }

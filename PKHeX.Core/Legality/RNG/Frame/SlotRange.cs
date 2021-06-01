@@ -34,7 +34,7 @@ namespace PKHeX.Core
         /// </summary>
         private static int HSlot(SlotType type, uint rand)
         {
-            var ESV = rand % 100;
+            uint ESV = rand % 100;
             if ((type & SlotType.Swarm) != 0)
                 return ESV < 50 ? 0 : -1;
 
@@ -54,7 +54,7 @@ namespace PKHeX.Core
         /// </summary>
         private static int KSlot(SlotType type, uint rand)
         {
-            var ESV = rand % 100;
+            uint ESV = rand % 100;
             return type switch
             {
                 SlotType.Rock_Smash or SlotType.Surf => CalcSlot(ESV, H_Surf),
@@ -94,8 +94,8 @@ namespace PKHeX.Core
 
         private static Range[] GetRanges(params uint[] rates)
         {
-            var len = rates.Length;
-            var arr = new Range[len];
+            int len = rates.Length;
+            Range[]? arr = new Range[len];
             uint sum = 0;
             for (int i = 0; i < len; ++i)
                 arr[i] = new Range(sum, (sum += rates[i]) - 1);
@@ -120,7 +120,7 @@ namespace PKHeX.Core
             if (slot.LevelMin == slot.LevelMax)
                 return slot.LevelMin;
             int delta = slot.LevelMax - slot.LevelMin + 1;
-            var adjust = (int)(lvlrand % delta);
+            int adjust = (int)(lvlrand % delta);
 
             return slot.LevelMin + adjust;
         }
@@ -139,7 +139,7 @@ namespace PKHeX.Core
         public static bool GetCanEncounter(EncounterSlot slot, FrameType frameType, int rand, LeadRequired lead)
         {
             int proc = frameType == FrameType.MethodJ ? rand / 656 : rand % 100;
-            var stype = slot.Area.Type;
+            SlotType stype = slot.Area.Type;
             if (stype == SlotType.Rock_Smash)
                 return proc < 60;
             if (frameType == FrameType.MethodH)
@@ -177,13 +177,13 @@ namespace PKHeX.Core
         {
             if (slot.StaticCount > 0 && slot.StaticIndex >= 0)
             {
-                var index = ESV % slot.StaticCount;
+                long index = ESV % slot.StaticCount;
                 if (index == slot.StaticIndex)
                     return slot.SlotNumber;
             }
             if (slot.MagnetPullCount > 0 && slot.MagnetPullIndex >= 0)
             {
-                var index = ESV % slot.MagnetPullCount;
+                long index = ESV % slot.MagnetPullCount;
                 if (index == slot.MagnetPullIndex)
                     return slot.SlotNumber;
             }

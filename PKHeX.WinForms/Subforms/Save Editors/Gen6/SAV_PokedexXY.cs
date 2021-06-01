@@ -132,7 +132,7 @@ namespace PKHeX.WinForms
                 CHK_F1.Enabled = CHK_F1.Checked = false;
             }
 
-            var pi = SAV.Personal[pk];
+            PersonalInfo? pi = SAV.Personal[pk];
 
             CHK_P2.Enabled = CHK_P4.Enabled = CHK_P6.Enabled = CHK_P8.Enabled = !pi.OnlyFemale;
             CHK_P3.Enabled = CHK_P5.Enabled = CHK_P7.Enabled = CHK_P9.Enabled = !(pi.OnlyMale || pi.Genderless);
@@ -182,13 +182,13 @@ namespace PKHeX.WinForms
             if (f < 0)
                 return;
 
-            var seen = CLB_FormsSeen;
+            CheckedListBox? seen = CLB_FormsSeen;
             for (int i = 0; i < seen.Items.Count / 2; i++) // Seen
                 Zukan.SetFormFlag(f + i, 0, seen.GetItemChecked(i));
             for (int i = 0; i < seen.Items.Count / 2; i++)  // Seen Shiny
                 Zukan.SetFormFlag(f + i, 1, seen.GetItemChecked(i + (seen.Items.Count / 2)));
 
-            var display = CLB_FormDisplayed;
+            CheckedListBox? display = CLB_FormDisplayed;
             for (int i = 0; i < display.Items.Count / 2; i++) // Displayed
                 Zukan.SetFormFlag(f + i, 2, display.GetItemChecked(i));
             for (int i = 0; i < display.Items.Count / 2; i++)  // Displayed Shiny
@@ -236,7 +236,7 @@ namespace PKHeX.WinForms
 
             if (ModifierKeys == Keys.Control)
             {
-                foreach (var chk in new[] { CHK_P6, CHK_P7, CHK_P8, CHK_P9 })
+                foreach (CheckBox? chk in new[] { CHK_P6, CHK_P7, CHK_P8, CHK_P9 })
                     chk.Checked = false;
             }
             else if (!(CHK_P6.Checked || CHK_P7.Checked || CHK_P8.Checked || CHK_P9.Checked))

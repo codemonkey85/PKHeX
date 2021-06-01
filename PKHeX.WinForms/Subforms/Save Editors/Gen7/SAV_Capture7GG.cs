@@ -31,11 +31,11 @@ namespace PKHeX.WinForms
             CB_Species.Items.Clear();
 
             // Fill List
-            var list = GetLegalSpecies().ToArray();
-            var species = GameInfo.SpeciesDataSource.Where(z => list.Contains(z.Value)).ToList();
+            int[]? list = GetLegalSpecies().ToArray();
+            List<ComboItem>? species = GameInfo.SpeciesDataSource.Where(z => list.Contains(z.Value)).ToList();
             CB_Species.InitializeBinding();
             CB_Species.DataSource = new BindingSource(species, null);
-            foreach (var (text, value) in species.OrderBy(z => z.Value))
+            foreach ((string text, int value) in species.OrderBy(z => z.Value))
                 LB_Species.Items.Add($"{value:000}: {text}");
 
             GetTotals();
@@ -47,7 +47,7 @@ namespace PKHeX.WinForms
 
         private static IEnumerable<int> GetLegalSpecies()
         {
-            foreach (var z in Enumerable.Range(1, 151))
+            foreach (int z in Enumerable.Range(1, 151))
                 yield return z;
             yield return 808;
             yield return 809;
@@ -82,7 +82,7 @@ namespace PKHeX.WinForms
 
         private void GetEntry()
         {
-            var index = Index;
+            int index = Index;
             if (index < 0)
                 return;
             NUD_SpeciesCaptured.Value = Captured.GetCapturedCountIndex(index);
@@ -91,7 +91,7 @@ namespace PKHeX.WinForms
 
         private void SetEntry()
         {
-            var index = Index;
+            int index = Index;
             if (index < 0)
                 return;
             Captured.SetCapturedCountIndex(index, (uint)NUD_SpeciesCaptured.Value);

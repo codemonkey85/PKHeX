@@ -16,7 +16,7 @@ namespace PKHeX.Core
 
         public static EggSource34[] Validate(int species, GameVersion version, int[] moves, out bool valid)
         {
-            var count = Array.IndexOf(moves, 0);
+            int count = Array.IndexOf(moves, 0);
             if (count == 0)
             {
                 valid = false; // empty moveset
@@ -25,13 +25,13 @@ namespace PKHeX.Core
             if (count == -1)
                 count = moves.Length;
 
-            var learn = GameData.GetLearnsets(version);
-            var table = GameData.GetPersonal(version);
-            var learnset = learn[species];
-            var pi = table[species];
-            var egg = (version is HG or SS ? Legal.EggMovesHGSS : Legal.EggMovesDPPt)[species].Moves;
+            Learnset[]? learn = GameData.GetLearnsets(version);
+            PersonalTable? table = GameData.GetPersonal(version);
+            Learnset? learnset = learn[species];
+            PersonalInfo? pi = table[species];
+            int[]? egg = (version is HG or SS ? Legal.EggMovesHGSS : Legal.EggMovesDPPt)[species].Moves;
 
-            var value = new BreedInfo<EggSource34>(count, learnset, moves, level);
+            BreedInfo<EggSource34> value = new BreedInfo<EggSource34>(count, learnset, moves, level);
             if (moves[count - 1] is (int)Move.VoltTackle)
                 value.Actual[--count] = VoltTackle;
 
@@ -57,7 +57,7 @@ namespace PKHeX.Core
             {
                 if (valueActual[i] != 0)
                     continue;
-                var poss = valuePossible[i];
+                byte poss = valuePossible[i];
                 if (poss == 0)
                     continue;
 
@@ -76,11 +76,11 @@ namespace PKHeX.Core
             int i = start;
             do
             {
-                var unpeel = type - 1;
+                EggSource34 unpeel = type - 1;
                 if (unpeel != 0 && RecurseMovesForOrigin(info, i, unpeel))
                     return true;
 
-                var permit = info.Possible[i];
+                byte permit = info.Possible[i];
                 if ((permit & (1 << (int)type)) == 0)
                     return false;
 
@@ -93,8 +93,8 @@ namespace PKHeX.Core
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private static bool VerifyBaseMoves(in BreedInfo<EggSource34> info)
         {
-            var count = 0;
-            foreach (var x in info.Actual)
+            int count = 0;
+            foreach (EggSource34 x in info.Actual)
             {
                 if (x == Base)
                     count++;
@@ -102,11 +102,11 @@ namespace PKHeX.Core
                     break;
             }
 
-            var moves = info.Moves;
+            int[]? moves = info.Moves;
             if (count == -1)
                 return moves[^1] != 0;
 
-            var baseMoves = info.Learnset.GetBaseEggMoves(info.Level);
+            ReadOnlySpan<int> baseMoves = info.Learnset.GetBaseEggMoves(info.Level);
             if (baseMoves.Length < count)
                 return false;
             if (moves[^1] == 0 && count != baseMoves.Length)
@@ -114,8 +114,8 @@ namespace PKHeX.Core
 
             for (int i = count - 1, b = baseMoves.Length - 1; i >= 0; i--, b--)
             {
-                var move = moves[i];
-                var expect = baseMoves[b];
+                int move = moves[i];
+                int expect = baseMoves[b];
                 if (expect != move)
                     return false;
             }
@@ -126,12 +126,12 @@ namespace PKHeX.Core
 
             for (int i = count; i < info.Actual.Length; i++)
             {
-                var isBase = (info.Possible[i] & (1 << (int)Base)) != 0;
+                bool isBase = (info.Possible[i] & (1 << (int)Base)) != 0;
                 if (!isBase)
                     continue;
 
-                var baseIndex = baseMoves.IndexOf(moves[i]);
-                var min = moves.Length - baseMoves.Length + baseIndex;
+                int baseIndex = baseMoves.IndexOf(moves[i]);
+                int min = moves.Length - baseMoves.Length + baseIndex;
                 if (i <= min + count)
                     return false;
             }
@@ -141,16 +141,16 @@ namespace PKHeX.Core
 
         private static void MarkMovesForOrigin(in BreedInfo<EggSource34> value, ICollection<int> eggMoves, int count, bool inheritLevelUp, PersonalInfo info)
         {
-            var possible = value.Possible;
-            var learn = value.Learnset;
-            var baseEgg = value.Learnset.GetBaseEggMoves(value.Level);
-            var tm = info.TMHM;
-            var tmlist = Legal.TM_4.AsSpan(0, 92);
+            byte[]? possible = value.Possible;
+            Learnset? learn = value.Learnset;
+            ReadOnlySpan<int> baseEgg = value.Learnset.GetBaseEggMoves(value.Level);
+            bool[]? tm = info.TMHM;
+            Span<int> tmlist = Legal.TM_4.AsSpan(0, 92);
 
-            var moves = value.Moves;
+            int[]? moves = value.Moves;
             for (int i = 0; i < count; i++)
             {
-                var move = moves[i];
+                int move = moves[i];
 
                 if (baseEgg.IndexOf(move) != -1)
                     possible[i] |= 1 << (int)Base;
@@ -161,7 +161,7 @@ namespace PKHeX.Core
                 if (eggMoves.Contains(move))
                     possible[i] |= 1 << (int)FatherEgg;
 
-                var tmIndex = tmlist.IndexOf(move);
+                int tmIndex = tmlist.IndexOf(move);
                 if (tmIndex != -1 && tm[tmIndex])
                     possible[i] |= 1 << (int)FatherTM;
             }

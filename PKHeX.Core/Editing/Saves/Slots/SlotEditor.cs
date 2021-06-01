@@ -26,7 +26,7 @@
         public PKM Get(ISlotInfo slot)
         {
             // Reading from a slot is always allowed.
-            var pk = slot.Read(SAV);
+            PKM? pk = slot.Read(SAV);
             NotifySlotChanged(slot, SlotTouchType.Get, pk);
             return pk;
         }
@@ -58,7 +58,7 @@
             if (!slot.CanWriteTo(SAV))
                 return SlotTouchResult.FailDelete;
 
-            var pk = DeleteSlot(slot);
+            PKM? pk = DeleteSlot(slot);
             NotifySlotChanged(slot, SlotTouchType.Delete, pk);
 
             return SlotTouchResult.Success;
@@ -86,14 +86,14 @@
         private void WriteSlot(ISlotInfo slot, PKM pkm, SlotTouchType type = SlotTouchType.Set)
         {
             Changelog.AddNewChange(slot);
-            var result = slot.WriteTo(SAV, pkm);
+            bool result = slot.WriteTo(SAV, pkm);
             if (result)
                 NotifySlotChanged(slot, type, pkm);
         }
 
         private PKM DeleteSlot(ISlotInfo slot)
         {
-            var pkm = SAV.BlankPKM;
+            PKM? pkm = SAV.BlankPKM;
             WriteSlot(slot, pkm, SlotTouchType.Delete);
             return pkm;
         }
@@ -102,7 +102,7 @@
         {
             if (!Changelog.CanUndo)
                 return;
-            var slot = Changelog.Undo();
+            ISlotInfo? slot = Changelog.Undo();
             NotifySlotChanged(slot, SlotTouchType.Set, slot.Read(SAV));
         }
 
@@ -110,7 +110,7 @@
         {
             if (!Changelog.CanRedo)
                 return;
-            var slot = Changelog.Redo();
+            ISlotInfo? slot = Changelog.Redo();
             NotifySlotChanged(slot, SlotTouchType.Set, slot.Read(SAV));
         }
     }

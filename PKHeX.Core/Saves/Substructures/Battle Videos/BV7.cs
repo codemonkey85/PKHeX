@@ -24,7 +24,7 @@ namespace PKHeX.Core
         {
             get
             {
-                var Teams = new PKM[PlayerCount][];
+                PKM[][]? Teams = new PKM[PlayerCount][];
                 for (int t = 0; t < PlayerCount; t++)
                     Teams[t] = GetTeam(t);
                 return Teams;
@@ -38,8 +38,8 @@ namespace PKHeX.Core
 
         public PKM[] GetTeam(int teamIndex)
         {
-            var team = new PKM[6];
-            var ofs = offsets[teamIndex];
+            PKM[]? team = new PKM[6];
+            int ofs = offsets[teamIndex];
             for (int p = 0; p < 6; p++)
             {
                 int offset = ofs + (PokeCrypto.SIZE_6PARTY * p);
@@ -51,7 +51,7 @@ namespace PKHeX.Core
 
         public void SetTeam(IReadOnlyList<PKM> team, int teamIndex)
         {
-            var ofs = offsets[teamIndex];
+            int ofs = offsets[teamIndex];
             for (int p = 0; p < 6; p++)
             {
                 int offset = ofs + (PokeCrypto.SIZE_6PARTY * p);
@@ -64,7 +64,7 @@ namespace PKHeX.Core
             string[] trainers = new string[PlayerCount];
             for (int i = 0; i < PlayerCount; i++)
             {
-                var str = StringConverter.GetString7(Data, 0x12C + (0x1A * i), 0x1A);
+                string? str = StringConverter.GetString7(Data, 0x12C + (0x1A * i), 0x1A);
                 trainers[i] = string.IsNullOrWhiteSpace(trainers[i]) ? NPC : str;
             }
             return trainers;

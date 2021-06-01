@@ -73,30 +73,30 @@ namespace PKHeX.Core
 
         protected override bool GetIsBoxChecksumValid(int i)
         {
-            var boxOfs = GetBoxOffset(i) - ListHeaderSize;
-            var size = BoxSize - 2;
-            var chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
-            var actual = BigEndian.ToUInt16(Data, boxOfs + size);
+            int boxOfs = GetBoxOffset(i) - ListHeaderSize;
+            int size = BoxSize - 2;
+            ushort chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
+            ushort actual = BigEndian.ToUInt16(Data, boxOfs + size);
             return chk == actual;
         }
 
         protected override void SetBoxChecksum(int i)
         {
-            var boxOfs = GetBoxOffset(i) - ListHeaderSize;
-            var size = BoxSize - 2;
-            var chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
+            int boxOfs = GetBoxOffset(i) - ListHeaderSize;
+            int size = BoxSize - 2;
+            ushort chk = Checksums.CheckSum16(new ReadOnlySpan<byte>(Data, boxOfs, size));
             BigEndian.GetBytes(chk).CopyTo(Data, boxOfs + size);
         }
 
         protected override void SetBoxMetadata(int i)
         {
-            var bdata = GetBoxOffset(i);
+            int bdata = GetBoxOffset(i);
 
             // Set box count
             int count = 0;
             for (int s = 0; s < BoxSlotCount; s++)
             {
-                var rel = bdata + (SIZE_STORED * s);
+                int rel = bdata + (SIZE_STORED * s);
                 if (Data[rel] != 0) // Species present
                     count++;
             }
@@ -108,8 +108,8 @@ namespace PKHeX.Core
         protected override PKM GetPKM(byte[] data)
         {
             int len = StringLength;
-            var nick = data.Slice(PokeCrypto.SIZE_1STORED, len);
-            var ot = data.Slice(PokeCrypto.SIZE_1STORED + len, len);
+            byte[]? nick = data.Slice(PokeCrypto.SIZE_1STORED, len);
+            byte[]? ot = data.Slice(PokeCrypto.SIZE_1STORED + len, len);
             data = data.Slice(0, PokeCrypto.SIZE_1STORED);
             return new PK1(data, Japanese) { OT_Trash = ot, Nickname_Trash = nick };
         }
@@ -117,9 +117,9 @@ namespace PKHeX.Core
         public override byte[] GetDataForFormatStored(PKM pkm)
         {
             byte[] result = new byte[SIZE_STORED];
-            var gb = (PK1)pkm;
+            PK1? gb = (PK1)pkm;
 
-            var data = pkm.Data;
+            byte[]? data = pkm.Data;
             int len = StringLength;
             data.CopyTo(result, 0);
             gb.RawNickname.CopyTo(result, PokeCrypto.SIZE_1STORED);
@@ -191,18 +191,18 @@ namespace PKHeX.Core
             if ((uint)team >= TeamCount)
                 throw new ArgumentOutOfRangeException(nameof(team));
 
-            var teamsPerType = Japanese ? TeamCountJ : TeamCountU;
-            var type = team / teamsPerType;
-            var index = team % teamsPerType;
-            var name = $"{GetTeamTypeName(type).Replace('_', ' ')} {index + 1}";
+            int teamsPerType = Japanese ? TeamCountJ : TeamCountU;
+            int type = team / teamsPerType;
+            int index = team % teamsPerType;
+            string? name = $"{GetTeamTypeName(type).Replace('_', ' ')} {index + 1}";
 
-            var ofs = GetTeamOffset(team);
-            var otOfs = ofs + (Japanese ? 2 : 1);
-            var str = GetString(otOfs, Japanese ? 5 : 7);
+            int ofs = GetTeamOffset(team);
+            int otOfs = ofs + (Japanese ? 2 : 1);
+            string? str = GetString(otOfs, Japanese ? 5 : 7);
             if (string.IsNullOrWhiteSpace(str))
                 return name;
-            var idOfs = ofs + (Japanese ? 0x8 : 0xC);
-            var id = BigEndian.ToUInt16(Data, idOfs);
+            int idOfs = ofs + (Japanese ? 0x8 : 0xC);
+            ushort id = BigEndian.ToUInt16(Data, idOfs);
             return $"{name} [{id:D5}:{str}]";
         }
 
@@ -221,12 +221,12 @@ namespace PKHeX.Core
 
         public override SlotGroup[] GetRegisteredTeams()
         {
-            var result = base.GetRegisteredTeams();
+            SlotGroup[]? result = base.GetRegisteredTeams();
             if (Japanese)
                 return result;
 
             // Trim out the teams that aren't accessible
-            var noUnused = new SlotGroup[result.Length - (2 * TeamCountU)];
+            SlotGroup[]? noUnused = new SlotGroup[result.Length - (2 * TeamCountU)];
             Array.Copy(result, 0, noUnused, 0, TeamCountU);
             Array.Copy(result, 3 * TeamCountU, noUnused, TeamCountU, noUnused.Length - TeamCountU);
             return noUnused;
@@ -237,12 +237,12 @@ namespace PKHeX.Core
             if ((uint)team >= TeamCount)
                 throw new ArgumentOutOfRangeException(nameof(team));
 
-            var name = GetTeamName(team);
-            var members = new PK1[6];
-            var ofs = GetTeamOffset(team);
+            string? name = GetTeamName(team);
+            PK1[]? members = new PK1[6];
+            int ofs = GetTeamOffset(team);
             for (int i = 0; i < 6; i++)
             {
-                var rel = ofs + ListHeaderSize + (i * SIZE_STORED);
+                int rel = ofs + ListHeaderSize + (i * SIZE_STORED);
                 members[i] = (PK1)GetStoredSlot(Data, rel);
             }
             return new SlotGroup(name, members);

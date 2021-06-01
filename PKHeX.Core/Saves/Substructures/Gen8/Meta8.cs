@@ -8,7 +8,7 @@ namespace PKHeX.Core
 
         private static SCBlock[] GetBlankBlockArray(IReadOnlyList<uint> arr)
         {
-            var blocks = new SCBlock[arr.Count / 2];
+            SCBlock[]? blocks = new SCBlock[arr.Count / 2];
             for (int i = 0; i < blocks.Length; i++)
             {
                 int index = i * 2;
@@ -22,7 +22,7 @@ namespace PKHeX.Core
         public static IEnumerable<string> RipSizes(IReadOnlyCollection<SCBlock> blocks)
         {
             int ctr = 0;
-            foreach (var block in blocks)
+            foreach (SCBlock? block in blocks)
             {
                 if (block.Data.Length == 0)
                     continue;

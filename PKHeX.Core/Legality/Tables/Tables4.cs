@@ -277,7 +277,7 @@ namespace PKHeX.Core
 
         internal static int[] RemoveMovesHM45(int[] moves)
         {
-            var banned = GetFavorableHMBanlist(moves);
+            ICollection<int>? banned = GetFavorableHMBanlist(moves);
 
             for (int i = 0; i < 4; i++)
             {

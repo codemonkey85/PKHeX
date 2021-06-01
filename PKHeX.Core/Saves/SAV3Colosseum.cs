@@ -66,7 +66,7 @@ namespace PKHeX.Core
                     PartyCount++;
             }
 
-            var memo = new StrategyMemo(Data, Memo, xd: false);
+            StrategyMemo? memo = new StrategyMemo(Data, Memo, xd: false);
             return memo;
         }
 
@@ -99,7 +99,7 @@ namespace PKHeX.Core
 
         protected override byte[] GetFinalData()
         {
-            var newFile = GetInnerData();
+            byte[]? newFile = GetInnerData();
 
             // Return the gci if Memory Card is not being exported
             if (!IsMemoryCardSave)
@@ -127,8 +127,8 @@ namespace PKHeX.Core
         // Configuration
         protected override SaveFile CloneInternal()
         {
-            var data = GetInnerData();
-            var sav = IsMemoryCardSave ? new SAV3Colosseum(data, MC!) : new SAV3Colosseum(data);
+            byte[]? data = GetInnerData();
+            SAV3Colosseum? sav = IsMemoryCardSave ? new SAV3Colosseum(data, MC!) : new SAV3Colosseum(data);
             return sav;
         }
 
@@ -166,7 +166,7 @@ namespace PKHeX.Core
             for (int i = 0; i < 20; i++)
                 k[i] = (byte)~k[i];
 
-            using var sha1 = SHA1.Create();
+            using SHA1? sha1 = SHA1.Create();
             for (int i = 0x18; i < 0x1DFD8; i += 20)
             {
                 for (int j = 0; j < 20; j++)
@@ -188,7 +188,7 @@ namespace PKHeX.Core
             for (int i = 0; i < 20; i++)
                 k[i] = (byte)~k[i];
 
-            using var sha1 = SHA1.Create();
+            using SHA1? sha1 = SHA1.Create();
             for (int i = 0x18; i < 0x1DFD8; i += 20)
             {
                 byte[] key = sha1.ComputeHash(d, i, 20); // update digest
@@ -204,7 +204,7 @@ namespace PKHeX.Core
             // Clear Header Checksum
             BitConverter.GetBytes(0).CopyTo(Data, 12);
             // Compute checksum of data
-            using var sha1 = SHA1.Create();
+            using SHA1? sha1 = SHA1.Create();
             byte[] checksum = sha1.ComputeHash(Data, 0, 0x1DFD8);
             // Set Checksum to end
             Array.Copy(checksum, 0, Data, Data.Length - 20, 20);
@@ -238,7 +238,7 @@ namespace PKHeX.Core
                 int oldHC = BigEndian.ToInt32(data, 12);
                 // Clear Header Checksum
                 BitConverter.GetBytes(0).CopyTo(data, 12);
-                using var sha1 = SHA1.Create();
+                using SHA1? sha1 = SHA1.Create();
                 byte[] checksum = sha1.ComputeHash(data, 0, 0x1DFD8);
                 // Header Integrity
                 byte[] H = new byte[8];
@@ -316,7 +316,7 @@ namespace PKHeX.Core
         protected override void SetDex(PKM pkm)
         {
             // Dex Related
-            var entry = StrategyMemo.GetEntry(pkm.Species);
+            StrategyMemoEntry? entry = StrategyMemo.GetEntry(pkm.Species);
             if (entry.IsEmpty) // Populate
             {
                 entry.Species = pkm.Species;
@@ -341,19 +341,19 @@ namespace PKHeX.Core
         public override int PlayedHours
         {
             get => (ushort)PlayedSpan.Hours;
-            set { var time = PlayedSpan; PlayedSpan = time - TimeSpan.FromHours(time.Hours) + TimeSpan.FromHours(value); }
+            set { TimeSpan time = PlayedSpan; PlayedSpan = time - TimeSpan.FromHours(time.Hours) + TimeSpan.FromHours(value); }
         }
 
         public override int PlayedMinutes
         {
             get => (byte)PlayedSpan.Minutes;
-            set { var time = PlayedSpan; PlayedSpan = time - TimeSpan.FromMinutes(time.Minutes) + TimeSpan.FromMinutes(value); }
+            set { TimeSpan time = PlayedSpan; PlayedSpan = time - TimeSpan.FromMinutes(time.Minutes) + TimeSpan.FromMinutes(value); }
         }
 
         public override int PlayedSeconds
         {
             get => (byte)PlayedSpan.Seconds;
-            set { var time = PlayedSpan; PlayedSpan = time - TimeSpan.FromSeconds(time.Seconds) + TimeSpan.FromSeconds(value); }
+            set { TimeSpan time = PlayedSpan; PlayedSpan = time - TimeSpan.FromSeconds(time.Seconds) + TimeSpan.FromSeconds(value); }
         }
 
         // Trainer Info (offset 0x78, length 0xB18, end @ 0xB90)

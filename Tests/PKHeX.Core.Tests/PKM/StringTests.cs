@@ -17,8 +17,8 @@ namespace PKHeX.Tests.PKM
         public void EncodesOTNameCorrectly()
         {
             const string name_fabian = "Fabian♂";
-            var pkm = new PK7 { OT_Name = name_fabian };
-            var byte_fabian = new byte[]
+            PK7? pkm = new PK7 { OT_Name = name_fabian };
+            byte[]? byte_fabian = new byte[]
             {
                 0x46, 0x00, // F
                 0x61, 0x00, // a
@@ -36,8 +36,8 @@ namespace PKHeX.Tests.PKM
         public void EncodesNicknameCorrectly()
         {
             const string name_nidoran = "ニドラン♀";
-            var pkm = new PK7 { Nickname = name_nidoran };
-            var byte_nidoran = new byte[]
+            PK7? pkm = new PK7 { Nickname = name_nidoran };
+            byte[]? byte_nidoran = new byte[]
             {
                 0xCB, 0x30, // ニ
                 0xC9, 0x30, // ド

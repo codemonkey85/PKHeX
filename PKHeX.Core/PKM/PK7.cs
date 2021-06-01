@@ -505,7 +505,7 @@ namespace PKHeX.Core
 
         public PK8 ConvertToPK8()
         {
-            var pk8 = new PK8
+            PK8? pk8 = new PK8
             {
                 EncryptionConstant = EncryptionConstant,
                 Species = Species,

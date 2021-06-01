@@ -6,7 +6,7 @@ namespace PKHeX.Core
 {
     public static class EncountersHOME
     {
-        public static bool IsValidDateWC8(int species, DateTime obtained) => WC8Gifts.TryGetValue(species, out var time) && obtained >= time && obtained <= DateTime.UtcNow;
+        public static bool IsValidDateWC8(int species, DateTime obtained) => WC8Gifts.TryGetValue(species, out DateTime time) && obtained >= time && obtained <= DateTime.UtcNow;
 
         /// <summary>
         /// Minimum date the gift can be received.

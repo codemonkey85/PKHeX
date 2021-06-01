@@ -77,11 +77,11 @@ namespace PKHeX.Core
         private void GetChecksum(int block, int offset, int length, out ushort csum, out ushort inv_csum)
         {
             csum = inv_csum = 0;
-            var ofs = (block * BLOCK_SIZE) + offset;
+            int ofs = (block * BLOCK_SIZE) + offset;
 
             for (int i = 0; i < length; i++)
             {
-                var val = BigEndian.ToUInt16(Data, ofs + (i * 2));
+                ushort val = BigEndian.ToUInt16(Data, ofs + (i * 2));
                 csum += val;
                 inv_csum += (ushort)~val;
             }
@@ -167,7 +167,7 @@ namespace PKHeX.Core
 
         private bool IsCorruptedMemoryCard()
         {
-            var csums = VerifyChecksums();
+            GCChecksumFlag csums = VerifyChecksums();
 
             if ((csums & GCChecksumFlag.HeaderBad) != 0)
                 return true;
@@ -232,8 +232,8 @@ namespace PKHeX.Core
                 if (FirstBlock + BlockCount > NumBlocks)
                     continue;
 
-                var gameCode = EncodingType.GetString(Data, offset, 4);
-                var ver = SaveHandlerGCI.GetGameCode(gameCode);
+                string? gameCode = EncodingType.GetString(Data, offset, 4);
+                GameVersion ver = SaveHandlerGCI.GetGameCode(gameCode);
                 if (ver == GameVersion.COLO)
                 {
                     if (HasCOLO) // another entry already exists

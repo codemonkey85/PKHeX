@@ -14,7 +14,7 @@ namespace PKHeX.Core
 
         public static EncounterArea4[] GetAreas(byte[][] input, GameVersion game)
         {
-            var result = new EncounterArea4[input.Length];
+            EncounterArea4[]? result = new EncounterArea4[input.Length];
             for (int i = 0; i < input.Length; i++)
                 result[i] = new EncounterArea4(input[i], game);
             return result;
@@ -34,7 +34,7 @@ namespace PKHeX.Core
         {
             const int size = 10;
             int count = (data.Length - 6) / size;
-            var slots = new EncounterSlot4[count];
+            EncounterSlot4[]? slots = new EncounterSlot4[count];
             for (int i = 0; i < slots.Length; i++)
             {
                 int offset = 6 + (size * i);
@@ -66,9 +66,9 @@ namespace PKHeX.Core
 
         private IEnumerable<EncounterSlot> GetSlotsMatching(IReadOnlyList<EvoCriteria> chain, int lvl)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;
@@ -86,9 +86,9 @@ namespace PKHeX.Core
 
         private IEnumerable<EncounterSlot> GetSlotsFuzzy(IReadOnlyList<EvoCriteria> chain)
         {
-            foreach (var slot in Slots)
+            foreach (EncounterSlot? slot in Slots)
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (slot.Species != evo.Species)
                         continue;

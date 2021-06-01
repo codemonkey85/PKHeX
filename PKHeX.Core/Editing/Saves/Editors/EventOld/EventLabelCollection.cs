@@ -10,32 +10,32 @@ namespace PKHeX.Core
 
         public EventLabelCollection(string game, int maxFlag = int.MaxValue, int maxValue = int.MaxValue)
         {
-            var f = GameLanguage.GetStrings(game, GameInfo.CurrentLanguage, "flags");
-            var c = GameLanguage.GetStrings(game, GameInfo.CurrentLanguage, "const");
+            string[]? f = GameLanguage.GetStrings(game, GameInfo.CurrentLanguage, "flags");
+            string[]? c = GameLanguage.GetStrings(game, GameInfo.CurrentLanguage, "const");
             Flag = GetFlags(f, maxFlag);
             Work = GetValues(c, maxValue);
         }
 
         private static List<NamedEventValue> GetFlags(IReadOnlyCollection<string> strings, int maxValue)
         {
-            var result = new List<NamedEventValue>(strings.Count);
-            var processed = new HashSet<int>();
-            foreach (var s in strings)
+            List<NamedEventValue>? result = new List<NamedEventValue>(strings.Count);
+            HashSet<int>? processed = new HashSet<int>();
+            foreach (string? s in strings)
             {
-                var split = s.Split('\t');
+                string[]? split = s.Split('\t');
                 if (split.Length != 2)
                     continue;
 
-                var index = TryParseHexDec(split[0]);
+                int index = TryParseHexDec(split[0]);
                 if (index >= maxValue)
                     throw new ArgumentOutOfRangeException(nameof(index));
 
                 if (processed.Contains(index))
                     throw new ArgumentException("Already have an entry for this!", nameof(index));
 
-                var desc = split[1];
+                string? desc = split[1];
 
-                var item = new NamedEventValue(desc, index);
+                NamedEventValue? item = new NamedEventValue(desc, index);
                 result.Add(item);
                 processed.Add(index);
             }
@@ -48,24 +48,24 @@ namespace PKHeX.Core
 
         private static IReadOnlyList<NamedEventWork> GetValues(IReadOnlyCollection<string> strings, int maxValue)
         {
-            var result = new List<NamedEventWork>(strings.Count);
-            var processed = new HashSet<int>();
-            foreach (var s in strings)
+            List<NamedEventWork>? result = new List<NamedEventWork>(strings.Count);
+            HashSet<int>? processed = new HashSet<int>();
+            foreach (string? s in strings)
             {
-                var split = s.Split('\t');
+                string[]? split = s.Split('\t');
                 if (split.Length is not (2 or 3))
                     continue;
 
-                var index = TryParseHexDecConst(split[0]);
+                int index = TryParseHexDecConst(split[0]);
                 if (index >= maxValue)
                     throw new ArgumentOutOfRangeException(nameof(index));
 
                 if (processed.Contains(index))
                     throw new ArgumentException("Already have an entry for this!", nameof(index));
 
-                var desc = split[1];
-                var predefined = split.Length is 2 ? Empty : GetPredefinedArray(split[2]);
-                var item = new NamedEventWork(desc, index, predefined);
+                string? desc = split[1];
+                IReadOnlyList<NamedEventConst>? predefined = split.Length is 2 ? Empty : GetPredefinedArray(split[2]);
+                NamedEventWork? item = new NamedEventWork(desc, index, predefined);
                 result.Add(item);
                 processed.Add(index);
             }
@@ -75,13 +75,13 @@ namespace PKHeX.Core
 
         private static IReadOnlyList<NamedEventConst> GetPredefinedArray(string combined)
         {
-            var result = new List<NamedEventConst> {Custom};
-            var split = combined.Split(',');
-            foreach (var entry in split)
+            List<NamedEventConst>? result = new List<NamedEventConst> {Custom};
+            string[]? split = combined.Split(',');
+            foreach (string? entry in split)
             {
-                var subsplit = entry.Split(':');
-                var name = subsplit[1];
-                var value = Convert.ToUInt16(subsplit[0]);
+                string[]? subsplit = entry.Split(':');
+                string? name = subsplit[1];
+                ushort value = Convert.ToUInt16(subsplit[0]);
                 result.Add(new NamedEventConst(name, value));
             }
             return result;

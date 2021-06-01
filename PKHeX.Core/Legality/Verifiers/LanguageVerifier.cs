@@ -11,7 +11,7 @@ namespace PKHeX.Core
 
         public override void Verify(LegalityAnalysis data)
         {
-            var pkm = data.pkm;
+            PKM? pkm = data.pkm;
             int originalGeneration = data.Info.Generation;
             int currentLanguage = pkm.Language;
             int maxLanguageID = Legal.GetMaxLanguageID(originalGeneration);
@@ -28,8 +28,8 @@ namespace PKHeX.Core
             )
             {
                 bool kor = currentLanguage == (int)LanguageID.Korean;
-                var msgpkm = kor ? L_XKorean : L_XKoreanNon;
-                var msgsav = kor ? L_XKoreanNon : L_XKorean;
+                string? msgpkm = kor ? L_XKorean : L_XKoreanNon;
+                string? msgsav = kor ? L_XKoreanNon : L_XKorean;
                 data.AddLine(GetInvalid(string.Format(LTransferOriginFInvalid0_1, msgpkm, msgsav)));
                 return;
             }

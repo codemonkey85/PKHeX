@@ -36,8 +36,8 @@ namespace PKHeX.Core
             do
             {
                 int mid = (min + max) / 2;
-                var entry = arr[mid];
-                var ek = entry.Key;
+                SCBlock? entry = arr[mid];
+                uint ek = entry.Key;
                 if (key == ek)
                     return entry;
 

@@ -25,14 +25,14 @@ namespace PKHeX.Core
         {
             get
             {
-                var epoch = new DateTime(1970, 1, 1);
-                var date = epoch.AddSeconds(TimeStamp);
+                DateTime epoch = new DateTime(1970, 1, 1);
+                DateTime date = epoch.AddSeconds(TimeStamp);
                 return date;
             }
             set
             {
-                var epoch = new DateTime(1970, 1, 1);
-                var delta = value.Subtract(epoch);
+                DateTime epoch = new DateTime(1970, 1, 1);
+                TimeSpan delta = value.Subtract(epoch);
                 TimeStamp = (long)delta.TotalSeconds;
             }
         }

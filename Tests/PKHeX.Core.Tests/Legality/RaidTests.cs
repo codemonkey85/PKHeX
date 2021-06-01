@@ -13,12 +13,12 @@ namespace PKHeX.Core.Tests.Legality
         public void CheckMatch(string raw, ulong seed)
         {
             byte[] data = raw.ToByteArray();
-            var pk8 = new PK8(data);
+            PK8? pk8 = new PK8(data);
 
-            var la = new LegalityAnalysis(pk8);
-            var enc = la.EncounterMatch;
+            LegalityAnalysis? la = new LegalityAnalysis(pk8);
+            IEncounterable? enc = la.EncounterMatch;
 
-            var compare = enc switch
+            bool compare = enc switch
             {
                 EncounterStatic8N r => r.Verify(pk8, seed),
                 EncounterStatic8ND r => r.Verify(pk8, seed),

@@ -54,7 +54,7 @@ namespace PKHeX.Core
         protected override void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
             base.ApplyDetails(sav, criteria, pk);
-            var pk3 = (PK3) pk;
+            PK3? pk3 = (PK3) pk;
 
             // Italian LG Jynx untranslated from English name
             if (Species == (int)Core.Species.Jynx && pk3.Version == (int)GameVersion.LG && pk3.Language == (int)LanguageID.Italian)
@@ -68,7 +68,7 @@ namespace PKHeX.Core
 
         protected override void SetPINGA(PKM pk, EncounterCriteria criteria)
         {
-            var pi = pk.PersonalInfo;
+            PersonalInfo? pi = pk.PersonalInfo;
             int gender = criteria.GetGender(PKX.GetGenderFromPID(Species, PID), pi);
             int nature = (int)criteria.GetNature(Nature);
             int ability = criteria.GetAbilityFromNumber(Ability);

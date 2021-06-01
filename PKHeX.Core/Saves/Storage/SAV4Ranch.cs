@@ -61,7 +61,7 @@ namespace PKHeX.Core
              * uint32_t name4;
              */
 
-            var pkCountOffset = BigEndian.ToInt32(Data, 0x34) + 4;
+            int pkCountOffset = BigEndian.ToInt32(Data, 0x34) + 4;
             SlotCount = BigEndian.ToInt32(Data, pkCountOffset);
             BoxCount = (int)Math.Ceiling((decimal)SlotCount / SlotsPerBox);
 
@@ -77,12 +77,12 @@ namespace PKHeX.Core
         protected override void SetChecksums()
         {
             BigEndian.GetBytes(FinalCount).CopyTo(Data, FinalCountOffset); // ensure the final data is written if the user screws stuff up
-            var goodlen = (FinalCountOffset + 4);
+            int goodlen = (FinalCountOffset + 4);
             Array.Clear(Data, goodlen, Data.Length - goodlen);
 
             // 20 byte SHA checksum at the top of the file, which covers all data that follows.
-            using var hash = SHA1.Create();
-            var result = hash.ComputeHash(Data, 20, Data.Length - 20);
+            using SHA1? hash = SHA1.Create();
+            byte[]? result = hash.ComputeHash(Data, 20, Data.Length - 20);
             SetData(result, 0);
         }
 

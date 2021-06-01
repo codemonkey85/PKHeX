@@ -100,10 +100,10 @@ namespace PKHeX.WinForms.Controls
 
         private static SlotViewInfo<T> GetSlotInfo<T>(T pb) where T : Control
         {
-            var view = WinFormsUtil.FindFirstControlOfType<ISlotViewer<T>>(pb);
+            ISlotViewer<T>? view = WinFormsUtil.FindFirstControlOfType<ISlotViewer<T>>(pb);
             if (view == null)
                 throw new InvalidCastException("Unable to find View Parent");
-            var src = view.GetSlotData(pb);
+            ISlotInfo? src = view.GetSlotData(pb);
             return new SlotViewInfo<T>(src, view);
         }
 
@@ -118,7 +118,7 @@ namespace PKHeX.WinForms.Controls
             PictureBox pb = (PictureBox)sender;
             if (pb.Image == null)
                 return;
-            var src = GetSlotInfo(pb);
+            SlotViewInfo<PictureBox>? src = GetSlotInfo(pb);
             if (!src.CanWriteTo())
                 return;
             bool encrypt = Control.ModifierKeys == Keys.Control;
@@ -130,7 +130,7 @@ namespace PKHeX.WinForms.Controls
             if (sender == null)
                 return;
             PictureBox pb = (PictureBox)sender;
-            var info = GetSlotInfo(pb);
+            SlotViewInfo<PictureBox>? info = GetSlotInfo(pb);
             if (!info.CanWriteTo())
             {
                 SystemSounds.Asterisk.Play();
@@ -139,7 +139,7 @@ namespace PKHeX.WinForms.Controls
                 return;
             }
 
-            var mod = SlotUtil.GetDropModifier();
+            DropModifier mod = SlotUtil.GetDropModifier();
             Drag.Info.Destination = info;
             HandleDropPKM(pb, e, mod);
         }
@@ -182,11 +182,11 @@ namespace PKHeX.WinForms.Controls
         private string CreateDragDropPKM(PictureBox pb, bool encrypt, out bool external)
         {
             // Make File
-            var pk = Drag.Info.Source!.ReadCurrent();
+            PKM? pk = Drag.Info.Source!.ReadCurrent();
             string newfile = FileUtil.GetPKMTempFileName(pk, encrypt);
             try
             {
-                var data = encrypt ? pk.EncryptedPartyData : pk.DecryptedPartyData;
+                byte[]? data = encrypt ? pk.EncryptedPartyData : pk.DecryptedPartyData;
                 external = TryMakeDragDropPKM(pb, data, newfile);
             }
 #pragma warning disable CA1031 // Do not catch general exception types
@@ -204,7 +204,7 @@ namespace PKHeX.WinForms.Controls
         private bool TryMakeDragDropPKM(PictureBox pb, byte[] data, string newfile)
         {
             File.WriteAllBytes(newfile, data);
-            var img = (Bitmap)pb.Image;
+            Bitmap? img = (Bitmap)pb.Image;
             Drag.SetCursor(pb.FindForm(), new Cursor(img.GetHicon()));
             Hover.Stop();
             pb.Image = null;
@@ -212,8 +212,8 @@ namespace PKHeX.WinForms.Controls
 
             // Thread Blocks on DoDragDrop
             Drag.Info.CurrentPath = newfile;
-            var result = pb.DoDragDrop(new DataObject(DataFormats.FileDrop, new[] { newfile }), DragDropEffects.Move);
-            var external = Drag.Info.Destination == null || result != DragDropEffects.Link;
+            DragDropEffects result = pb.DoDragDrop(new DataObject(DataFormats.FileDrop, new[] { newfile }), DragDropEffects.Move);
+            bool external = Drag.Info.Destination == null || result != DragDropEffects.Link;
             if (external || Drag.Info.SameLocation) // not dropped to another box slot, restore img
             {
                 pb.Image = img;
@@ -233,7 +233,7 @@ namespace PKHeX.WinForms.Controls
 
         private void HandleDropPKM(PictureBox pb, DragEventArgs e, DropModifier mod)
         {
-            var files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
+            string[]? files = (string[]?)e.Data.GetData(DataFormats.FileDrop);
             if (files == null)
             {
                 Drag.Reset();
@@ -256,7 +256,7 @@ namespace PKHeX.WinForms.Controls
                 return;
             }
 
-            var dest = Drag.Info.Destination;
+            SlotViewInfo<PictureBox>? dest = Drag.Info.Destination;
 
             if (Drag.Info.Source == null) // external source
             {
@@ -283,16 +283,16 @@ namespace PKHeX.WinForms.Controls
             if (files.Count == 0)
                 return false;
 
-            var sav = Drag.Info.Destination!.View.SAV;
-            var path = files[0];
-            var temp = FileUtil.GetSingleFromPath(path, sav);
+            SaveFile? sav = Drag.Info.Destination!.View.SAV;
+            string? path = files[0];
+            PKM? temp = FileUtil.GetSingleFromPath(path, sav);
             if (temp == null)
             {
                 Drag.RequestDD(this, e); // pass thru
                 return true; // treat as handled
             }
 
-            var pk = PKMConverter.ConvertToType(temp, sav.PKMType, out string c);
+            PKM? pk = PKMConverter.ConvertToType(temp, sav.PKMType, out string c);
             if (pk == null)
             {
                 WinFormsUtil.Error(c);
@@ -311,7 +311,7 @@ namespace PKHeX.WinForms.Controls
                 return false;
             }
 
-            var errata = sav.IsPKMCompatible(pk);
+            IReadOnlyList<string>? errata = sav.IsPKMCompatible(pk);
             if (errata.Count > 0)
             {
                 string concat = string.Join(Environment.NewLine, errata);
@@ -330,8 +330,8 @@ namespace PKHeX.WinForms.Controls
 
         private bool TrySetPKMDestination(PictureBox pb, DropModifier mod)
         {
-            var pk = Drag.Info.Source!.ReadCurrent();
-            var msg = Drag.Info.Destination!.CanWriteTo(pk);
+            PKM? pk = Drag.Info.Source!.ReadCurrent();
+            WriteBlockedMessage msg = Drag.Info.Destination!.CanWriteTo(pk);
             if (msg != WriteBlockedMessage.None)
                 return false;
 
@@ -355,7 +355,7 @@ namespace PKHeX.WinForms.Controls
                 return true;
             }
 
-            var pk = Drag.Info.Destination.ReadCurrent();
+            PKM? pk = Drag.Info.Destination.ReadCurrent();
             Env.Slots.Set(Drag.Info.Source!.Slot, pk);
             return true;
         }
@@ -379,9 +379,9 @@ namespace PKHeX.WinForms.Controls
 
         private void UpdateBoxViewAtBoxIndexes(params int[] boxIndexes)
         {
-            foreach (var box in Boxes)
+            foreach (BoxEditor? box in Boxes)
             {
-                var current = box.CurrentBox;
+                int current = box.CurrentBox;
                 if (!boxIndexes.Contains(current))
                     continue;
                 box.ResetSlots();

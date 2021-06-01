@@ -21,7 +21,7 @@ namespace PKHeX.Core
             int b2s = b2 * slotsPerBox;
             int b2e = b2s + slotsPerBox;
             int b21 = b2 > b1 ? -diff : diff;
-            foreach (var list in ptrset)
+            foreach (IList<int>? list in ptrset)
             {
                 for (int s = 0; s < list.Count; s++)
                 {
@@ -35,15 +35,15 @@ namespace PKHeX.Core
 
         public static void UpdateRepointFrom(IList<PKM> result, IList<PKM> bd, int start, params IList<int>[] slotPointers)
         {
-            foreach (var p in slotPointers)
+            foreach (IList<int>? p in slotPointers)
             {
                 for (int i = 0; i < p.Count; i++)
                 {
-                    var index = p[i];
+                    int index = p[i];
                     if ((uint)index >= bd.Count)
                         continue;
-                    var pk = bd[index];
-                    var newIndex = result.IndexOf(pk);
+                    PKM? pk = bd[index];
+                    int newIndex = result.IndexOf(pk);
                     if (newIndex < 0)
                         continue;
 
@@ -56,7 +56,7 @@ namespace PKHeX.Core
 
         public static void UpdateRepointFrom(int newIndex, int oldIndex, params IList<int>[] slotPointers)
         {
-            foreach (var p in slotPointers)
+            foreach (IList<int>? p in slotPointers)
             {
                 for (int s = 0; s < p.Count; s++)
                 {
@@ -86,7 +86,7 @@ namespace PKHeX.Core
                 cShift = slotsPerBox;
                 bShift = -(bStart - cStart);
             }
-            foreach (var list in ptrset)
+            foreach (IList<int>? list in ptrset)
             {
                 for (int s = 0; s < list.Count; s++)
                 {

@@ -19,7 +19,7 @@ namespace PKHeX.Core
         public override int GetHashCode()
         {
             int hash = 17;
-            foreach (var b in Data)
+            foreach (byte b in Data)
                 hash = (hash * 31) + b;
             return hash;
         }
@@ -30,7 +30,7 @@ namespace PKHeX.Core
         public override MysteryGift Clone()
         {
             byte[] data = (byte[])Data.Clone();
-            var result = GetMysteryGift(data);
+            DataMysteryGift? result = GetMysteryGift(data);
             if (result == null)
                 throw new ArgumentException(nameof(MysteryGift));
             return result;

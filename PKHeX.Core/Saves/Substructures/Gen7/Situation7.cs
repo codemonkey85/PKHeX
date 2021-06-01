@@ -16,7 +16,7 @@ namespace PKHeX.Core
 
         public void UpdateOverworldCoordinates()
         {
-            var o = ((SAV7)SAV).Overworld;
+            FieldMoveModelSave7? o = ((SAV7)SAV).Overworld;
             o.M = M;
             o.X = X;
             o.Z = Z;

@@ -80,7 +80,7 @@ namespace PKHeX.Core
         protected override void ApplyDetails(ITrainerInfo sav, EncounterCriteria criteria, PKM pk)
         {
             base.ApplyDetails(sav, criteria, pk);
-            var pk2 = (PK2)pk;
+            PK2? pk2 = (PK2)pk;
             if (Shiny == Shiny.Always)
                 pk2.SetShiny();
         }
@@ -89,7 +89,7 @@ namespace PKHeX.Core
         {
             if (Version != GameVersion.C && pk.OT_Gender != 1)
                 return;
-            var pk2 = (PK2)pk;
+            PK2? pk2 = (PK2)pk;
             pk2.Met_Location = Location;
             pk2.Met_Level = level;
             pk2.Met_TimeOfDay = EncounterTime.Any.RandomValidTime();
@@ -136,7 +136,7 @@ namespace PKHeX.Core
             if (!pkm.HasOriginalMetLocation)
                 return true;
             // Gen2 met location is always u8
-            var loc = pkm.Met_Location;
+            int loc = pkm.Met_Location;
             return loc <= 45 && ((RoamLocations & (1UL << loc)) != 0);
         }
     }

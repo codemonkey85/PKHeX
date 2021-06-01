@@ -15,7 +15,7 @@ namespace PKHeX.Core
     {
         internal static IEnumerable<IEncounterable> GetEncounters12(PKM pkm, LegalInfo info)
         {
-            foreach (var z in GenerateFilteredEncounters12(pkm))
+            foreach (IEncounterable? z in GenerateFilteredEncounters12(pkm))
             {
                 info.Generation = z.Generation;
                 info.Game = z.Version;
@@ -28,10 +28,10 @@ namespace PKHeX.Core
             // Since encounter matching is super weak due to limited stored data in the structure
             // Calculate all 3 at the same time and pick the best result (by species).
             // Favor special event move gifts as Static Encounters when applicable
-            var chain = EncounterOrigin.GetOriginChain12(pkm, game);
+            IReadOnlyList<EvoCriteria>? chain = EncounterOrigin.GetOriginChain12(pkm, game);
 
             IEncounterable? deferred = null;
-            foreach (var t in GetValidEncounterTradesVC(pkm, chain, game))
+            foreach (EncounterTradeGB? t in GetValidEncounterTradesVC(pkm, chain, game))
             {
                 // Gen2 trades are strictly matched (OT/Nick), while Gen1 trades allow for deferral (shrug).
                 if (t is EncounterTrade1 t1 && t1.GetMatchRating(pkm) != Match)
@@ -41,21 +41,21 @@ namespace PKHeX.Core
                 }
                 yield return t;
             }
-            foreach (var s in GetValidStaticEncounter(pkm, chain, game))
+            foreach (EncounterStatic? s in GetValidStaticEncounter(pkm, chain, game))
             {
                 yield return s;
             }
-            foreach (var e in GetValidWildEncounters12(pkm, chain, game))
+            foreach (EncounterSlot? e in GetValidWildEncounters12(pkm, chain, game))
             {
                 yield return e;
             }
             if (game != GameVersion.RBY)
             {
-                foreach (var e in GenerateEggs(pkm, chain))
+                foreach (EncounterEgg? e in GenerateEggs(pkm, chain))
                     yield return e;
             }
 
-            foreach (var s in GenerateGBEvents(pkm, chain, game))
+            foreach (EncounterStatic? s in GenerateGBEvents(pkm, chain, game))
             {
                 yield return s;
             }
@@ -69,9 +69,9 @@ namespace PKHeX.Core
             if (pkm.Korean) // only GS; no events
                 yield break;
 
-            foreach (var e in GetValidGBGifts(pkm, chain, game))
+            foreach (EncounterStatic? e in GetValidGBGifts(pkm, chain, game))
             {
-                foreach (var evo in chain)
+                foreach (EvoCriteria? evo in chain)
                 {
                     if (e.IsMatchExact(pkm, evo))
                         yield return e;
@@ -86,7 +86,7 @@ namespace PKHeX.Core
             if (crystal)
                 return GenerateRawEncounters12(pkm, GameVersion.C);
 
-            var visited = GBRestrictions.GetTradebackStatusInitial(pkm);
+            TradebackType visited = GBRestrictions.GetTradebackStatusInitial(pkm);
             switch (visited)
             {
                 case TradebackType.Gen1_NotTradeback:
@@ -105,9 +105,9 @@ namespace PKHeX.Core
             // Korean origin PK1/PK2 can only originate from GS, but since we're nice we'll defer & yield matches from other games.
             // Yield GS first, then Crystal, then RBY. Anything other than GS will be flagged by later checks.
 
-            var deferred = new List<IEncounterable>();
-            var get2 = GenerateRawEncounters12(pkm, GameVersion.GSC);
-            foreach (var enc in get2)
+            List<IEncounterable>? deferred = new List<IEncounterable>();
+            IEnumerable<IEncounterable>? get2 = GenerateRawEncounters12(pkm, GameVersion.GSC);
+            foreach (IEncounterable? enc in get2)
             {
                 if (enc.Version == GameVersion.C)
                     deferred.Add(enc);
@@ -115,11 +115,11 @@ namespace PKHeX.Core
                     yield return enc;
             }
 
-            foreach (var enc in deferred)
+            foreach (IEncounterable? enc in deferred)
                 yield return enc;
 
-            var get1 = GenerateRawEncounters12(pkm, GameVersion.RBY);
-            foreach (var enc in get1)
+            IEnumerable<IEncounterable>? get1 = GenerateRawEncounters12(pkm, GameVersion.RBY);
+            foreach (IEncounterable? enc in get1)
                 yield return enc;
         }
 
@@ -127,13 +127,13 @@ namespace PKHeX.Core
         {
             // Iterate over both games, consuming from one list at a time until the other list has higher priority encounters
             // Buffer the encounters so that we can consume each iterator separately
-            var get1 = GenerateRawEncounters12(pkm, GameVersion.RBY);
-            var get2 = GenerateRawEncounters12(pkm, GameVersion.GSC);
-            using var g1i = new PeekEnumerator<IEncounterable>(get1);
-            using var g2i = new PeekEnumerator<IEncounterable>(get2);
+            IEnumerable<IEncounterable>? get1 = GenerateRawEncounters12(pkm, GameVersion.RBY);
+            IEnumerable<IEncounterable>? get2 = GenerateRawEncounters12(pkm, GameVersion.GSC);
+            using PeekEnumerator<IEncounterable>? g1i = new PeekEnumerator<IEncounterable>(get1);
+            using PeekEnumerator<IEncounterable>? g2i = new PeekEnumerator<IEncounterable>(get2);
             while (g2i.PeekIsNext() || g1i.PeekIsNext())
             {
-                var iter = PickPreferredIterator(pkm, g1i, g2i);
+                PeekEnumerator<IEncounterable>? iter = PickPreferredIterator(pkm, g1i, g2i);
                 yield return iter.Current;
                 iter.MoveNext();
             }
@@ -145,8 +145,8 @@ namespace PKHeX.Core
                 return g2i;
             if (!g2i.PeekIsNext())
                 return g1i;
-            var p1 = GetGBEncounterPriority(pkm, g1i.Current);
-            var p2 = GetGBEncounterPriority(pkm, g2i.Current);
+            GBEncounterPriority p1 = GetGBEncounterPriority(pkm, g1i.Current);
+            GBEncounterPriority p2 = GetGBEncounterPriority(pkm, g2i.Current);
             return p1 > p2 ? g1i : g2i;
         }
 
