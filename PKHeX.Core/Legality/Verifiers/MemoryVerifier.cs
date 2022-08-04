@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using static PKHeX.Core.LegalityCheckStrings;
 using static PKHeX.Core.MemoryPermissions;
@@ -28,7 +28,7 @@ public sealed class MemoryVerifier : Verifier
     private static bool ShouldHaveNoMemory(LegalityAnalysis data, PKM pk)
     {
         if (pk.BDSP || pk.LA)
-            return !pk.HasVisitedSWSH(data.Info.EvoChainsAllGens.Gen8);
+            return !data.Info.EvoChainsAllGens.HasVisitedSWSH;
         return false;
     }
 
@@ -48,8 +48,8 @@ public sealed class MemoryVerifier : Verifier
                 // All AO hidden machine permissions are super-sets of Gen 3-5 games.
                 // Don't need to check the move history -- a learned HM in a prior game can still be learned in Gen6.
                 var evos = info.EvoChainsAllGens.Gen6;
-                var indexLearn = Array.FindIndex(evos, z => PersonalTable.AO.GetFormEntry(z.Species, 0).TMHM[100 + hmIndex]);
-                if (indexLearn == -1)
+                var exists = Array.Exists(evos, z => PersonalTable.AO.GetFormEntry(z.Species, 0).TMHM[100 + hmIndex]);
+                if (!exists)
                     return GetInvalid(string.Format(LMemoryArgBadMove, memory.Handler));
             }
         }
@@ -75,7 +75,7 @@ public sealed class MemoryVerifier : Verifier
             case 16 or 48 when !CanKnowMove(pk, memory, gen, info, memory.MemoryID == 16):
                 return GetInvalid(string.Format(LMemoryArgBadMove, memory.Handler));
 
-            case 49 when memory.Variable == 0 || !GetCanRelearnMove(pk, memory.Variable, gen, info.EvoChainsAllGens[gen]):
+            case 49 when memory.Variable == 0 || !GetCanRelearnMove(pk, memory.Variable, gen, info.EvoChainsAllGens, info.EncounterOriginal):
                 return GetInvalid(string.Format(LMemoryArgBadMove, memory.Handler));
 
             // Dynamaxing
@@ -270,8 +270,8 @@ public sealed class MemoryVerifier : Verifier
             case 7 when pk.GG: // LGPE does not set memories.
             case 8 when pk.GO_HOME: // HOME does not set memories.
             case 8 when pk.Met_Location == Locations.HOME8: // HOME does not set memories.
-            case 8 when pk.BDSP && !pk.HasVisitedSWSH(evos.Gen8): // BDSP does not set memories.
-            case 8 when pk.LA   && !pk.HasVisitedSWSH(evos.Gen8): // LA does not set memories.
+            case 8 when pk.BDSP && !evos.HasVisitedSWSH: // BDSP does not set memories.
+            case 8 when pk.LA   && !evos.HasVisitedSWSH: // LA does not set memories.
                 return false;
 
             // Eggs cannot have memories

@@ -3,12 +3,12 @@ namespace PKHeX.Core;
 /// <summary>
 /// Interface containing details relevant for battling.
 /// </summary>
-public interface IBattleTemplate : ISpeciesForm, IGigantamax, INature
+public interface IBattleTemplate : ISpeciesForm, IGigantamax, IDynamaxLevel, INature
 {
     /// <summary>
-    /// <see cref="PKM.Format"/> of the Set entity it is specific to.
+    /// <see cref="PKM.Context"/> of the Set entity it is specific to.
     /// </summary>
-    int Format { get; }
+    EntityContext Context { get; }
 
     /// <summary>
     /// <see cref="PKM.Nickname"/> of the Set entity.

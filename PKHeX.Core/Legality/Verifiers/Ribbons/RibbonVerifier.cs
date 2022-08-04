@@ -133,7 +133,7 @@ public sealed class RibbonVerifier : Verifier
             var iterate = GetInvalidRibbons4Any(pk, evos, s4, gen);
             if (!inhabited4)
             {
-                if (pk.HasVisitedBDSP(evos.Gen8b)) // Allow Sinnoh Champion. ILCA reused the Gen4 ribbon for the remake.
+                if (evos.HasVisitedBDSP) // Allow Sinnoh Champion. ILCA reused the Gen4 ribbon for the remake.
                     iterate = iterate.Concat(GetInvalidRibbonsNoneSkipIndex(s4.RibbonBitsOnly(), s4.RibbonNamesOnly(), 1));
                 else
                     iterate = iterate.Concat(GetInvalidRibbonsNone(s4.RibbonBitsOnly(), s4.RibbonNamesOnly()));
@@ -148,7 +148,7 @@ public sealed class RibbonVerifier : Verifier
             var iterate = inhabited6
                 ? GetInvalidRibbons6Any(pk, s6, gen, enc)
                 : pk.Format >= 8
-                    ? GetInvalidRibbons6AnyG8(pk, s6, evos)
+                    ? GetInvalidRibbons6AnyG8(s6, evos)
                     : GetInvalidRibbonsNone(s6.RibbonBits(), s6.RibbonNamesBool());
             foreach (var z in iterate)
                 yield return z;
@@ -192,14 +192,14 @@ public sealed class RibbonVerifier : Verifier
     private static bool IsRibbonValidEffort(PKM pk, EvolutionHistory evos, int gen) => gen switch
     {
         5 when pk.Format == 5 => false,
-        8 when !pk.HasVisitedSWSH(evos.Gen8) && !pk.HasVisitedBDSP(evos.Gen8b) => false,
+        8 when !evos.HasVisitedSWSH && !evos.HasVisitedBDSP => false,
         _ => true,
     };
 
     private static bool IsRibbonValidBestFriend(PKM pk, EvolutionHistory evos, int gen) => gen switch
     {
         < 7 when pk is { IsUntraded: true } and IAffection { OT_Affection: < 255 } => false, // Gen6/7 uses affection. Can't lower it on OT!
-        8 when !pk.HasVisitedSWSH(evos.Gen8) && !pk.HasVisitedBDSP(evos.Gen8b) => false, // Gen8+ replaced with Max Friendship.
+        8 when !evos.HasVisitedSWSH && !evos.HasVisitedBDSP => false, // Gen8+ replaced with Max Friendship.
         _ => true,
     };
 
@@ -224,7 +224,7 @@ public sealed class RibbonVerifier : Verifier
         if (s4.RibbonFootprint && !CanHaveFootprintRibbon(pk, evos, gen))
             yield return new RibbonResult(nameof(s4.RibbonFootprint));
 
-        bool visitBDSP = pk.HasVisitedBDSP(evos.Gen8b);
+        bool visitBDSP = evos.HasVisitedBDSP;
         bool gen34 = gen is 3 or 4;
         bool not6 = pk.Format < 6 || gen is > 6 or < 3;
         bool noDaily = !gen34 && not6 && !visitBDSP;
@@ -297,9 +297,9 @@ public sealed class RibbonVerifier : Verifier
         yield return result;
     }
 
-    private static IEnumerable<RibbonResult> GetInvalidRibbons6AnyG8(PKM pk, IRibbonSetCommon6 s6, EvolutionHistory evos)
+    private static IEnumerable<RibbonResult> GetInvalidRibbons6AnyG8(IRibbonSetCommon6 s6, EvolutionHistory evos)
     {
-        if (!pk.HasVisitedBDSP(evos.Gen8b))
+        if (!evos.HasVisitedBDSP)
         {
             var none = GetInvalidRibbonsNone(s6.RibbonBits(), s6.RibbonNamesBool());
             foreach (var x in none)
@@ -429,16 +429,11 @@ public sealed class RibbonVerifier : Verifier
 
     private static IEnumerable<RibbonResult> GetInvalidRibbons8Any(PKM pk, IRibbonSetCommon8 s8, IEncounterTemplate enc, EvolutionHistory evos)
     {
-        bool swsh = pk.HasVisitedSWSH(evos.Gen8);
-        bool bdsp = pk.HasVisitedBDSP(evos.Gen8b);
-        bool pla = pk.HasVisitedLA(evos.Gen8a);
-
-        if (!swsh && !bdsp)
+        if (!CanObtainTowerMaster(evos) && s8.RibbonTowerMaster)
         {
-            if (s8.RibbonTowerMaster)
-                yield return new RibbonResult(nameof(s8.RibbonTowerMaster));
+            yield return new RibbonResult(nameof(s8.RibbonTowerMaster));
         }
-        if (!swsh)
+        if (!evos.HasVisitedSWSH)
         {
             if (s8.RibbonChampionGalar)
                 yield return new RibbonResult(nameof(s8.RibbonChampionGalar));
@@ -473,16 +468,27 @@ public sealed class RibbonVerifier : Verifier
             }
         }
 
-        if (s8.RibbonTwinklingStar && (!bdsp || pk is IRibbonSetCommon6 {RibbonContestStar:false}))
+        if (s8.RibbonTwinklingStar && (!evos.HasVisitedBDSP || pk is IRibbonSetCommon6 {RibbonContestStar:false}))
         {
             yield return new RibbonResult(nameof(s8.RibbonTwinklingStar));
         }
 
         // received when capturing photos with Pokémon in the Photography Studio
-        if (s8.RibbonPioneer && !pla)
+        if (!evos.HasVisitedPLA && s8.RibbonPioneer)
         {
             yield return new RibbonResult(nameof(s8.RibbonPioneer));
         }
+    }
+
+    private static bool CanObtainTowerMaster(EvolutionHistory evos)
+    {
+        if (evos.HasVisitedSWSH)
+            return true; // Anything in SW/SH can be used in battle tower.
+
+        if (!evos.HasVisitedBDSP)
+            return false;
+        // Mythicals cannot be used in BD/SP's Battle Tower
+        return !Legal.Mythicals.Contains(evos.Gen8b[0].Species);
     }
 
     private static bool CanParticipateInRankedSWSH(PKM pk, IEncounterTemplate enc, EvolutionHistory evos)
@@ -490,7 +496,7 @@ public sealed class RibbonVerifier : Verifier
         bool exist = enc.Generation switch
         {
             < 8 => pk is IBattleVersion { BattleVersion: (int)GameVersion.SW or (int)GameVersion.SH },
-            _ => pk.HasVisitedSWSH(evos.Gen8),
+            _ => evos.HasVisitedSWSH,
         };
         if (!exist)
             return false;
@@ -499,7 +505,7 @@ public sealed class RibbonVerifier : Verifier
         var species = pk.Species;
         if (species > Legal.MaxSpeciesID_8_R2)
             return false;
-        
+
         // Series 13 rule-set was the first time Ranked Battles allowed the use of Mythical Pokémon.
         if (Legal.Legends.Contains(species))
         {
@@ -608,10 +614,9 @@ public sealed class RibbonVerifier : Verifier
             return true;
 
         // Gen8-BDSP: Variable by species Footprint
-        var bdspEvos = evos.Gen8b;
-        if (pk.HasVisitedBDSP(bdspEvos))
+        if (evos.HasVisitedBDSP)
         {
-            if (bdspEvos.Any(z => PersonalTable.BDSP.IsPresentInGame(z.Species, z.Form) && !HasFootprintBDSP[z.Species]))
+            if (Array.Exists(evos.Gen8b, z => !HasFootprintBDSP[z.Species]))
                 return true; // no footprint
             if (pk.CurrentLevel - pk.Met_Level >= 30)
                 return true; // traveled well

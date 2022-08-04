@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using static PKHeX.Core.LegalityCheckStrings;
 
@@ -69,7 +70,7 @@ public sealed class AbilityVerifier : Verifier
         if (format >= 8) // Ability Patch
         {
             var evos = data.Info.EvoChainsAllGens;
-            if (pk.AbilityNumber == 4 && IsAccessibleAbilityPatch(pk, evos))
+            if (pk.AbilityNumber == 4 && IsAccessibleAbilityPatch(evos))
             {
                 if (CanAbilityPatch(format, abilities, pk.Species))
                     return GetValid(LAbilityPatchUsed);
@@ -94,7 +95,7 @@ public sealed class AbilityVerifier : Verifier
 
     public static bool IsValidAbilityBits(int num) => num is 1 or 2 or 4;
 
-    private static bool GetWasDual(EvoCriteria[] evos, PersonalTable pt, ISpeciesForm pk)
+    private static bool GetWasDual(ReadOnlySpan<EvoCriteria> evos, IPersonalTable pt, ISpeciesForm pk)
     {
         foreach (var evo in evos)
         {
@@ -244,7 +245,7 @@ public sealed class AbilityVerifier : Verifier
     private AbilityState VerifyAbilityGen3Transfer(LegalityAnalysis data, IReadOnlyList<int> abilities, int maxGen3Species)
     {
         var pk = data.Entity;
-        var pers = (PersonalInfoG3)PersonalTable.E[maxGen3Species];
+        var pers = PersonalTable.E[maxGen3Species];
         if (pers.Ability1 != pers.Ability2) // Excluding Colosseum/XD, a Gen3 pk must match PID if it has 2 unique abilities
             return pk.Version == (int) GameVersion.CXD ? AbilityState.CanMismatch : AbilityState.MustMatch;
 
@@ -303,7 +304,7 @@ public sealed class AbilityVerifier : Verifier
                 return GetValid(LAbilityCapsuleUsed);
 
             // Maybe was evolved after using ability capsule.
-            var evos = data.Info.EvoChainsAllGens[pk.Format];
+            var evos = data.Info.EvoChainsAllGens.Get(pk.Context);
             if (GetWasDual(evos, PKX.Personal, pk))
                 return GetValid(LAbilityCapsuleUsed);
         }
@@ -446,22 +447,22 @@ public sealed class AbilityVerifier : Verifier
         return VALID;
     }
 
-    private static bool IsAccessibleAbilityPatch(PKM pk, EvolutionHistory evosAll)
+    private static bool IsAccessibleAbilityPatch(EvolutionHistory evosAll)
     {
-        return pk.HasVisitedSWSH(evosAll.Gen8) || pk.HasVisitedBDSP(evosAll.Gen8b);
+        return evosAll.HasVisitedSWSH || evosAll.HasVisitedBDSP;
     }
 
-    private static bool IsAccessibleAbilityCapsule(PKM pk, EvolutionHistory evosAll)
+    private static bool IsAccessibleAbilityCapsule(EvolutionHistory evosAll)
     {
-        if (evosAll.Gen6.Length > 0 || evosAll.Gen7.Length > 0)
+        if (evosAll.HasVisitedGen6 || evosAll.HasVisitedGen7)
             return true;
-        return pk.HasVisitedSWSH(evosAll.Gen8) || pk.HasVisitedBDSP(evosAll.Gen8b);
+        return evosAll.HasVisitedSWSH || evosAll.HasVisitedBDSP;
     }
 
     // Ability Capsule can change between 1/2
     private static bool IsAbilityCapsuleModified(PKM pk, IReadOnlyList<int> abilities, AbilityPermission encounterAbility, EvolutionHistory evos)
     {
-        if (!IsAccessibleAbilityCapsule(pk, evos))
+        if (!IsAccessibleAbilityCapsule(evos))
             return false; // Not available.
         if (!CanAbilityCapsule(pk.Format, abilities))
             return false;

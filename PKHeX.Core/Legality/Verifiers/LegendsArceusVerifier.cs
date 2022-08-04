@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using static PKHeX.Core.LegalityCheckStrings;
 
@@ -69,11 +69,11 @@ public sealed class LegendsArceusVerifier : Verifier
         var minMoveCount = LoadBareMinimumMoveset(data.EncounterMatch, data.Info.EvoChainsAllGens, pa, expect);
 
         // Flag move slots that are empty.
+        var moves = data.Info.Moves;
         for (int i = moveCount; i < minMoveCount; i++)
         {
             // Expected move should never be empty, but just future-proof against any revisions.
-            var msg = expect[i] != 0 ? string.Format(LMoveFExpect_0, ParseSettings.MoveStrings[expect[i]]) : LMoveSourceEmpty;
-            data.Info.Moves[i].FlagIllegal(msg, CheckIdentifier.CurrentMove);
+            moves[i] = MoveResult.Unobtainable(expect[i]);
         }
     }
 
@@ -100,7 +100,7 @@ public sealed class LegendsArceusVerifier : Verifier
         LoadPurchasedMoves(pa, purchased);
 
         // If it can be leveled up in other games, level it up in other games.
-        if (pa.HasVisitedSWSH(h.Gen8) || pa.HasVisitedBDSP(h.Gen8b))
+        if (h.HasVisitedSWSH || h.HasVisitedBDSP)
             return count;
 
         // Level up to current level
