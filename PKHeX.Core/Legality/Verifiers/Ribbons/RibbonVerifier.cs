@@ -166,10 +166,20 @@ public sealed class RibbonVerifier : Verifier
         }
         if (pk is IRibbonSetCommon7 s7)
         {
-            bool inhabited7 = gen <= 7 && !pk.GG;
-            var iterate = inhabited7 ? GetInvalidRibbons7Any(pk, s7) : GetInvalidRibbonsNone(s7.RibbonBits(), s7.RibbonNames());
-            foreach (var z in iterate)
-                yield return z;
+            bool inhabited7 = evos.HasVisitedGen7;
+            bool alolaValid = GetIsAlolaChampValid(s7, enc, inhabited7);
+            if (!alolaValid)
+                yield return new RibbonResult(nameof(s7.RibbonChampionAlola));
+
+            if (!inhabited7 || !IsAllowedBattleFrontier(pk.Species))
+            {
+                if (s7.RibbonBattleRoyale)
+                    yield return new RibbonResult(nameof(s7.RibbonBattleRoyale));
+                if (s7.RibbonBattleTreeGreat && !pk.USUM && pk.IsUntraded)
+                    yield return new RibbonResult(nameof(s7.RibbonBattleTreeGreat));
+                if (s7.RibbonBattleTreeMaster)
+                    yield return new RibbonResult(nameof(s7.RibbonBattleTreeMaster));
+            }
         }
         if (pk is IRibbonSetCommon3 s3)
         {
@@ -187,6 +197,18 @@ public sealed class RibbonVerifier : Verifier
             foreach (var z in iterate)
                 yield return z;
         }
+    }
+
+    private static bool GetIsAlolaChampValid(IRibbonSetCommon7 s7, IEncounterTemplate enc, bool inhabited7)
+    {
+        // If the encounter comes with the ribbon, it must have the ribbon.
+        if (enc is IRibbonSetCommon7 { RibbonChampionAlola: true })
+            return s7.RibbonChampionAlola;
+        // If it has visited, it can be either state.
+        if (inhabited7)
+            return true;
+        // If it has not visited, it must not have it.
+        return !s7.RibbonChampionAlola;
     }
 
     private static bool IsRibbonValidEffort(PKM pk, EvolutionHistory evos, int gen) => gen switch
@@ -412,19 +434,6 @@ public sealed class RibbonVerifier : Verifier
         var result = new RibbonResult(nameof(s6.RibbonChampionKalos), false);
         result.Combine(new RibbonResult(nameof(s6.RibbonChampionG6Hoenn)));
         yield return result;
-    }
-
-    private static IEnumerable<RibbonResult> GetInvalidRibbons7Any(PKM pk, IRibbonSetCommon7 s7)
-    {
-        if (!IsAllowedBattleFrontier(pk.Species))
-        {
-            if (s7.RibbonBattleRoyale)
-                yield return new RibbonResult(nameof(s7.RibbonBattleRoyale));
-            if (s7.RibbonBattleTreeGreat && !pk.USUM && pk.IsUntraded)
-                yield return new RibbonResult(nameof(s7.RibbonBattleTreeGreat));
-            if (s7.RibbonBattleTreeMaster)
-                yield return new RibbonResult(nameof(s7.RibbonBattleTreeMaster));
-        }
     }
 
     private static IEnumerable<RibbonResult> GetInvalidRibbons8Any(PKM pk, IRibbonSetCommon8 s8, IEncounterTemplate enc, EvolutionHistory evos)

@@ -11,7 +11,6 @@ public sealed class PersonalTable3 : IPersonalTable, IPersonalTable<PersonalInfo
     private const int SIZE = PersonalInfo3.SIZE;
     private const int MaxSpecies = Legal.MaxSpeciesID_3;
     public int MaxSpeciesID => MaxSpecies;
-    public int Count => Table.Length;
 
     public PersonalTable3(ReadOnlySpan<byte> data)
     {

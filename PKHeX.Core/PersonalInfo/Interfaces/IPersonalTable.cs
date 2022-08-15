@@ -8,11 +8,6 @@ public interface IPersonalTable
     int MaxSpeciesID { get; }
 
     /// <summary>
-    /// Count of entries in the table.
-    /// </summary>
-    int Count { get; }
-
-    /// <summary>
     /// Gets an index from the inner array.
     /// </summary>
     /// <remarks>Has built in length checks; returns empty (0) entry if out of range.</remarks>
