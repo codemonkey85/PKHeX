@@ -2,6 +2,10 @@ using System;
 
 namespace PKHeX.Core;
 
+/// <summary>
+/// Exposes information about the amount of Awakened stat boosts gained.
+/// </summary>
+/// <remarks>Used only in LGP/E.</remarks>
 public interface IAwakened
 {
     byte AV_HP { get; set; }
@@ -208,11 +212,12 @@ public static class AwakeningUtil
     /// <param name="pk">Entity to check</param>
     public static void GetExpectedMinimumAVs(Span<byte> result, PB7 pk)
     {
-        // go park transfers have 2 AVs for all stats.
-        // leveling up in-game applies 1 AV to a "random" index.
+        // GO Park transfers start with 2 AVs for all stats.
+        // Every other encounter is either all 0, or can legally start at 0 (trades).
         if (pk.Version == (int)GameVersion.GO)
             result.Fill(2);
 
+        // Leveling up in-game applies 1 AV to a "random" index.
         var start = pk.Met_Level;
         var end = pk.CurrentLevel;
         if (start == end)

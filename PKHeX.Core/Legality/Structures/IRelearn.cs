@@ -1,8 +1,14 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace PKHeX.Core;
 
+/// <summary>
+/// Exposes what move IDs are in the relearn moves list on encounter.
+/// </summary>
 public interface IRelearn
 {
-    IReadOnlyList<int> Relearn { get; }
+    /// <summary>
+    /// Move IDs are in the relearn moves list on encounter.
+    /// </summary>
+    Moveset Relearn { get; }
 }
