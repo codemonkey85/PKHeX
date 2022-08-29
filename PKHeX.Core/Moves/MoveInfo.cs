@@ -19,7 +19,7 @@ public static class MoveInfo
     public static byte GetPP(EntityContext context, ushort move)
     {
         var table = GetPPTable(context);
-        if ((uint)move >= table.Length)
+        if (move >= table.Length)
             return 0;
         return table[move];
     }
@@ -113,7 +113,7 @@ public static class MoveInfo
 
         for (int i = 0; i < 4; i++)
         {
-            var move = (ushort)pk.GetMove(i);
+            var move = pk.GetMove(i);
             if (hs.Contains(move))
                 return true;
         }

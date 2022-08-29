@@ -86,7 +86,7 @@ public sealed class PersonalInfo8SWSH : PersonalInfo
     public override int EscapeRate { get => 0; set { } } // moved?
     public override int FormStatsIndex { get => ReadUInt16LittleEndian(Data.AsSpan(0x1E)); set => WriteUInt16LittleEndian(Data.AsSpan(0x1E), (ushort)value); }
     public int FormSprite { get => ReadUInt16LittleEndian(Data.AsSpan(0x1E)); set => WriteUInt16LittleEndian(Data.AsSpan(0x1E), (ushort)value); } // ???
-    public override int FormCount { get => Data[0x20]; set => Data[0x20] = (byte)value; }
+    public override byte FormCount { get => Data[0x20]; set => Data[0x20] = (byte)value; }
     public override int Color { get => Data[0x21] & 0x3F; set => Data[0x21] = (byte)((Data[0x21] & 0xC0) | (value & 0x3F)); }
     public bool IsPresentInGame { get => ((Data[0x21] >> 6) & 1) == 1; set => Data[0x21] = (byte)((Data[0x21] & ~0x40) | (value ? 0x40 : 0)); }
     public bool SpriteForm { get => ((Data[0x21] >> 7) & 1) == 1; set => Data[0x21] = (byte)((Data[0x21] & ~0x80) | (value ? 0x80 : 0)); }
@@ -120,21 +120,21 @@ public sealed class PersonalInfo8SWSH : PersonalInfo
 
     public override int GetAbilityIndex(int abilityID) => abilityID == Ability1 ? 0 : abilityID == Ability2 ? 1 : abilityID == AbilityH ? 2 : -1;
 
-    public int Species { get => ReadUInt16LittleEndian(Data.AsSpan(0x4C)); set => WriteUInt16LittleEndian(Data.AsSpan(0x4C), (ushort)value); }
+    public ushort Species { get => ReadUInt16LittleEndian(Data.AsSpan(0x4C)); set => WriteUInt16LittleEndian(Data.AsSpan(0x4C), value); }
 
-    public int HatchSpecies { get => ReadUInt16LittleEndian(Data.AsSpan(0x56)); set => WriteUInt16LittleEndian(Data.AsSpan(0x56), (ushort)value); }
-    public int LocalFormIndex { get => ReadUInt16LittleEndian(Data.AsSpan(0x58)); set => WriteUInt16LittleEndian(Data.AsSpan(0x58), (ushort)value); } // local region base form
+    public ushort HatchSpecies { get => ReadUInt16LittleEndian(Data.AsSpan(0x56)); set => WriteUInt16LittleEndian(Data.AsSpan(0x56), value); }
+    public byte LocalFormIndex { get => (byte)ReadUInt16LittleEndian(Data.AsSpan(0x58)); set => WriteUInt16LittleEndian(Data.AsSpan(0x58), value); } // local region base form
     public ushort RegionalFlags { get => ReadUInt16LittleEndian(Data.AsSpan(0x5A)); set => WriteUInt16LittleEndian(Data.AsSpan(0x5A), value); }
     public bool IsRegionalForm { get => (RegionalFlags & 1) == 1; set => RegionalFlags = (ushort)((RegionalFlags & 0xFFFE) | (value ? 1 : 0)); }
-    public int PokeDexIndex { get => ReadUInt16LittleEndian(Data.AsSpan(0x5C)); set => WriteUInt16LittleEndian(Data.AsSpan(0x5C), (ushort)value); }
-    public int RegionalFormIndex { get => ReadUInt16LittleEndian(Data.AsSpan(0x5E)); set => WriteUInt16LittleEndian(Data.AsSpan(0x5E), (ushort)value); } // form index of this entry
-    public int ArmorDexIndex { get => ReadUInt16LittleEndian(Data.AsSpan(0xAC)); set => WriteUInt16LittleEndian(Data.AsSpan(0xAC), (ushort)value); }
-    public int CrownDexIndex { get => ReadUInt16LittleEndian(Data.AsSpan(0xAE)); set => WriteUInt16LittleEndian(Data.AsSpan(0xAE), (ushort)value); }
+    public ushort PokeDexIndex { get => ReadUInt16LittleEndian(Data.AsSpan(0x5C)); set => WriteUInt16LittleEndian(Data.AsSpan(0x5C), value); }
+    public byte RegionalFormIndex { get => (byte)ReadUInt16LittleEndian(Data.AsSpan(0x5E)); set => WriteUInt16LittleEndian(Data.AsSpan(0x5E), value); } // form index of this entry
+    public ushort ArmorDexIndex { get => ReadUInt16LittleEndian(Data.AsSpan(0xAC)); set => WriteUInt16LittleEndian(Data.AsSpan(0xAC), value); }
+    public ushort CrownDexIndex { get => ReadUInt16LittleEndian(Data.AsSpan(0xAE)); set => WriteUInt16LittleEndian(Data.AsSpan(0xAE), value); }
 
     /// <summary>
     /// Gets the Form that any offspring will hatch with, assuming it is holding an Everstone.
     /// </summary>
-    public int HatchFormIndexEverstone => IsRegionalForm ? RegionalFormIndex : LocalFormIndex;
+    public byte HatchFormIndexEverstone => IsRegionalForm ? RegionalFormIndex : LocalFormIndex;
 
     /// <summary>
     /// Checks if the entry shows up in any of the built-in Pokédex.

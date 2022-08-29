@@ -26,7 +26,7 @@ public partial class SAV_PokedexSWSH : Form
         WinFormsUtil.TranslateInterface(this, Main.CurrentLanguage);
         SAV = (SAV8SWSH)(Origin = sav).Clone();
         Dex = SAV.Blocks.Zukan;
-        var indexes = Zukan8.GetRawIndexes(PersonalTable.SWSH, Dex.GetRevision());
+        var indexes = Zukan8.GetRawIndexes(PersonalTable.SWSH, Dex.GetRevision(), Zukan8Index.TotalCount);
         var speciesNames = GameInfo.Strings.Species;
         Indexes = indexes.OrderBy(z => z.GetEntryName(speciesNames)).ToArray();
         CL = new[] {CHK_L1, CHK_L2, CHK_L3, CHK_L4, CHK_L5, CHK_L6, CHK_L7, CHK_L8, CHK_L9};
@@ -46,7 +46,7 @@ public partial class SAV_PokedexSWSH : Form
 
         // Fill List
         CB_Species.InitializeBinding();
-        var species = GameInfo.FilteredSources.Species.Where(z => Dex.DexLookup.ContainsKey(z.Value)).ToArray();
+        var species = GameInfo.FilteredSources.Species.Where(z => Dex.DexLookup.ContainsKey((ushort)z.Value)).ToArray();
         CB_Species.DataSource = new BindingSource(species, null);
 
         var names = Indexes.Select(z => z.GetEntryName(speciesNames) + (Dex.DexLookup[z.Species].DexType == z.Entry.DexType ? string.Empty : "***"));
@@ -64,7 +64,7 @@ public partial class SAV_PokedexSWSH : Form
         if (Loading)
             return;
 
-        var species = WinFormsUtil.GetIndex(CB_Species);
+        var species = (ushort)WinFormsUtil.GetIndex(CB_Species);
         var info = Dex.DexLookup[species];
         var index = info.AbsoluteIndex - 1;
         if (LB_Species.SelectedIndex != index)
@@ -95,7 +95,7 @@ public partial class SAV_PokedexSWSH : Form
         for (int i = 0; i < CHK.Length; i++)
         {
             var c = CHK[i];
-            for (int j = 0; j < 64; j++)
+            for (byte j = 0; j < 64; j++)
             {
                 if (j < 63)
                     c.Items[j] = $"{j:00} - {(j < forms.Length ? forms[j] : "N/A")}";
@@ -138,7 +138,7 @@ public partial class SAV_PokedexSWSH : Form
         NUD_Battled.Value = Dex.GetBattledCount(entry);
     }
 
-    private static string[] GetFormList(in int species)
+    private static string[] GetFormList(in ushort species)
     {
         var s = GameInfo.Strings;
         if (species == (int)Species.Alcremie)
@@ -158,7 +158,7 @@ public partial class SAV_PokedexSWSH : Form
         for (int i = 0; i < CHK.Length; i++)
         {
             var c = CHK[i];
-            for (int j = 0; j < 64; j++)
+            for (byte j = 0; j < 64; j++)
             {
                 var value = c.GetItemChecked(j);
                 Dex.SetSeenRegion(entry, j, i, value);

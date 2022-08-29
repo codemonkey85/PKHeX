@@ -18,8 +18,8 @@ public partial class SAV_PokedexLA : Form
 
     private readonly Controls.PokedexResearchTask8aPanel[] TaskControls;
 
-    private readonly int[] SpeciesToDex;
-    private readonly int[] DexToSpecies;
+    private readonly ushort[] SpeciesToDex;
+    private readonly ushort[] DexToSpecies;
 
     private int lastIndex = -1;
     private int lastForm = -1;
@@ -63,10 +63,10 @@ public partial class SAV_PokedexLA : Form
             tc.SetStrings(TaskDescriptions, SpeciesQuests, TimeTaskDescriptions);
         }
 
-        SpeciesToDex = new int[SAV.Personal.MaxSpeciesID + 1];
+        SpeciesToDex = new ushort[SAV.Personal.MaxSpeciesID + 1];
 
         var maxDex = 0;
-        for (var s = 1; s <= SAV.Personal.MaxSpeciesID; s++)
+        for (ushort s = 1; s <= SAV.Personal.MaxSpeciesID; s++)
         {
             var hisuiDex = PokedexSave8a.GetDexIndex(PokedexType8a.Hisui, s);
             if (hisuiDex == 0)
@@ -77,8 +77,8 @@ public partial class SAV_PokedexLA : Form
                 maxDex = hisuiDex;
         }
 
-        DexToSpecies = new int[maxDex + 1];
-        for (var s = 1; s <= SAV.Personal.MaxSpeciesID; s++)
+        DexToSpecies = new ushort[maxDex + 1];
+        for (ushort s = 1; s <= SAV.Personal.MaxSpeciesID; s++)
         {
             if (SpeciesToDex[s] != 0)
                 DexToSpecies[SpeciesToDex[s]] = s;
@@ -91,7 +91,7 @@ public partial class SAV_PokedexLA : Form
 
         // Fill List
         CB_Species.InitializeBinding();
-        var species = GameInfo.FilteredSources.Species.Where(z => PokedexSave8a.GetDexIndex(PokedexType8a.Hisui, z.Value) != 0).ToArray();
+        var species = GameInfo.FilteredSources.Species.Where(z => PokedexSave8a.GetDexIndex(PokedexType8a.Hisui, (ushort)z.Value) != 0).ToArray();
         CB_Species.DataSource = new BindingSource(species, null);
 
         CB_DisplayForm.InitializeBinding();
@@ -161,7 +161,7 @@ public partial class SAV_PokedexLA : Form
 
         lastForm = 0;
 
-        int species = DexToSpecies[index + 1];
+        ushort species = DexToSpecies[index + 1];
         bool hasForms = FormInfo.HasFormSelection(SAV.Personal[species], species, 8);
         LB_Forms.Enabled = CB_DisplayForm.Enabled = hasForms;
         if (!hasForms)
@@ -179,7 +179,7 @@ public partial class SAV_PokedexLA : Form
         var formCount = SAV.Personal[species].FormCount;
         var sanitized = new List<string>();
         DisplayedForms.Clear();
-        for (var form = 0; form < formCount; form++)
+        for (byte form = 0; form < formCount; form++)
         {
             if (!Dex.HasFormStorage(species, form) || Dex.IsBlacklisted(species, form))
                 continue;
@@ -216,7 +216,7 @@ public partial class SAV_PokedexLA : Form
     private void GetEntry(int index, int formIndex)
     {
         var species = DexToSpecies[index + 1];
-        var form = DisplayedForms[formIndex].Value;
+        var form = (byte)DisplayedForms[formIndex].Value;
 
         // Flags
         var seenWild = Dex.GetPokeSeenInWildFlags(species, form);
@@ -291,7 +291,7 @@ public partial class SAV_PokedexLA : Form
     private bool IsEntryEmpty(int index, int formIndex)
     {
         var species = DexToSpecies[index + 1];
-        var form = DisplayedForms[formIndex].Value;
+        byte form = (byte)DisplayedForms[formIndex].Value;
 
         // Any seen/obtain flags
         for (var i = 0; i < CHK_SeenWild.Length; i++)
@@ -353,7 +353,7 @@ public partial class SAV_PokedexLA : Form
             return;
 
         var species = DexToSpecies[index + 1];
-        var form = DisplayedForms[formIndex].Value;
+        var form = (byte)DisplayedForms[formIndex].Value;
 
         if (!empty)
             Dex.SetPokeHasBeenUpdated(species);
@@ -377,7 +377,7 @@ public partial class SAV_PokedexLA : Form
         // Display
         var dispForm = form;
         if (CB_DisplayForm.Enabled)
-            dispForm = WinFormsUtil.GetIndex(CB_DisplayForm);
+            dispForm = (byte)WinFormsUtil.GetIndex(CB_DisplayForm);
 
         Dex.SetSelectedGenderForm(species, dispForm, CHK_G.Checked, CHK_S.Checked, CHK_A.Checked);
 

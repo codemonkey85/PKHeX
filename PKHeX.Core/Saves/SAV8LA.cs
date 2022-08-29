@@ -96,8 +96,8 @@ public sealed class SAV8LA : SaveFile, ISaveBlock8LA, ISCBlockArray, ISaveFileRe
         return new SAV8LA(blockCopy);
     }
 
-    public override int MaxMoveID => Legal.MaxMoveID_8a;
-    public override int MaxSpeciesID => Legal.MaxSpeciesID_8a;
+    public override ushort MaxMoveID => Legal.MaxMoveID_8a;
+    public override ushort MaxSpeciesID => Legal.MaxSpeciesID_8a;
     public override int MaxItemID => Legal.MaxItemID_8a;
     public override int MaxBallID => Legal.MaxBallID_8a;
     public override int MaxGameID => Legal.MaxGameID_8a;
@@ -166,13 +166,13 @@ public sealed class SAV8LA : SaveFile, ISaveBlock8LA, ISCBlockArray, ISaveFileRe
         PokedexSave.OnPokeGet_TradeWithoutEvolution(pk);
     }
 
-    public override bool GetCaught(int species)
+    public override bool GetCaught(ushort species)
     {
         if (species > Personal.MaxSpeciesID)
             return false;
 
         var formCount = Personal[species].FormCount;
-        for (var form = 0; form < formCount; form++)
+        for (byte form = 0; form < formCount; form++)
         {
             if (PokedexSave.HasAnyPokeObtainFlags(species, form))
                 return true;
@@ -180,7 +180,7 @@ public sealed class SAV8LA : SaveFile, ISaveBlock8LA, ISCBlockArray, ISaveFileRe
         return false;
     }
 
-    public override bool GetSeen(int species) => PokedexSave.HasPokeEverBeenUpdated(species);
+    public override bool GetSeen(ushort species) => PokedexSave.HasPokeEverBeenUpdated(species);
 
     // Inventory
     public override IReadOnlyList<InventoryPouch> Inventory { get => Items.Inventory; set => Items.Inventory = value; }

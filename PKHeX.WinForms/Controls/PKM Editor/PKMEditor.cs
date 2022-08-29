@@ -360,7 +360,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
     {
         if (isIllegal)
             return Resources.warn;
-        if (pk.Format >= 8 && MoveInfo.GetDummiedMovesHashSet(pk.Context).Contains((ushort)pk.GetMove(index)))
+        if (pk.Format >= 8 && MoveInfo.GetDummiedMovesHashSet(pk.Context).Contains(pk.GetMove(index)))
             return Resources.hint;
         return null;
     }
@@ -440,7 +440,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
 
     private void SetForms()
     {
-        int species = Entity.Species;
+        var species = Entity.Species;
         var pi = RequestSaveFile.Personal[species];
         bool hasForms = FormInfo.HasFormSelection(pi, species, Entity.Format);
         CB_Form.Enabled = CB_Form.Visible = Label_Form.Visible = hasForms;
@@ -472,7 +472,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
             return;
 
         if (Entity.Format > 3 && FieldsLoaded) // has forms
-            Entity.Form = CB_Form.SelectedIndex; // update pk field for form specific abilities
+            Entity.Form = (byte)CB_Form.SelectedIndex; // update pk field for form specific abilities
 
         int abil = CB_Ability.SelectedIndex;
 
@@ -580,7 +580,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         {
             Entity.Version = WinFormsUtil.GetIndex(CB_GameOrigin);
             Entity.Nature = WinFormsUtil.GetIndex(CB_Nature);
-            Entity.Form = CB_Form.SelectedIndex;
+            Entity.Form = (byte)CB_Form.SelectedIndex;
 
             Entity.SetPIDGender(gender);
             TB_PID.Text = Entity.PID.ToString("X8");
@@ -721,7 +721,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
             return false;
         }
 
-        Span<int> moves = stackalloc int[4];
+        Span<ushort> moves = stackalloc ushort[4];
         Entity.GetMoves(moves);
         if (moves.SequenceEqual(m))
             return false;
@@ -729,7 +729,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         if (!silent)
         {
             var mv = GameInfo.Strings.Move;
-            var movestrings = m.Select(v => (uint)v >= mv.Count ? MsgProgramError : mv[v]);
+            var movestrings = m.Select(v => v >= mv.Count ? MsgProgramError : mv[v]);
             var msg = string.Join(Environment.NewLine, movestrings);
             if (DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgPKMSuggestionMoves, msg))
                 return false;
@@ -755,16 +755,16 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         if (!silent)
         {
             var mv = GameInfo.Strings.Move;
-            var movestrings = m.Select(v => (uint)v >= mv.Count ? MsgProgramError : mv[v]);
+            var movestrings = m.Select(v => v >= mv.Count ? MsgProgramError : mv[v]);
             var msg = string.Join(Environment.NewLine, movestrings);
             if (DialogResult.Yes != WinFormsUtil.Prompt(MessageBoxButtons.YesNo, MsgPKMSuggestionRelearn, msg))
                 return false;
         }
 
-        CB_RelearnMove1.SelectedValue = m[0];
-        CB_RelearnMove2.SelectedValue = m[1];
-        CB_RelearnMove3.SelectedValue = m[2];
-        CB_RelearnMove4.SelectedValue = m[3];
+        CB_RelearnMove4.SelectedValue = (int)m[3];
+        CB_RelearnMove3.SelectedValue = (int)m[2];
+        CB_RelearnMove2.SelectedValue = (int)m[1];
+        CB_RelearnMove1.SelectedValue = (int)m[0];
         return true;
     }
 
@@ -932,7 +932,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
     {
         if (FieldsLoaded && sender == CB_Form)
         {
-            Entity.Form = CB_Form.SelectedIndex;
+            Entity.Form = (byte)CB_Form.SelectedIndex;
             uint EXP = Experience.GetEXP(Entity.CurrentLevel, Entity.PersonalInfo.EXPGrowth);
             TB_EXP.Text = EXP.ToString();
         }
@@ -945,7 +945,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         {
             if (Entity.Format == 3)
             {
-                Entity.SetPIDUnown3(CB_Form.SelectedIndex);
+                Entity.SetPIDUnown3((byte)CB_Form.SelectedIndex);
                 TB_PID.Text = Entity.PID.ToString("X8");
             }
             else if (Entity.Format == 2)
@@ -1117,7 +1117,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
     {
         // Get Species dependent information
         if (FieldsLoaded)
-            Entity.Species = WinFormsUtil.GetIndex(CB_Species);
+            Entity.Species = (ushort)WinFormsUtil.GetIndex(CB_Species);
         SpeciesIDTip.SetToolTip(CB_Species, Entity.Species.ToString("000"));
         SetAbilityList();
         SetForms();
@@ -1257,7 +1257,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         if (CHK_Nicknamed.Checked)
             return;
 
-        int species = WinFormsUtil.GetIndex(CB_Species);
+        var species = (ushort)WinFormsUtil.GetIndex(CB_Species);
         if (species < 1 || species > Entity.MaxSpeciesID)
             return;
 
@@ -1285,19 +1285,30 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
             return;
 
         // Fetch Current Species and set it as Nickname Text
-        int species = WinFormsUtil.GetIndex(CB_Species);
-        if ((uint)(species - 1) >= Entity.MaxSpeciesID)
-        { TB_Nickname.Text = string.Empty; return; }
-
-        if (CHK_IsEgg.Checked)
-            species = 0; // get the egg name.
-
-        // If name is that of another language, don't replace the nickname
-        if (sender != CB_Language && species != 0 && !SpeciesName.IsNicknamedAnyLanguage(species, TB_Nickname.Text, Entity.Format))
+        var species = (ushort)WinFormsUtil.GetIndex(CB_Species);
+        if (species is 0 || species > Entity.MaxSpeciesID)
+        {
+            TB_Nickname.Text = string.Empty;
             return;
+        }
 
-        int lang = WinFormsUtil.GetIndex(CB_Language);
-        TB_Nickname.Text = SpeciesName.GetSpeciesNameGeneration(species, lang, Entity.Format);
+        string nick;
+        if (CHK_IsEgg.Checked)
+        {
+            // Get the egg name.
+            int language = WinFormsUtil.GetIndex(CB_Language);
+            nick = SpeciesName.GetEggName(language, Entity.Format);
+        }
+        else
+        {
+            // If name is that of another language, don't replace the nickname
+            if (sender != CB_Language && !SpeciesName.IsNicknamedAnyLanguage(species, TB_Nickname.Text, Entity.Format))
+                return;
+            int lang = WinFormsUtil.GetIndex(CB_Language);
+            nick = SpeciesName.GetSpeciesNameGeneration(species, lang, Entity.Format);
+        }
+
+        TB_Nickname.Text = nick;
         if (Entity is GBPKM pk)
             pk.SetNotNicknamed();
     }
@@ -1461,7 +1472,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         Entity.PID = Util.GetHexValue(TB_PID.Text);
         Entity.Nature = WinFormsUtil.GetIndex(CB_Nature);
         Entity.Gender = UC_Gender.Gender;
-        Entity.Form = CB_Form.SelectedIndex;
+        Entity.Form = (byte)CB_Form.SelectedIndex;
         Entity.Version = WinFormsUtil.GetIndex(CB_GameOrigin);
 
         if (Entity.Format > 2)
@@ -1640,7 +1651,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         ValidateComboBox(cb);
 
         // Store value back, repopulate legality.
-        int value = WinFormsUtil.GetIndex(cb);
+        var value = (ushort)WinFormsUtil.GetIndex(cb);
         int index = Array.IndexOf(Moves, cb);
         if (index != -1)
         {
@@ -1653,7 +1664,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         }
         else if (cb == CB_AlphaMastered && Entity is PA8 pa8)
         {
-            pa8.AlphaMove = (ushort)value;
+            pa8.AlphaMove = value;
         }
         else
         {
@@ -1669,7 +1680,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
             return;
 
         var (text, value) = (ComboItem)((ComboBox)sender).Items[e.Index];
-        var valid = LegalMoveSource.Info.CanLearn(value) && !HaX;
+        var valid = LegalMoveSource.Info.CanLearn((ushort)value) && !HaX;
 
         var current = (e.State & DrawItemState.Selected) != 0;
         var brush = Draw.Brushes.GetBackground(valid, current);
@@ -1754,7 +1765,7 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
 
         if (ModifierKeys == Keys.Shift)
         {
-            Span<int> moves = stackalloc int[4];
+            Span<ushort> moves = stackalloc ushort[4];
             Entity.GetMoves(moves);
             t.SetRecordFlags(moves);
             UpdateLegality();

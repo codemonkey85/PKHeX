@@ -13,10 +13,10 @@ public class BreedTests
 {
     private const int MovesetCount = 4; // Four moves; zeroed empty slots.
 
-    private static void GetMoves(Span<Move> moves, Span<int> result)
+    private static void GetMoves(Span<Move> moves, Span<ushort> result)
     {
         for (int i = 0; i < moves.Length; i++)
-            result[i] = (int) moves[i];
+            result[i] = (ushort) moves[i];
     }
 
     [Theory]
@@ -35,13 +35,13 @@ public class BreedTests
     [InlineData(BD, Gible, 0, IronHead, BodySlam, SandTomb, Outrage)]
     [InlineData(BD, Gible, 0, IronHead, BodySlam, Outrage, SandTomb)]
     [InlineData(BD, Gible, 0, BodySlam, Outrage, SandTomb, DragonBreath)]
-    public void VerifyBreed(GameVersion game, Species species, int form, params Move[] movelist)
+    public void VerifyBreed(GameVersion game, Species species, byte form, params Move[] movelist)
     {
         var gen = game.GetGeneration();
-        Span<int> moves = stackalloc int[MovesetCount];
+        Span<ushort> moves = stackalloc ushort[MovesetCount];
         GetMoves(movelist, moves);
         var origins = new byte[moves.Length];
-        var valid = MoveBreed.Validate(gen, (int) species, form, game, moves, origins);
+        var valid = MoveBreed.Validate(gen, (ushort) species, form, game, moves, origins);
         valid.Should().BeTrue();
 
         var x = origins;
@@ -57,37 +57,37 @@ public class BreedTests
     [InlineData(SH, Honedge, 0, FuryCutter, WideGuard, DestinyBond)] // insufficient move count
     [InlineData(OR, Rotom, 0, Discharge, Charge, Trick, ConfuseRay)] // invalid push-out order
     [InlineData(OR, Rotom, 0, ThunderWave, ThunderShock, ConfuseRay, Discharge)] // no inheriting levelup
-    public void CheckBad(GameVersion game, Species species, int form, params Move[] movelist)
+    public void CheckBad(GameVersion game, Species species, byte form, params Move[] movelist)
     {
         var gen = game.GetGeneration();
-        Span<int> moves = stackalloc int[MovesetCount];
+        Span<ushort> moves = stackalloc ushort[MovesetCount];
         GetMoves(movelist, moves);
         Span<byte> result = stackalloc byte[moves.Length];
-        var test = MoveBreed.Validate(gen, (int)species, form, game, moves, result);
+        var test = MoveBreed.Validate(gen, (ushort)species, form, game, moves, result);
         test.Should().BeFalse();
     }
-
+    
     [Theory]
     [InlineData(GD, Bulbasaur, 0, Growl, Tackle)] // swap order, two base moves
     [InlineData(UM, Charmander, 0, Ember, BellyDrum, Scratch, Growl)] // swap order, inherit + egg moves
     [InlineData(BD, Gible, 0, BodySlam, SandTomb, Outrage, DragonBreath)]
-    public void CheckFix(GameVersion game, Species species, int form, params Move[] movelist)
+    public void CheckFix(GameVersion game, Species species, byte form, params Move[] movelist)
     {
         var gen = game.GetGeneration();
-        Span<int> moves = stackalloc int[MovesetCount];
+        Span<ushort> moves = stackalloc ushort[MovesetCount];
         GetMoves(movelist, moves);
 
         Span<byte> result = stackalloc byte[moves.Length];
-        var valid = MoveBreed.Validate(gen, (int)species, form, game, moves, result);
+        var valid = MoveBreed.Validate(gen, (ushort)species, form, game, moves, result);
         valid.Should().BeFalse();
 
-        Span<int> expected = stackalloc int[moves.Length];
-        var useNew = MoveBreed.GetExpectedMoves(gen, (int)species, form, game, moves, result, expected);
+        Span<ushort> expected = stackalloc ushort[moves.Length];
+        var useNew = MoveBreed.GetExpectedMoves(gen, (ushort)species, form, game, moves, result, expected);
         useNew.Should().BeTrue();
 
         // fixed order should be different now.
         expected.SequenceEqual(moves).Should().BeFalse();
         // nonzero move count should be same
-        expected.Count(0).Should().Be(moves.Count(0));
+        expected.Count((ushort)0).Should().Be(moves.Count((ushort)0));
     }
 }
