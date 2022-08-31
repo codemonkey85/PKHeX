@@ -90,7 +90,7 @@ public static partial class Legal
     internal static readonly ushort[] HeldItems_HGSS = ArrayUtil.ConcatAll(Pouch_Items_HGSS, Pouch_Mail_HGSS, Pouch_Medicine_HGSS, Pouch_Berries_HGSS, Pouch_Ball_Pt, Pouch_TMHM_HGSS.Slice(0, Pouch_TMHM_HGSS.Length - 8));
     #endregion
 
-    internal static readonly bool[] ReleasedHeldItems_4 = GetPermitList(MaxItemID_4_HGSS, HeldItems_HGSS, new ushort[]
+    internal static readonly bool[] ReleasedHeldItems_4 = GetPermitList(MaxItemID_4_HGSS, HeldItems_HGSS, stackalloc ushort[]
     {
         005, // Safari Ball
         016, // Cherish Ball
@@ -138,13 +138,18 @@ public static partial class Legal
 
     internal static int GetTransfer45MetLocation(PKM pk)
     {
+        // Everything except for crown beasts and Celebi get the default transfer location.
+        // Crown beasts and Celebi are 100% identifiable by the species ID and fateful encounter, originating from Gen4.
         if (!pk.Gen4 || !pk.FatefulEncounter)
             return Locations.Transfer4; // Pokétransfer
 
         return pk.Species switch
         {
-            243 or 244 or 245 => Locations.Transfer4_CrownUnused, // Beast
-            251 => Locations.Transfer4_CelebiUnused, // Celebi
+            // Crown Beast
+            (int)Species.Raikou or (int)Species.Entei or (int)Species.Suicune => Locations.Transfer4_CrownUnused,
+            // Celebi
+            (int)Species.Celebi => Locations.Transfer4_CelebiUnused,
+            // Default
             _ => Locations.Transfer4,
         };
     }
