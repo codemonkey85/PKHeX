@@ -4,7 +4,10 @@
     <TargetFrameworks>net6.0;net48</TargetFrameworks>
     <LangVersion>10</LangVersion>
     <Nullable>enable</Nullable>
+    <TargetFrameworks>net6.0;net46</TargetFrameworks>
+    <RootNamespace>PKHeX.Drawing</RootNamespace>
   </PropertyGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\PKHeX.Core\PKHeX.Core.csproj" />
   </ItemGroup>
