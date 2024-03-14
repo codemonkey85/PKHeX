@@ -369,20 +369,20 @@ public abstract class SAV4 : SaveFile, IEventFlag37, IDaycareStorage, IDaycareRa
     public int DaycareSlotCount => 2;
     private const int DaycareSlotSize = PokeCrypto.SIZE_4PARTY;
     protected abstract int DaycareOffset { get; }
-    public Memory<byte> GetDaycareSlot(int slot) => GeneralBuffer.Slice(DaycareOffset + (slot * DaycareSlotSize), DaycareSlotSize);
+    public Memory<byte> GetDaycareSlot(int slot) => GeneralBuffer.Slice(DaycareOffset + (slot * DaycareSlotSize), PokeCrypto.SIZE_4STORED);
 
     // EXP: Last 4 bytes of each slot
     public uint GetDaycareEXP(int index)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)index, 2u);
-        int ofs = DaycareOffset + DaycareSlotSize - 4;
+        int ofs = DaycareOffset + DaycareSlotSize - 4 + (index * DaycareSlotSize);
         return ReadUInt32LittleEndian(General[ofs..]);
     }
 
     public void SetDaycareEXP(int index, uint value)
     {
         ArgumentOutOfRangeException.ThrowIfGreaterThanOrEqual((uint)index, 2u);
-        int ofs = DaycareOffset + DaycareSlotSize - 4;
+        int ofs = DaycareOffset + DaycareSlotSize - 4 + (index * DaycareSlotSize);
         WriteUInt32LittleEndian(General[ofs..], value);
     }
 
@@ -395,13 +395,15 @@ public abstract class SAV4 : SaveFile, IEventFlag37, IDaycareStorage, IDaycareRa
         GetDaycareSlot(index).Span.Clear();
     }
 
+    private int DaycareEnd => DaycareOffset + (2 * DaycareSlotSize);
+
     uint IDaycareRandomState<uint>.Seed
     {
-        get => ReadUInt32LittleEndian(General[(DaycareOffset + (2 * DaycareSlotSize))..]);
-        set => WriteUInt32LittleEndian(General[DaycareOffset..], value);
+        get => ReadUInt32LittleEndian(General[DaycareEnd..]);
+        set => WriteUInt32LittleEndian(General[DaycareEnd..], value);
     }
 
-    public byte DaycareStepCounter { get => General[DaycareOffset + (2 * DaycareSlotSize) + 4]; set => General[DaycareOffset + (2 * DaycareSlotSize) + 4] = value; }
+    public byte DaycareStepCounter { get => General[DaycareEnd + 4]; set => General[DaycareEnd + 4] = value; }
 
     public bool IsEggAvailable
     {
@@ -678,7 +680,7 @@ public abstract class MysteryBlock4(SAV4 sav, Memory<byte> raw) : SaveBlock<SAV4
     }
 
     private Span<byte> GetCardSpanPGT(int index) => Data.Slice(GetGiftOffsetPGT(index), PGT.Size);
-    private Span<byte> GetCardSpanPCD(int index) => Data.Slice(GetGiftOffsetPCD(index), PGT.Size);
+    private Span<byte> GetCardSpanPCD(int index) => Data.Slice(GetGiftOffsetPCD(index), PCD.Size);
     public PGT GetMysteryGiftPGT(int index) => new(GetCardSpanPGT(index).ToArray());
     public PCD GetMysteryGiftPCD(int index) => new(GetCardSpanPCD(index).ToArray());
 
