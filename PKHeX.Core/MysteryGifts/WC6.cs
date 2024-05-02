@@ -267,7 +267,7 @@ public sealed class WC6(byte[] Data) : DataMysteryGift(Data), IRibbonSetEvent3, 
         }
     }
 
-    public bool IsNicknamed => Nickname.Length > 0;
+    public bool IsNicknamed => Nickname.Length != 0;
 
     public override Moveset Moves
     {
@@ -325,11 +325,11 @@ public sealed class WC6(byte[] Data) : DataMysteryGift(Data), IRibbonSetEvent3, 
             ContestTough = ContestTough,
             ContestSheen = ContestSheen,
 
-            OriginalTrainerName = OriginalTrainerName.Length > 0 ? OriginalTrainerName : tr.OT,
+            OriginalTrainerName = OriginalTrainerName.Length != 0 ? OriginalTrainerName : tr.OT,
             OriginalTrainerGender = OTGender != 3 ? (byte)(OTGender % 2) : tr.Gender,
-            HandlingTrainerName = OriginalTrainerName.Length > 0 ? tr.OT : string.Empty,
-            HandlingTrainerGender = OriginalTrainerName.Length > 0 ? tr.Gender : default,
-            CurrentHandler = OriginalTrainerName.Length > 0 ? (byte)1 : (byte)0,
+            HandlingTrainerName = OriginalTrainerName.Length != 0 ? tr.OT : string.Empty,
+            HandlingTrainerGender = OriginalTrainerName.Length != 0 ? tr.Gender : default,
+            CurrentHandler = OriginalTrainerName.Length != 0 ? (byte)1 : (byte)0,
 
             EXP = Experience.GetEXP(Level, pi.EXPGrowth),
 
@@ -493,9 +493,9 @@ public sealed class WC6(byte[] Data) : DataMysteryGift(Data), IRibbonSetEvent3, 
     {
         Span<int> finalIVs = stackalloc int[6];
         GetIVs(finalIVs);
-        var ivflag = finalIVs.Find(static iv => (byte)(iv - 0xFC) < 3);
+        var ivflag = finalIVs.IndexOfAny(0xFC, 0xFD, 0xFE);
         var rng = Util.Rand;
-        if (ivflag == default) // Random IVs
+        if (ivflag == -1) // Random IVs
         {
             for (int i = 0; i < finalIVs.Length; i++)
             {
@@ -505,7 +505,7 @@ public sealed class WC6(byte[] Data) : DataMysteryGift(Data), IRibbonSetEvent3, 
         }
         else // 1/2/3 perfect IVs
         {
-            int IVCount = ivflag - 0xFB;
+            int IVCount = finalIVs[ivflag] - 0xFB;
             do { finalIVs[rng.Next(6)] = 31; }
             while (finalIVs.Count(31) < IVCount);
             for (int i = 0; i < finalIVs.Length; i++)
