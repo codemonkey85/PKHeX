@@ -31,7 +31,7 @@ public static class StringConverter345
     {
         Span<char> result = stackalloc char[data.Length];
         int count = TransferGlyphs34(data, result, language, maxLength);
-        StringConverter4.SetString(dest, result[..count], maxLength, StringConverterOption.None);
+        StringConverter4.SetString(dest, result[..count], maxLength, language, StringConverterOption.None);
     }
 
     private static int TransferGlyphs34(ReadOnlySpan<byte> data, Span<char> result, int language, int maxLength)
@@ -98,8 +98,11 @@ public static class StringConverter345
     {
         for (int i = 0; i < input.Length; i++)
         {
-            if (IsInvalid45(input[i]))
+            var c = input[i];
+            if (IsInvalid45(c))
                 input[i] = '?';
+            else if (c == '’') // Farfetch’d and CH’DING nicknames
+                input[i] = '\''; // Wrong apostrophe, nice. Only is corrected when converted to Gen6.
         }
     }
 
@@ -120,6 +123,8 @@ public static class StringConverter345
             var c = ReadUInt16LittleEndian(span);
             if (IsPrivateUseChar(c))
                 WriteUInt16LittleEndian(span, GetMigratedPrivateChar(c));
+            else if (c is '\'') // Fix all apostrophes. ' -> ’
+                WriteUInt16LittleEndian(span, '’');
         }
     }
 

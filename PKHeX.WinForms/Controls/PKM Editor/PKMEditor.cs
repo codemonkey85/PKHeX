@@ -1319,12 +1319,13 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         if (!FieldsLoaded)
             return;
 
+        RefreshFontWarningButton();
         Entity.Nickname = TB_Nickname.Text;
         if (CHK_NicknamedFlag.Checked)
             return;
 
         var species = (ushort)WinFormsUtil.GetIndex(CB_Species);
-        if (species < 1 || species > Entity.MaxSpeciesID)
+        if (species is 0 || species > Entity.MaxSpeciesID)
             return;
 
         if (CHK_IsEgg.Checked)
@@ -1996,8 +1997,8 @@ public sealed partial class PKMEditor : UserControl, IMainEditor
         PopulateFields(Entity);
 
         // Save File Specific Limits
-        TB_OT.MaxLength = Entity.MaxStringLengthOT;
-        TB_HT.MaxLength = Entity.MaxStringLengthOT;
+        TB_OT.MaxLength = Entity.MaxStringLengthTrainer;
+        TB_HT.MaxLength = Entity.MaxStringLengthTrainer;
         TB_Nickname.MaxLength = Entity.MaxStringLengthNickname;
 
         // Hide Unused Tabs
