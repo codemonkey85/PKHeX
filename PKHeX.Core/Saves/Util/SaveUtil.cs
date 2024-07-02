@@ -767,6 +767,8 @@ public static class SaveUtil
     public static SaveFile? GetVariantSAV(SAV3GCMemoryCard memCard)
     {
         // Pre-check for header/footer signatures
+        if (memCard.IsNoGameSelected)
+            memCard.GetMemoryCardState();
         var memory = memCard.ReadSaveGameData();
         if (memory.Length == 0)
             return null;

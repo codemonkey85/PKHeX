@@ -7,6 +7,7 @@ namespace PKHeX.Core;
 public sealed class EncounterGenerator3 : IEncounterGenerator
 {
     public static readonly EncounterGenerator3 Instance = new();
+    public bool CanGenerateEggs => true;
 
     public IEnumerable<IEncounterable> GetPossible(PKM _, EvoCriteria[] chain, GameVersion game, EncounterTypeGroup groups)
     {
@@ -122,7 +123,7 @@ public sealed class EncounterGenerator3 : IEncounterGenerator
             yield break;
         if (defer.Type is DeferralType.PIDIV)
             info.ManualFlag = EncounterYieldFlag.InvalidPIDIV;
-        else if (defer.Type is DeferralType.Tile)
+        else if (defer.Type is DeferralType.SlotNumber)
             info.ManualFlag = EncounterYieldFlag.InvalidFrame;
         yield return lastResort;
     }
