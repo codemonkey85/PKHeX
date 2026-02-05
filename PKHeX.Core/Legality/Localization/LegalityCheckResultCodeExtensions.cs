@@ -10,7 +10,8 @@ public static class LegalityCheckResultCodeExtensions
 {
     extension(LegalityCheckResultCode code)
     {
-        public bool IsArgument => code is < FirstWithMove and >= FirstWithArgument;
+        public bool IsArgument => code is < FirstWithTwoArguments and >= FirstWithArgument;
+        public bool IsArgument2 => code is < FirstWithMove and >= FirstWithTwoArguments;
         public bool IsMove => code is < FirstWithItem and >= FirstWithMove;
         public bool IsItem => code is < FirstWithLanguage and >= FirstWithItem;
         public bool IsLanguage => code is < FirstWithMemory and >= FirstWithLanguage;
