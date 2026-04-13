@@ -182,26 +182,7 @@ public sealed class SAV9ZA : SaveFile, ISCBlockArray, ISaveFileRevision, IBoxDet
         PA9 pa9 = (PA9)pk;
         // Apply to this Save File
         pa9.UpdateHandler(this);
-
-        if (FormArgumentUtil.IsFormArgumentTypeDateTriple(pa9.Species, pa9.Form))
-        {
-            pa9.FormArgumentElapsed = pa9.FormArgumentMaximum = 0;
-            pa9.FormArgumentRemain = (byte)GetFormArgument(pa9);
-        }
-
         pa9.RefreshChecksum();
-    }
-
-    private static uint GetFormArgument(PKM pk)
-    {
-        if (pk.Form == 0)
-            return 0;
-        return pk.Species switch
-        {
-            (int)Species.Furfrou => 5u, // Furfrou
-            // Hoopa no longer sets Form Argument for Unbound form. Let it set 0.
-            _ => 0u,
-        };
     }
 
     protected override void SetDex(PKM pk) => Zukan.SetDex(pk);
@@ -223,7 +204,22 @@ public sealed class SAV9ZA : SaveFile, ISCBlockArray, ISaveFileRevision, IBoxDet
     }
 
     protected override PA9 GetBoxSlot(int offset) => GetDecryptedPKM(BoxInfo.Data.Slice(offset, SIZE_PARTY).ToArray()); // party format in boxes!
-    protected override void WriteSlotBox(PKM pk, Span<byte> data) => pk.WriteEncryptedDataParty(data);
+    protected override void WriteSlotBox(PKM pk, Span<byte> data)
+    {
+        pk.WriteEncryptedDataParty(data);
+        // write the present flag, if long enough
+        if (data.Length > SIZE_PARTY)
+            data[PokeCrypto.SIZE_8PARTY] = 1; // mark as present, even if it is empty, to match game behavior for at-rest save data.
+    }
+
+    public override void SetPartySlotAtIndex(PKM pk, int index, EntityImportSettings settings = default)
+    {
+        base.SetPartySlotAtIndex(pk, index, settings);
+        // write the present flag, if long enough
+        var span = PartyInfo.GetSlot(index);
+        if (span.Length > SIZE_PARTY)
+            span.Span[PokeCrypto.SIZE_8PARTY] = 1; // mark as present, even if it is empty, to match game behavior for at-rest save data.
+    }
 
     public override StorageSlotSource GetBoxSlotFlags(int index)
     {
