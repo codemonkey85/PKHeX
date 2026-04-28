@@ -183,17 +183,64 @@ public sealed class MiscVerifierG3 : Verifier
 
     private static void FlagIsNicknameClean(LegalityAnalysis data, PK3 pk)
     {
-        if (!pk.IsNicknamed || pk.IsEgg)
+        if (pk.IsEgg)
             return;
-        // Japanese only fills the first 5+1 bytes; everything else is trash.
-        // International games are 10 chars (full buffer) max; implicit terminator if full.
-        var nick = pk.GetNicknamePrefillRegion();
-        if (!TrashByteRules3.IsTerminatedFF(nick))
+
+        if (IsNicknamedByPlayer(data, pk))
         {
-            // Trade to another language and evolve will treat it like a nickname, without actually filling with FF.
-            if (!TrashByteRules3.IsTerminatedFFZero(nick) || pk.Species == data.EncounterOriginal.Species) // not evolved
+            // Japanese only fills the first 5+1 bytes; everything else is trash.
+            // International games are 10 chars (full buffer) max; implicit terminator if full.
+            var nick = pk.GetNicknamePrefillRegion();
+            if (TrashByteRules3.IsTerminatedFF(nick))
+                return; // Matches the manually nicknamed pattern.
+
+            if (!TrashByteRules3.IsTerminatedFFZero(nick)) // Wasn't cleared by transferring between C/XD.
                 data.AddLine(GetInvalid(Trainer, TrashBytesMismatchInitial));
         }
+    }
+
+    private static bool IsNicknamedByPlayer(LegalityAnalysis data, PK3 pk)
+    {
+        Span<char> name = stackalloc char[10];
+        var len = pk.LoadString(pk.NicknameTrash, name);
+        name = name[..len];
+
+        if (!SpeciesName.IsNicknamed(pk.Species, name, pk.Language, 3))
+            return false;
+
+        // Okay, we aren't matching the expected name.
+        // Only way to do that is by manually nicknaming OR evolving in another language game.
+        // Check for the language evolution.
+
+        // Each game only contains the strings for its own localization, so it won't know of others.
+        // The game evaluates "is nicknamed" based on the text not matching its species name.
+        // Trade to another language then evolve: will treat it like a nickname, without actually filling with FF.
+        if (IsNicknameLanguageEvolution(data, name))
+            return false;
+
+        // No other explanation; must be manually nicknamed.
+        return true;
+    }
+
+    private static bool IsNicknameLanguageEvolution(LegalityAnalysis data, ReadOnlySpan<char> name)
+    {
+        var chain = data.Info.EvoChainsAllGens.Gen3;
+        if (chain.Length == 1)
+        {
+            // Hasn't evolved.
+            data.AddLine(GetInvalid(Trainer, TrashBytesMismatchInitial));
+            return false;
+        }
+
+        // Check if the nickname matches any pre-evolution on any language.
+        // Skip head (current species), check pre-evolutions.
+        for (int i = 1; i < chain.Length; i++)
+        {
+            var isDefaultName = SpeciesName.IsNicknamedAnyLanguage(chain[i].Species, name, EntityContext.Gen3);
+            if (isDefaultName)
+                return true;
+        }
+        return false;
     }
 }
 
