@@ -33,8 +33,7 @@ public static class GenerateMethodK
             {
                 if (checkProc)
                 {
-                    var check = new LeadSeed(seed, LeadRequired.None);
-                    if (!MethodK.CheckEncounterActivation(enc, ref check))
+                    if (!MethodK.CheckEncounterActivation(enc, seed, LeadRequired.None, out _))
                     {
                         seed = LCRNG.Next(seed);
                         continue;

@@ -7,7 +7,6 @@ namespace PKHeX.Core;
 /// </summary>
 public static class GenerateMethodJ
 {
-    /// <param name="enc">Encounter slot to generate for</param>
     extension<T>(T enc) where T : IEncounterSlot4
     {
         /// <summary>
@@ -33,8 +32,7 @@ public static class GenerateMethodJ
             {
                 if (checkProc)
                 {
-                    var check = new LeadSeed(seed, LeadRequired.None);
-                    if (!MethodJ.CheckEncounterActivation(enc, ref check))
+                    if (!MethodJ.CheckEncounterActivation(enc, seed, LeadRequired.None, out _))
                     {
                         seed = LCRNG.Next(seed);
                         continue;
