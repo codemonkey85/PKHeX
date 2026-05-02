@@ -234,7 +234,7 @@ public static class MethodJ
             return TryGetMatchNoSync(ctx, out result);
         }
         var syncProc = IsSyncPass(p0);
-        if (syncProc && !(enc.Type is Grass && enc.LevelMax < levelMin))
+        if (syncProc && !(levelMin > enc.LevelMax)) // can't boost level if already using Synchronize
         {
             var ctx = new FrameCheckDetails<T>(enc, seed, levelMin, levelMax, format);
             if (IsSlotValidRegular(ctx, out result, Synchronize))
@@ -298,14 +298,12 @@ public static class MethodJ
     private static bool TryGetMatchNoSync<T>(in FrameCheckDetails<T> ctx, out LeadSeed result)
         where T : IEncounterSlot4
     {
-        if (ctx.Encounter.Type is Grass)
+        if (ctx.LevelMin > ctx.Encounter.LevelMax)
         {
-            if (ctx.Encounter.LevelMax > ctx.LevelMin) // Must be boosted via Pressure/Hustle/Vital Spirit
-            {
-                if (IsSlotValidHustleVital(ctx, out var pressure) && CheckEncounterActivation(ctx.Encounter, pressure, PressureHustleSpirit, out result))
-                    return true;
-                result = default; return false;
-            }
+            // Must be boosted via Pressure/Hustle/Vital Spirit
+            if (IsSlotValidHustleVital(ctx, out var pressure) && CheckEncounterActivation(ctx.Encounter, pressure, PressureHustleSpirit, out result))
+                return true;
+            result = default; return false;
         }
 
         if (IsSlotValidRegular(ctx, out result))
@@ -325,7 +323,7 @@ public static class MethodJ
             return true;
         if (IsSlotValidIntimidate(ctx, out seed) && CheckEncounterActivation(ctx.Encounter, seed, IntimidateKeenEyeFail, out result))
             return true;
-        if (ctx.Encounter.PressureLevel <= ctx.LevelMax) // Can be boosted, or not.
+        if (ctx.LevelMax >= ctx.Encounter.PressureLevel) // Can be boosted, or not.
         {
             if (IsSlotValidHustleVital(ctx, out var pressure) && CheckEncounterActivation(ctx.Encounter, pressure, PressureHustleSpirit, out result))
                 return true;

@@ -41,15 +41,22 @@ public static class MethodK
     /// </remarks>
     /// <inheritdoc cref="GetSeed{TEnc,TEvo}(TEnc, uint, TEvo, byte)"/>
     // ReSharper disable InvalidXmlDocComment
-    public static LeadSeed GetSeed<TEnc>(TEnc enc, uint seed, byte levelMin, byte levelMax, byte format = Format, int depth = 0, Nature forceSyncLead = UnsetLead)
+    private static LeadSeed GetSeed<TEnc>(TEnc enc, uint seed, byte levelMin, byte levelMax, byte format = Format, int depth = 0, Nature forceSyncLead = UnsetLead)
         // ReSharper restore InvalidXmlDocComment
+        where TEnc : IEncounterSlot4
+    {
+        var ctx = GetSearchContext(enc, seed, levelMin, levelMax, format);
+        return GetSeedCore(ctx, seed, depth, forceSyncLead);
+    }
+
+    private static LeadSeed GetSeedCore<TEnc>(in SearchContext<TEnc> ctx, uint seed, int depth = 0, Nature forceSyncLead = UnsetLead)
         where TEnc : IEncounterSlot4
     {
         var pid = ClassicEraRNG.GetSequentialPID(seed);
         var nature = (byte)(pid % 25);
 
         var frames = GetReversalWindow(seed, nature);
-        return GetOriginSeed(enc, seed, nature, frames, levelMin, levelMax, format, depth, forceSyncLead);
+        return GetOriginSeed(ctx, seed, nature, frames, depth, forceSyncLead);
     }
 
     /// <inheritdoc cref="MethodJ.GetReversalWindow"/>
@@ -84,16 +91,31 @@ public static class MethodK
 
     public static uint GetNature(uint rand) => rand % 25;
 
+    private static SearchContext<T> GetSearchContext<T>(T enc, uint seed, byte levelMin, byte levelMax, byte format)
+        where T : IEncounterSlot4
+    {
+        var isRerollMinimum31 = enc is EncounterSlot4 { IsRerollMinimum31: true };
+        var mustFailAllPreviousRerolls = isRerollMinimum31 && !HasAny31IV(seed); // 1-((31/32)^6)^4) = 53.32% for a BCC/Safari to arise with a 31-IV
+        return new(enc, levelMin, levelMax, format, isRerollMinimum31, mustFailAllPreviousRerolls);
+    }
+
     /// <summary>
     /// Gets the first possible origin seed and lead for the input encounter &amp; constraints.
     /// </summary>
     public static LeadSeed GetOriginSeed<T>(T enc, uint seed, byte nature, int reverseCount, byte levelMin, byte levelMax, byte format = Format, int depth = 0, Nature forceSyncLead = UnsetLead)
         where T : IEncounterSlot4
     {
+        var ctx = GetSearchContext(enc, seed, levelMin, levelMax, format);
+        return GetOriginSeed(ctx, seed, nature, reverseCount, depth, forceSyncLead);
+    }
+
+    private static LeadSeed GetOriginSeed<T>(in SearchContext<T> ctx, uint seed, byte nature, int reverseCount, int depth = 0, Nature forceSyncLead = UnsetLead)
+        where T : IEncounterSlot4
+    {
         LeadSeed prefer = default;
         while (true)
         {
-            if (TryGetMatch(enc, levelMin, levelMax, seed, nature, format, out var result, depth, forceSyncLead))
+            if (TryGetMatch(ctx, seed, nature, out var result, depth, forceSyncLead))
             {
                 if (result.IsNoRequirement)
                     return result;
@@ -189,24 +211,23 @@ public static class MethodK
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static bool TryGetMatch<T>(T enc, byte levelMin, byte levelMax, uint seed, byte nature, byte format,
-        out LeadSeed result, int depth = 0, Nature forceSyncLead = UnsetLead)
+    private static bool TryGetMatch<T>(in SearchContext<T> ctx, uint seed, byte nature, out LeadSeed result, int depth = 0, Nature forceSyncLead = UnsetLead)
         where T : IEncounterSlot4
     {
         var p0 = seed >> 16; // 0
         var reg = GetNature(p0) == nature;
         if (reg)
         {
-            var ctx = new FrameCheckDetails<T>(enc, seed, levelMin, levelMax, format);
+            var frame = ctx.GetFrameRef(seed);
             // Ideally, we don't need to check the recursion. Eagerly check the non-recursive paths.
             if (forceSyncLead == UnsetLead)
             {
-                if (TryGetMatchNoSync(ctx, out result))
+                if (TryGetMatchNoSync(frame, out result) && ctx.CanAcceptDirectMatch(depth))
                     return true;
             }
             else // Recursion demands a specific/unspecific synchronization nature.
             {
-                if (TryGetMatchOnlyFailSync(ctx, out result))
+                if (TryGetMatchOnlyFailSync(frame, out result) && ctx.CanAcceptDirectMatch(depth))
                 {
                     if (forceSyncLead is not FailSyncLead) // If we locked in a specific synchronization nature yet, prefer to indicate the end result.
                         result.Lead = Synchronize; // Override back to the end-result synchronize.
@@ -215,13 +236,13 @@ public static class MethodK
             }
 
             // If rerolls can reach here from a failed synchronize check (unknown nature), then check that path as well.
-            if (depth != MaxSafariContest && enc is EncounterSlot4 { IsRerollMinimum31: true })
+            if (ctx.ShouldRecurse(depth))
             {
-                var prev = ctx.Seed1;
-                if (!IsSyncPass(prev >> 16))
+                var prev = frame.Seed1;
+                if (!IsSyncPass(prev >> 16) && !(ctx.LevelMin > ctx.Encounter.LevelMax)) // can't boost level if already using Synchronize
                 {
                     var lead = forceSyncLead == UnsetLead ? FailSyncLead : forceSyncLead;
-                    if (RecurseReject(enc, levelMin, levelMax, prev, format, out result, depth + 1, lead))
+                    if (RecurseReject(ctx, prev, out result, depth + 1, lead))
                         return true;
                 }
             }
@@ -239,15 +260,15 @@ public static class MethodK
         }
 
         var syncProc = IsSyncPass(p0);
-        if (syncProc && !(enc.Type is Grass && enc.LevelMax < levelMin))
+        if (syncProc && !(ctx.LevelMin > ctx.Encounter.LevelMax)) // can't boost level if already using Synchronize
         {
-            var ctx = new FrameCheckDetails<T>(enc, seed, levelMin, levelMax, format);
-            if (IsSlotValidRegular(ctx, out result, Synchronize))
+            var frame = ctx.GetFrameRef(seed);
+            if (IsSlotValidRegular(frame, out result, Synchronize) && ctx.CanAcceptDirectMatch(depth))
                 return true;
 
-            if (depth != MaxSafariContest && enc is EncounterSlot4 { IsRerollMinimum31: true })
+            if (ctx.ShouldRecurse(depth))
             {
-                if (RecurseReject(enc, levelMin, levelMax, seed, format, out result, depth + 1, (Nature)nature))
+                if (RecurseReject(ctx, seed, out result, depth + 1, (Nature)nature))
                     return true;
             }
         }
@@ -255,14 +276,13 @@ public static class MethodK
         return false;
     }
 
-    private const int MaxSafariContest = 4;
     private const Nature UnsetLead = Nature.Random; // lock in if the generation target requires a sync lead
     private const Nature FailSyncLead = unchecked((Nature)(-1));
 
     /// <summary>
     /// Recursive method to check if the input seed could have been generated after 1-4 failed attempts at re-rolling for 31-IVs.
     /// </summary>
-    private static bool RecurseReject<T>(T enc, byte levelMin, byte levelMax, uint seed, byte format, out LeadSeed result, int depth, Nature forceSyncLead)
+    private static bool RecurseReject<T>(in SearchContext<T> ctx, uint seed, out LeadSeed result, int depth, Nature forceSyncLead)
         where T : IEncounterSlot4
     {
         // The game will roll the {(sync,)nature..PID/IV} up to 4 times if none of the IVs are at 31 (total of 3 failed attempts at re-rolls).
@@ -273,8 +293,6 @@ public static class MethodK
 
         // Use the depth to keep track of how many we have already burned.
         // First entry to this method will be 1/4 burned (final result).
-        if (depth == MaxSafariContest)
-            return false;
 
         // Ensure if the previous 4 consumed frames {PID,PID,IV,IV} yielded a 31-IV Pokémon. If so, it couldn't have been re-rolled from.
         var iv2 = LCRNG.Prev16(ref seed);
@@ -292,7 +310,7 @@ public static class MethodK
         // The innate recursion will return true if the skipped frame could have been landed on, or if an even-more previous fail-skipped was landed.
         // We pass in the `forceSyncLead` param in the event we just locked into a specific synchronization nature that must be used by all previous fail-skips.
         // The synchronization nature lock-in is required, to prevent the recursion fail-skips from matching a different lead/sync nature.
-        result = GetSeed(enc, seed, levelMin, levelMax, format, depth, forceSyncLead);
+        result = GetSeedCore(ctx, seed, depth, forceSyncLead);
         if (result.IsValid)
             return true;
 
@@ -313,6 +331,16 @@ public static class MethodK
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static bool IsLow5Bits31(uint iv16) => (iv16 & 0x1F) == 0x1F;
+
+    private static bool HasAny31IV(uint origin)
+    {
+        var seed = LCRNG.Next3(origin); // hop over pid,pid to get iv1
+        var iv1 = seed >> 16;
+        if (IsAny31(iv1))
+            return true;
+        var iv2 = LCRNG.Next16(ref seed);
+        return IsAny31(iv2);
+    }
 
     private static bool TryGetMatchCuteCharm<T>(in FrameCheckDetails<T> ctx, out uint result)
         where T : IEncounterSlot4
@@ -362,12 +390,10 @@ public static class MethodK
     private static bool TryGetMatchOnlyFailSync<T>(in FrameCheckDetails<T> ctx, out LeadSeed result)
         where T : IEncounterSlot4
     {
-        if (ctx.Encounter.Type is Grass)
+        if (ctx.LevelMin > ctx.Encounter.LevelMax)
         {
-            if (ctx.Encounter.LevelMax < ctx.LevelMin) // Must be boosted via Pressure/Hustle/Vital Spirit
-            {
-                result = default; return false;
-            }
+            // Must be boosted via Pressure/Hustle/Vital Spirit
+            result = default; return false;
         }
 
         if (IsSlotValidSyncFail(ctx, out var seed) && CheckEncounterActivation(ctx.Encounter, seed, SynchronizeFail, out result))
@@ -379,14 +405,12 @@ public static class MethodK
     private static bool TryGetMatchNoSync<T>(in FrameCheckDetails<T> ctx, out LeadSeed result)
         where T : IEncounterSlot4
     {
-        if (ctx.Encounter.Type is Grass)
+        if (ctx.LevelMin > ctx.Encounter.LevelMax)
         {
-            if (ctx.Encounter.LevelMax < ctx.LevelMin) // Must be boosted via Pressure/Hustle/Vital Spirit
-            {
-                if (IsSlotValidHustleVital(ctx, out var pressure) && CheckEncounterActivation(ctx.Encounter, pressure, PressureHustleSpirit, out result))
-                    return true;
-                result = default; return false;
-            }
+            // Must be boosted via Pressure/Hustle/Vital Spirit
+            if (IsSlotValidHustleVital(ctx, out var pressure) && CheckEncounterActivation(ctx.Encounter, pressure, PressureHustleSpirit, out result))
+                return true;
+            result = default; return false;
         }
 
         if (IsSlotValidRegular(ctx, out result))
@@ -406,7 +430,7 @@ public static class MethodK
             return true;
         if (IsSlotValidIntimidate(ctx, out seed) && CheckEncounterActivation(ctx.Encounter, seed, IntimidateKeenEyeFail, out result))
             return true;
-        if (ctx.Encounter.PressureLevel <= ctx.LevelMax) // Can be boosted, or not.
+        if (ctx.LevelMax >= ctx.Encounter.PressureLevel) // Can be boosted, or not.
         {
             if (IsSlotValidHustleVital(ctx, out var pressure) && CheckEncounterActivation(ctx.Encounter, pressure, PressureHustleSpirit, out result))
                 return true;
@@ -665,4 +689,33 @@ public static class MethodK
         or Safari_Old_Rod
         or Safari_Good_Rod
         or Safari_Super_Rod;
+
+    /// <summary>
+    /// Wrapper to cache the encounter details for a given seed and level range, to avoid redundant calculations during recursion for Method K's minimum 31-IV re-roll logic.
+    /// </summary>
+    private readonly record struct SearchContext<T>(T Encounter, byte LevelMin, byte LevelMax, byte CurrentEntityFormat,
+        bool IsRerollMinimum31,
+        bool MustFailAllPreviousRerolls)
+        where T : IEncounterSlot4
+    {
+        public FrameCheckDetails<T> GetFrameRef(uint seed) => new(Encounter, seed, LevelMin, LevelMax, CurrentEntityFormat);
+
+        /// <summary>
+        /// For HG/SS Safari Zone and Bug Catching Contest:
+        /// When generating Pokémon's IVs, the game will reroll the numbers up to 4 times if none of the IVs are at 31.
+        /// </summary>
+
+        private const int MaxSafariContest = 4;
+
+        public bool CanAcceptDirectMatch(int depth) => !MustFailAllPreviousRerolls || depth == (MaxSafariContest - 1);
+
+        public bool ShouldRecurse(int depth)
+        {
+            if (!IsRerollMinimum31)
+                return false; // No reroll requirement, no recursion.
+            if (depth >= MaxSafariContest)
+                return false; // Exhausted all possible rerolls.
+            return true;
+        }
+    }
 }
