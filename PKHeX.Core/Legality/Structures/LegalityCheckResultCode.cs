@@ -193,13 +193,11 @@ public enum LegalityCheckResultCode : ushort
     GenderInvalidNone,
 
     // Geography
-    GeoBadOrder,
     GeoHardwareInvalid,
     GeoHardwareRange,
     GeoHardwareValid,
     GeoMemoryMissing,
     GeoNoCountryHT,
-    GeoNoRegion,
 
     // Hints
 
@@ -405,6 +403,9 @@ public enum LegalityCheckResultCode : ushort
     PokerusStrainUnobtainable_0, // strain
     MemoryHTGender_0, // gender value
     G6SuperTrainBagInvalid_0,
+    GeoBadOrder_0,
+    GeoNoCountry_0,
+    GeoNoRegion_0,
     StatIncorrectHeightValue_0,
     StatIncorrectWeightValue_0,
     StatIncorrectScaleValue_0,

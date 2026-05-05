@@ -221,7 +221,9 @@ public sealed class LegalityCheckLocalization
     public string GeoHardwareValid { get; init; } = "Geolocation: Country is in 3DS region.";
     public string GeoMemoryMissing { get; init; } = "GeoLocation Memory: Memories should be present.";
     public string GeoNoCountryHT { get; init; } = "GeoLocation Memory: HT Name present but has no previous Country.";
-    public string GeoNoRegion { get; init; } = "GeoLocation Memory: Region without Country.";
+    public string GeoBadOrder_0 { get; init; } = "GeoLocation Memory #{0}: Gap/Blank present.";
+    public string GeoNoCountry_0 { get; init; } = "GeoLocation Memory #{0}: Region without Country.";
+    public string GeoNoRegion_0 { get; init; } = "GeoLocation Memory #{0}: Country without Region.";
 
     public string HyperTrainLevelGEQ_0 { get; init; } = "Can't Hyper Train a Pokémon that isn't level {0}.";
     public string HyperPerfectAll { get; init; } = "Can't Hyper Train a Pokémon with perfect IVs.";
