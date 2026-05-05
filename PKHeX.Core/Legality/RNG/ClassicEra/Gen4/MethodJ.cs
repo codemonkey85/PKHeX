@@ -234,7 +234,7 @@ public static class MethodJ
             return TryGetMatchNoSync(ctx, out result);
         }
         var syncProc = IsSyncPass(p0);
-        if (syncProc && !(levelMin > enc.LevelMax)) // can't boost level if already using Synchronize
+        if (syncProc && levelMin <= enc.LevelMax) // can't boost level if already using Synchronize
         {
             var ctx = new FrameCheckDetails<T>(enc, seed, levelMin, levelMax, format);
             if (IsSlotValidRegular(ctx, out result, Synchronize))
