@@ -239,7 +239,7 @@ public static class MethodK
             if (ctx.ShouldRecurse(depth))
             {
                 var prev = frame.Seed1;
-                if (!IsSyncPass(prev >> 16) && !(ctx.LevelMin > ctx.Encounter.LevelMax)) // can't boost level if already using Synchronize
+                if (!IsSyncPass(prev >> 16) && ctx.LevelMin <= ctx.Encounter.LevelMax) // can't boost level if already using Synchronize
                 {
                     var lead = forceSyncLead == UnsetLead ? FailSyncLead : forceSyncLead;
                     if (RecurseReject(ctx, prev, out result, depth + 1, lead))
@@ -260,7 +260,7 @@ public static class MethodK
         }
 
         var syncProc = IsSyncPass(p0);
-        if (syncProc && !(ctx.LevelMin > ctx.Encounter.LevelMax)) // can't boost level if already using Synchronize
+        if (syncProc && ctx.LevelMin <= ctx.Encounter.LevelMax) // can't boost level if already using Synchronize
         {
             var frame = ctx.GetFrameRef(seed);
             if (IsSlotValidRegular(frame, out result, Synchronize) && ctx.CanAcceptDirectMatch(depth))

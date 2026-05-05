@@ -343,7 +343,7 @@ public static class MethodH
             if (IsSafariBlockProc(safariBlockSeed))
             {
                 var ctx = new FrameCheckDetails<T>(enc, safariBlockSeed, levelMin, levelMax, format);
-                if (TryGetMatchNoSync(ctx, out result) && CheckEncounterActivation(enc, safariBlockSeed, None, out result))
+                if (TryGetMatchNoSync(ctx, out result))
                     return true;
             }
 
