@@ -19,6 +19,7 @@ public static class ReflectUtil
     /// <param name="obj">Object to fetch property from</param>
     /// <param name="value">Value to compare to</param>
     /// <returns>Comparison result</returns>
+    [RequiresUnreferencedCode("Uses reflection to inspect property metadata and values.")]
     public static int CompareTo<T>(this PropertyInfo pi, T obj, object value)
     {
         var v = pi.GetValue(obj, null);
@@ -30,12 +31,14 @@ public static class ReflectUtil
         return 0;
     }
 
+    [RequiresUnreferencedCode("Uses reflection to set property values by metadata.")]
     public static void SetValue<T>(PropertyInfo pi, T obj, object value)
     {
         var c = ConvertValue(value, pi.PropertyType);
         pi.SetValue(obj, c, null);
     }
 
+    [RequiresUnreferencedCode("Uses reflection to access properties by name.")]
     public static object? GetValue<T>(T obj, string name) where T : notnull
     {
         if (obj.GetType().GetTypeInfo().TryGetPropertyInfo(name, out var pi))
@@ -43,6 +46,7 @@ public static class ReflectUtil
         return null;
     }
 
+    [RequiresUnreferencedCode("Uses reflection to access properties by name.")]
     public static bool SetValue<T>(T obj, string name, object value) where T : notnull
     {
         if (!obj.GetType().GetTypeInfo().TryGetPropertyInfo(name, out var pi))
@@ -53,6 +57,7 @@ public static class ReflectUtil
         return true;
     }
 
+    [RequiresUnreferencedCode("Uses reflection to enumerate properties on runtime types.")]
     public static IEnumerable<string> GetPropertiesStartWithPrefix(Type type, string prefix)
     {
         return type.GetTypeInfo().GetAllTypeInfo().SelectMany(GetAllProperties)
@@ -62,6 +67,7 @@ public static class ReflectUtil
             ;
     }
 
+    [RequiresUnreferencedCode("Uses reflection to enumerate properties on runtime types.")]
     public static IEnumerable<string> GetPropertiesCanWritePublic(Type type)
     {
         return GetAllPropertyInfoCanWritePublic(type).Select(p => p.Name)
@@ -69,12 +75,14 @@ public static class ReflectUtil
             ;
     }
 
+    [RequiresUnreferencedCode("Uses reflection to enumerate properties on runtime types.")]
     public static IEnumerable<PropertyInfo> GetAllPropertyInfoCanWritePublic(Type type)
     {
         return type.GetTypeInfo().GetAllTypeInfo().SelectMany(GetAllProperties)
             .Where(CanWritePublic);
     }
 
+    [RequiresUnreferencedCode("Uses reflection to enumerate properties on runtime types.")]
     public static IEnumerable<PropertyInfo> GetAllPropertyInfoPublic(Type type)
     {
         return type.GetTypeInfo().GetAllTypeInfo().SelectMany(GetAllProperties)
@@ -88,6 +96,7 @@ public static class ReflectUtil
         private bool CanReadOrWritePublic() => p.CanReadPublic() || p.CanWritePublic();
     }
 
+    [RequiresUnreferencedCode("Uses reflection to enumerate properties on runtime types.")]
     public static IEnumerable<string> GetPropertiesPublic(Type type)
     {
         return GetAllPropertyInfoPublic(type).Select(p => p.Name)
@@ -95,6 +104,7 @@ public static class ReflectUtil
             ;
     }
 
+    [RequiresUnreferencedCode("Uses reflection to enumerate properties on runtime types.")]
     public static IEnumerable<string> GetPropertiesCanWritePublicDeclared(Type type)
     {
         return type.GetTypeInfo().GetAllProperties()
@@ -151,6 +161,7 @@ public static class ReflectUtil
     /// <param name="name">Name of the property.</param>
     /// <param name="pi">Reference to the property info for the object, if it exists.</param>
     /// <returns>True if it has property, and false if it does not have property. <see cref="pi"/> is null when returning false.</returns>
+    [RequiresUnreferencedCode("Uses reflection to inspect properties on runtime types.")]
     public static bool HasProperty<T>(T obj, string name, [NotNullWhen(true)] out PropertyInfo? pi) where T : notnull
     {
         var type = obj.GetType();
@@ -159,6 +170,7 @@ public static class ReflectUtil
 
     extension(TypeInfo typeInfo)
     {
+        [RequiresUnreferencedCode("Uses reflection to inspect properties on runtime types.")]
         public bool TryGetPropertyInfo(string name, [NotNullWhen(true)] out PropertyInfo? pi)
         {
             foreach (var t in typeInfo.GetAllTypeInfo())
@@ -185,6 +197,7 @@ public static class ReflectUtil
 
     extension(Type type)
     {
+        [RequiresUnreferencedCode("Uses reflection to enumerate fields on runtime types.")]
         public Dictionary<T, string> GetAllConstantsOfType<T>() where T : unmanaged
         {
             var fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy);
@@ -192,6 +205,7 @@ public static class ReflectUtil
             return consts.ToDictionary(z => (T)(z.GetRawConstantValue() ?? throw new NullReferenceException(nameof(z.Name))), z => z.Name);
         }
 
+        [RequiresUnreferencedCode("Uses reflection to enumerate properties on runtime types.")]
         public Dictionary<string, T> GetAllPropertiesOfType<T>(object obj)
         {
             var props = type.GetProperties(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);

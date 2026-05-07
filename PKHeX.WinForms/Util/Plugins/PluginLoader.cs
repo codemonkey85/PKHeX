@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Reflection;
@@ -18,6 +19,8 @@ public static class PluginLoader
     /// <param name="pluginPath">The directory path to search for plugin assemblies.</param>
     /// <param name="loadMerged">The plugin load setting to use.</param>
     /// <returns>A PluginLoadResult containing contexts and assemblies.</returns>
+    [RequiresUnreferencedCode("Plugin loading depends on runtime-discovered assemblies and types.")]
+    [RequiresAssemblyFiles("Plugin loading reads assemblies from disk.")]
     public static PluginLoadResult LoadPluginAssemblies(string pluginPath, bool loadMerged)
     {
         var result = new PluginLoadResult();
@@ -49,6 +52,8 @@ public static class PluginLoader
     /// <param name="list">Reference to the list to populate with loaded plugins.</param>
     /// <param name="loadMerged">The plugin load setting to use.</param>
     /// <returns>Plugin source information for the loaded plugin instances of type <typeparamref name="T"/>.</returns>
+    [RequiresUnreferencedCode("Plugin loading depends on runtime-discovered assemblies and types.")]
+    [RequiresAssemblyFiles("Plugin loading reads assemblies from disk.")]
     public static PluginLoadResult LoadPlugins<T>(string pluginPath, List<T> list, bool loadMerged) where T : class
     {
         var result = LoadPluginAssemblies(pluginPath, loadMerged);
@@ -63,6 +68,7 @@ public static class PluginLoader
     /// <typeparam name="T">The type of plugin to load.</typeparam>
     /// <param name="pluginTypes">The types of plugins to instantiate.</param>
     /// <returns>An enumerable of loaded plugin instances of type <typeparamref name="T"/>.</returns>
+    [RequiresUnreferencedCode("Plugin instantiation depends on runtime-discovered types.")]
     private static IEnumerable<T> LoadPlugins<T>(IEnumerable<Type> pluginTypes) where T : class
     {
         foreach (var t in pluginTypes)
@@ -86,6 +92,7 @@ public static class PluginLoader
     /// <typeparam name="T">The type of plugin to search for.</typeparam>
     /// <param name="assemblies">The assemblies to search for plugins.</param>
     /// <returns>An enumerable of plugin types.</returns>
+    [RequiresUnreferencedCode("Plugin discovery depends on runtime-discovered types.")]
     private static IEnumerable<Type> GetPluginsOfType<T>(IEnumerable<Assembly> assemblies)
     {
         var pluginType = typeof(T);
@@ -98,6 +105,7 @@ public static class PluginLoader
     /// <param name="z">The assembly to search.</param>
     /// <param name="plugin">The plugin type to match.</param>
     /// <returns>An enumerable of matching types.</returns>
+    [RequiresUnreferencedCode("Plugin discovery depends on runtime-discovered types and members.")]
     private static IEnumerable<Type> GetPluginTypes(Assembly z, Type plugin)
     {
         try
