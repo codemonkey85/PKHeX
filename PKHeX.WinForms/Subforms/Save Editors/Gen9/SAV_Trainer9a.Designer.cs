@@ -1,3 +1,5 @@
+using PKHeX.Core;
+
 namespace PKHeX.WinForms
 {
     partial class SAV_Trainer9a
@@ -31,7 +33,7 @@ namespace PKHeX.WinForms
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SAV_Trainer9a));
             B_Cancel = new System.Windows.Forms.Button();
             B_Save = new System.Windows.Forms.Button();
-            TB_OTName = new System.Windows.Forms.TextBox();
+            TB_OTName = new PKHeX.WinForms.Controls.RenderedString();
             L_TrainerName = new System.Windows.Forms.Label();
             MT_Money = new System.Windows.Forms.MaskedTextBox();
             L_Money = new System.Windows.Forms.Label();
@@ -91,9 +93,9 @@ namespace PKHeX.WinForms
             TC_Editor = new System.Windows.Forms.TabControl();
             Tab_Overview = new System.Windows.Forms.TabPage();
             tableLayoutPanel1 = new System.Windows.Forms.TableLayoutPanel();
-            trainerID1 = new PKHeX.WinForms.Controls.TrainerID();
             CAL_LastSavedTime = new System.Windows.Forms.DateTimePicker();
             CAL_LastSavedDate = new System.Windows.Forms.DateTimePicker();
+            trainerID1 = new PKHeX.WinForms.Controls.TrainerID();
             L_LastSaved = new System.Windows.Forms.Label();
             flowLayoutPanel2 = new System.Windows.Forms.FlowLayoutPanel();
             CB_Gender = new PKHeX.WinForms.Controls.GenderToggle();
@@ -125,7 +127,7 @@ namespace PKHeX.WinForms
             P_Picture2 = new System.Windows.Forms.PictureBox();
             P_Picture3 = new System.Windows.Forms.PictureBox();
             Tab_DLC = new System.Windows.Forms.TabPage();
-            TB_StreetName = new System.Windows.Forms.TextBox();
+            TB_StreetName = new PKHeX.WinForms.Controls.RenderedString();
             L_StreetName = new System.Windows.Forms.Label();
             L_HyperspaceSurveyPoints = new System.Windows.Forms.Label();
             MT_HyperspaceSurveyPoints = new System.Windows.Forms.MaskedTextBox();
@@ -180,7 +182,7 @@ namespace PKHeX.WinForms
             // TB_OTName
             // 
             TB_OTName.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            TB_OTName.Font = new System.Drawing.Font("Courier New", 8.25F);
+            TB_OTName.DisplayContext = EntityContext.Gen9a;
             TB_OTName.Location = new System.Drawing.Point(3, 5);
             TB_OTName.MaxLength = 12;
             TB_OTName.Name = "TB_OTName";
@@ -700,16 +702,6 @@ namespace PKHeX.WinForms
             tableLayoutPanel1.Size = new System.Drawing.Size(593, 297);
             tableLayoutPanel1.TabIndex = 75;
             // 
-            // trainerID1
-            // 
-            tableLayoutPanel1.SetColumnSpan(trainerID1, 2);
-            trainerID1.Dock = System.Windows.Forms.DockStyle.Fill;
-            trainerID1.Location = new System.Drawing.Point(88, 30);
-            trainerID1.Margin = new System.Windows.Forms.Padding(88, 0, 0, 0);
-            trainerID1.Name = "trainerID1";
-            trainerID1.Size = new System.Drawing.Size(593, 25);
-            trainerID1.TabIndex = 74;
-            // 
             // CAL_LastSavedTime
             // 
             CAL_LastSavedTime.Anchor = System.Windows.Forms.AnchorStyles.Left;
@@ -734,6 +726,16 @@ namespace PKHeX.WinForms
             CAL_LastSavedDate.Size = new System.Drawing.Size(120, 25);
             CAL_LastSavedDate.TabIndex = 55;
             CAL_LastSavedDate.Value = new System.DateTime(2000, 1, 1, 0, 0, 0, 0);
+            // 
+            // trainerID1
+            // 
+            tableLayoutPanel1.SetColumnSpan(trainerID1, 2);
+            trainerID1.Dock = System.Windows.Forms.DockStyle.Fill;
+            trainerID1.Location = new System.Drawing.Point(88, 30);
+            trainerID1.Margin = new System.Windows.Forms.Padding(88, 0, 0, 0);
+            trainerID1.Name = "trainerID1";
+            trainerID1.Size = new System.Drawing.Size(593, 25);
+            trainerID1.TabIndex = 74;
             // 
             // L_LastSaved
             // 
@@ -1107,7 +1109,7 @@ namespace PKHeX.WinForms
             // 
             // TB_StreetName
             // 
-            TB_StreetName.Font = new System.Drawing.Font("Courier New", 8.25F);
+            TB_StreetName.DisplayContext = EntityContext.Gen9a;
             TB_StreetName.Location = new System.Drawing.Point(254, 39);
             TB_StreetName.Margin = new System.Windows.Forms.Padding(4, 3, 4, 3);
             TB_StreetName.MaxLength = 18;
@@ -1213,7 +1215,7 @@ namespace PKHeX.WinForms
 
         private System.Windows.Forms.Button B_Cancel;
         private System.Windows.Forms.Button B_Save;
-        private System.Windows.Forms.TextBox TB_OTName;
+        private PKHeX.WinForms.Controls.RenderedString TB_OTName;
         private System.Windows.Forms.Label L_TrainerName;
         private System.Windows.Forms.MaskedTextBox MT_Money;
         private System.Windows.Forms.Label L_Money;
@@ -1306,7 +1308,7 @@ namespace PKHeX.WinForms
         private System.Windows.Forms.Label L_HyperspaceSurveyPoints;
         private System.Windows.Forms.MaskedTextBox MT_HyperspaceSurveyPoints;
         private System.Windows.Forms.Button B_HyperspaceSurveyPoints;
-        private System.Windows.Forms.TextBox TB_StreetName;
+        private PKHeX.WinForms.Controls.RenderedString TB_StreetName;
         private System.Windows.Forms.Label L_StreetName;
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.TableLayoutPanel tableLayoutPanel1;
